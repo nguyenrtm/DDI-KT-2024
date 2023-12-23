@@ -1,5 +1,6 @@
 import networkx as nx
 import spacy
+from tqdm import tqdm
 
 from src.utils import offset_to_idx
 
@@ -66,7 +67,7 @@ class DependencyParser:
     
     def get_sdp_all(self, all_candidates):
         sdp_list = list()
-        for c in all_candidates:
+        for c in tqdm(all_candidates):
             source_i = offset_to_idx(c['text'], c['e1']['@charOffset'], self.nlp)
             target_i = offset_to_idx(c['text'], c['e2']['@charOffset'], self.nlp)
             sdp = self.get_sdp_with_dep(c['text'], source_i, target_i)
