@@ -10,13 +10,26 @@ class DDICorpusReader:
     
     def read_folder(self, 
                     dataset: str):
+        '''
+        Read XML files of DDI Corpus, return a list of dictionaries,
+        each is a document.
+
+        Args:
+            dataset (str): 'train' | 'ddiextraction_test' | 'drugner_test'.
         
+        Returns:
+            drugbank_list (list): a list of dictionaries from drugbank, each is a document.
+            medline_list (list): a list of dictionaries from medline, each is a document.
+        '''
         if dataset == 'train':
             drugbank_path = os.path.join(self.train_path, 'DrugBank')
             medline_path = os.path.join(self.train_path, 'MedLine')
-        elif dataset == 'test':
-            drugbank_path = os.path.join(self.test_path, 'DrugBank')
-            medline_path = os.path.join(self.test_path, 'MedLine')
+        elif dataset == 'ddiextraction_test':
+            drugbank_path = os.path.join(self.test_path, 'DDIExtraction/DrugBank')
+            medline_path = os.path.join(self.test_path, 'DDIExtraction/MedLine')
+        elif dataset == 'drugner_test':
+            drugbank_path = os.path.join(self.test_path, 'DrugNER/DrugBank')
+            medline_path = os.path.join(self.test_path, 'DrugNER/MedLine')
         
         drugbank_list = list()
         medline_list = list()
