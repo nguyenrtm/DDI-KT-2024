@@ -1,7 +1,7 @@
 import networkx as nx
 import spacy
 
-from ..utils import offset_to_idx
+from src.utils import offset_to_idx
 
 class DependencyParser:
     def __init__(self, nlp):
