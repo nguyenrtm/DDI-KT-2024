@@ -1,20 +1,14 @@
 def id_find(lst, id):
-    '''
-    Find an element in a list of dictionaries by its id.
-    '''
     for element in lst:
         if element['@id'] == id:
             return element
 
 def get_candidates(ddi_dictionary):
-    '''
-    Create pairs of relation candidates from a list of processed XML files.
-    '''
     all_candidates = list()
     for document in ddi_dictionary:
         document = document['document']
         for s in document['sentence']:
-            if 'pair' in s.keys():
+            if isinstance(s, dict) and 'pair' in s.keys():
                 if isinstance(s['pair'], dict):
                     candidate = dict()
                     _id = s['pair']['@id']
