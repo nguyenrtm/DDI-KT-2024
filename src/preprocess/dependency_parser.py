@@ -1,6 +1,8 @@
 import networkx as nx
 import spacy
 
+from ..utils import offset_to_idx
+
 class DependencyParser:
     def __init__(self, nlp):
         self.nlp = nlp
@@ -61,3 +63,13 @@ class DependencyParser:
             path_with_dep.append((path[i], edge_dep_tmp, path[i+1]))
 
         return path_with_dep
+    
+    def get_sdp_all(self, all_candidates):
+        sdp_list = list()
+        for c in all_candidates:
+            source_i = offset_to_idx(c['text'], c['e1']['@charOffset'], self.nlp)
+            target_i = offset_to_idx(c['text'], c['e2']['@charOffset'], self.nlp)
+            sdp = self.get_sdp_with_dep(c['text'], source_i, target_i)
+            sdp_list.append(sdp)
+
+        return sdp_list
