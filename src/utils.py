@@ -62,10 +62,17 @@ def offset_to_idx(text, offset, nlp):
     Given offset of token in text, return its index in text.
     '''
     doc = nlp(text)
-    offset = offset.split('-')[0]
-    for tok in doc:
-        if str(tok.idx) == offset:
-            return tok.i
+    start = int(offset.split('-')[0])
+    end = int(offset.split('-')[1])
+    start_idx = -1
+    end_idx = -1
+    for i in range(len(doc)):
+        if doc[i].idx <= start and doc[i+1].idx > start:
+            start_idx = doc[i].i
+        if doc[i].idx < end and doc[i+1].idx > end:
+            end_idx = doc[i].i
+    assert start_idx != -1, end_idx != -1
+    return start_idx
         
 def get_lookup(path):
     '''
