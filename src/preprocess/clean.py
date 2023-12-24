@@ -6,8 +6,8 @@ class Cleaner:
         pass
 
     def clean(self, text):
-        text = re.sub(';[^ ]', '; \g<1>', text)
-        text = re.sub(':[^ ]', ': \g<1>', text)
+        text = re.sub(';([^ ])', '; \g<1>', text)
+        text = re.sub(':([^ ])', ': \g<1>', text)
         return text
     
     def clean_dictionary(self, ddi_dictionary):
