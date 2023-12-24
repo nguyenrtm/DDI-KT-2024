@@ -1,3 +1,5 @@
+import pickle as pkl
+
 def id_find(lst, id):
     for element in lst:
         if element['@id'] == id:
@@ -63,3 +65,11 @@ def lookup(element, dct):
     except:
         idx = 0
     return idx
+
+def load_pkl(path):
+    with open(path, 'rb') as file:
+        return pkl.load(file)
+    
+def dump_pkl(obj, path):
+    with open(path, 'wb') as file:
+        pkl.dump(obj, file)
