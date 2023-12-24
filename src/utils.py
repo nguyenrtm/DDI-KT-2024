@@ -4,8 +4,27 @@ def id_find(lst, id):
     for element in lst:
         if element['@id'] == id:
             return element
+        
+def convert_all_list(ddi_dictionary):
+    '''
+    Convert every dict to list in ddi_dictionary.
+    '''
+    for doc in ddi_dictionary:
+        doc = doc['document']
+        if isinstance(doc['sentence'], dict):
+            doc['sentence'] = [doc['sentence']]
+        for sentence in doc['sentence']:
+            if 'entity' in sentence.keys() and isinstance(sentence['entity'], dict):
+                sentence['entity'] = [sentence['entity']]
+            if 'pair' in sentence.keys() and isinstance(sentence['pair'], dict):
+                sentence['pair'] = [sentence['pair']]
+    
+    return ddi_dictionary
 
 def get_candidates(ddi_dictionary):
+    '''
+    Get relation pairs from ddi_dictionary.
+    '''
     all_candidates = list()
     for document in ddi_dictionary:
         document = document['document']
