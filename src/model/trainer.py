@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch import optim
 from tqdm import tqdm
 from torchmetrics.classification import F1Score, Precision, Recall, MulticlassF1Score
+import wandb
 
 from model.model import Model
 
@@ -52,8 +53,8 @@ class Trainer:
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
-                
-        self.criterion = nn.CrossEntropyLoss()
+        weight = torch.tensor([27792/23371, 27792/1319, 27792/1687, 27792/826, 27792/189]).to(device)
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
@@ -71,13 +72,13 @@ class Trainer:
         self.val_r_micro = list()
         self.val_f_macro = list()
         self.val_p_macro = list()
-        self.valn_r_macro = list()
+        self.val_r_macro = list()
         
     def convert_label_to_2d(self, batch_label):
         i = 0
         for label in batch_label:
             i += 1
-            tmp = torch.zeros((5))
+            tmp = torch.zeros((5)).to(self.device)
             tmp[label] = 1.
             
             if i == 1:
@@ -142,7 +143,7 @@ class Trainer:
         
         if option == 'train':
             self.train_loss.append(running_loss)
-            self.train_f.append(f.item())
+            self.train_f.append(f)
             self.train_f_micro.append(f_micro.item())
             self.train_p_micro.append(p_micro.item())
             self.train_r_micro.append(r_micro.item())
@@ -151,7 +152,7 @@ class Trainer:
             self.train_r_macro.append(r_macro.item())
         elif option == 'val':
             self.val_loss.append(running_loss)
-            self.val_f.append(f.item())
+            self.val_f.append(f)
             self.val_f_micro.append(f_micro.item())
             self.val_p_micro.append(p_micro.item())
             self.val_r_micro.append(r_micro.item())
@@ -166,6 +167,23 @@ class Trainer:
             running_loss = self.train_one_epoch(training_loader)
             loss.append(running_loss)
             
-            pred_train = self.validate(training_loader, 'train')
-            pred_val = self.validate(validation_loader, 'val')
-        return pred_train, pred_val
+            self.validate(training_loader, 'train')
+            self.validate(validation_loader, 'val')
+            wandb.log(
+                {
+                    "train_loss": self.train_loss[-1],
+                    "train_f_micro": self.train_f_micro[-1],
+                    "train_p_micro": self.train_p_micro[-1],
+                    "train_r_micro": self.train_r_micro[-1],
+                    "train_f_macro": self.train_f_macro[-1],
+                    "train_p_macro": self.train_p_macro[-1],
+                    "train_r_macro": self.train_r_macro[-1],
+                    "val_loss": self.val_loss[-1],
+                    "val_f_micro": self.val_f_micro[-1],
+                    "val_p_micro": self.val_p_micro[-1],
+                    "val_r_micro": self.val_r_micro[-1],
+                    "val_f_macro": self.val_f_macro[-1],
+                    "val_p_macro": self.val_p_macro[-1],
+                    "val_r_macro": self.val_r_macro[-1]
+                }
+            )
