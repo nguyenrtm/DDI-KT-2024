@@ -15,6 +15,10 @@ class CustomDataset(Dataset):
                 self.data[i] = torch.zeros((1, 1, 10))
             else:
                 i += 1
+                
+    def squeeze(self):
+        for i in range(len(self.data)):
+            self.data[i] = self.data[i].squeeze()
 
     def batch_padding(self, batch_size, min_batch_size=3):
         current = 0
@@ -25,7 +29,7 @@ class CustomDataset(Dataset):
             max_len_in_batch = max(max([x.shape[1] for x in batch]), min_batch_size)
 
             for i in range(len(batch)):
-                tmp = F.pad(batch[i], (0, 0, 0, max_len_in_batch - batch[i].shape[0], 0, 0), "constant", 0)
+                tmp = F.pad(batch[i], (0, 0, 0, max_len_in_batch - batch[i].shape[1], 0, 0), "constant", 0)
                 to_return.append(tmp)
 
             current += batch_size
@@ -34,7 +38,7 @@ class CustomDataset(Dataset):
         max_len_in_batch = max(max([x.shape[0] for x in batch]), min_batch_size)
 
         for i in range(len(batch)):
-            tmp = F.pad(batch[i], (0, 0, 0, max_len_in_batch - batch[i].shape[0], 0, 0), "constant", 0)
+            tmp = F.pad(batch[i], (0, 0, 0, max_len_in_batch - batch[i].shape[1], 0, 0), "constant", 0)
             to_return.append(tmp)
 
         self.data = to_return
