@@ -68,8 +68,8 @@ class DependencyParser:
     def get_sdp_all(self, all_candidates):
         sdp_list = list()
         for c in tqdm(all_candidates):
-            source_i = offset_to_idx(c['text'], c['e1']['@charOffset'], self.nlp)
-            target_i = offset_to_idx(c['text'], c['e2']['@charOffset'], self.nlp)
+            source_i = offset_to_idx(c['text'], c['e1']['@charOffset'], self.nlp)[0]
+            target_i = offset_to_idx(c['text'], c['e2']['@charOffset'], self.nlp)[0]
             assert isinstance(source_i, int) and isinstance(target_i, int)
             sdp = self.get_sdp_with_dep(c['text'], source_i, target_i)
             sdp_list.append(sdp)

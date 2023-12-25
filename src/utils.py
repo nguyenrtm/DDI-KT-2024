@@ -27,35 +27,30 @@ def get_candidates(ddi_dictionary):
     Get relation pairs from ddi_dictionary.
     '''
     all_candidates = list()
+    i = 0
     for document in ddi_dictionary:
         document = document['document']
         for s in document['sentence']:
             if isinstance(s, dict) and 'pair' in s.keys():
-                if isinstance(s['pair'], dict):
+                for pair in s['pair']:
                     candidate = dict()
-                    _id = s['pair']['@id']
-                    _e1 = s['pair']['@e1']
-                    _e2 = s['pair']['@e2']
-                    _label = s['pair']['@ddi']
+                    _id = pair['@id']
+                    _e1 = pair['@e1']
+                    _e2 = pair['@e2']
+                    _label = pair['@ddi']
+                    candidate['label'] = _label
+                    if _label == 'true':
+                        try:
+                            candidate['label'] = pair['@type']
+                        except:
+                            if _id == 'DDI-DrugBank.d236.s29.p0':
+                                candidate['label'] = 'int'
                     candidate['id'] = _id
                     candidate['text'] = s['@text']
                     candidate['e1'] = id_find(s['entity'], _e1)
                     candidate['e2'] = id_find(s['entity'], _e2)
-                    candidate['label'] = _label
                     all_candidates.append(candidate)
-                else: 
-                    for pair in s['pair']:
-                        candidate = dict()
-                        _id = pair['@id']
-                        _e1 = pair['@e1']
-                        _e2 = pair['@e2']
-                        _label = pair['@ddi']
-                        candidate['id'] = _id
-                        candidate['text'] = s['@text']
-                        candidate['e1'] = id_find(s['entity'], _e1)
-                        candidate['e2'] = id_find(s['entity'], _e2)
-                        candidate['label'] = _label
-                        all_candidates.append(candidate)
+        i += 1
     return all_candidates
 
 def offset_to_idx(text, offset, nlp):
@@ -82,11 +77,16 @@ def offset_to_idx(text, offset, nlp):
 def get_labels(all_candidates):
     label_list = list()
     for candidate in all_candidates:
-        assert candidate['label'] in ['true', 'false']
-        if candidate['label'] == 'true':
-            label_list.append(torch.tensor([1]))
-        elif candidate['label'] == 'false':
+        if candidate['label'] == 'false':
             label_list.append(torch.tensor([0]))
+        elif candidate['label'] == 'advise':
+            label_list.append(torch.tensor([1]))
+        elif candidate['label'] == 'effect':
+            label_list.append(torch.tensor([2]))
+        elif candidate['label'] == 'mechanism':
+            label_list.append(torch.tensor([3]))
+        elif candidate['label'] == 'int':
+            label_list.append(torch.tensor([4]))
     return label_list
         
 def get_lookup(path):
