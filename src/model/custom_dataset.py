@@ -12,7 +12,7 @@ class CustomDataset(Dataset):
         while i < len(self.data):
             if self.data[i].shape[1] == 0:
                 print(f"WARNING: Exception at data {i}")
-                self.data[i] = torch.zeros((1, 1, 14))
+                self.data[i] = torch.zeros((1, 1, 14), dtype=int)
             else:
                 i += 1
                 
