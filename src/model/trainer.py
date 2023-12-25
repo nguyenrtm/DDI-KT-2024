@@ -193,6 +193,11 @@ class Trainer:
             wandb.log(
                 {
                     "train_loss": self.train_loss[-1],
+                    "train_f_false": self.train_f[-1][0],
+                    "train_f_advise": self.train_f[-1][1],
+                    "train_f_effect": self.train_f[-1][2],
+                    "train_f_mechanism": self.train_f[-1][3],
+                    "train_f_int": self.train_f[-1][4],
                     "train_f_micro": self.train_f_micro[-1],
                     "train_p_micro": self.train_p_micro[-1],
                     "train_r_micro": self.train_r_micro[-1],
@@ -200,6 +205,11 @@ class Trainer:
                     "train_p_macro": self.train_p_macro[-1],
                     "train_r_macro": self.train_r_macro[-1],
                     "val_loss": self.val_loss[-1],
+                    "val_f_false": self.val_f[-1][0],
+                    "val_f_advise": self.val_f[-1][1],
+                    "val_f_effect": self.val_f[-1][2],
+                    "val_f_mechanism": self.val_f[-1][3],
+                    "val_f_int": self.val_f[-1][4],
                     "val_f_micro": self.val_f_micro[-1],
                     "val_p_micro": self.val_p_micro[-1],
                     "val_r_micro": self.val_r_micro[-1],
