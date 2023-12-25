@@ -67,8 +67,8 @@ class PathProcesser:
         for edge in sdp:
             word1_idx = edge[0]
             word2_idx = edge[2]
-            word1_keys = word_index[word1_idx] + [position_embedding_ent1[0][word1_idx], position_embedding_ent1[1][word1_idx]]
-            word2_keys = word_index[word2_idx] + [position_embedding_ent2[0][word2_idx], position_embedding_ent2[1][word2_idx]]
+            word1_keys = word_index[word1_idx] + [position_embedding_ent1[0][word1_idx], position_embedding_ent2[0][word1_idx], position_embedding_ent1[1][word1_idx], position_embedding_ent2[1][word1_idx]]
+            word2_keys = word_index[word2_idx] + [position_embedding_ent1[0][word2_idx], position_embedding_ent2[0][word2_idx], position_embedding_ent1[1][word2_idx], position_embedding_ent2[1][word2_idx]]
             edge_keys = [self.lookup_direction[edge[1][0]], self.lookup_dep[edge[1][1]]]
             mapped_sdp.append(word1_keys + edge_keys + word2_keys)
         

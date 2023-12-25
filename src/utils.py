@@ -1,4 +1,5 @@
 import pickle as pkl
+import torch
 
 def id_find(lst, id):
     for element in lst:
@@ -77,6 +78,16 @@ def offset_to_idx(text, offset, nlp):
         end_idx = len(doc) - 1
     assert start_idx != -1, end_idx != -1
     return start_idx, end_idx
+
+def get_labels(all_candidates):
+    label_list = list()
+    for candidate in all_candidates:
+        assert candidate['label'] in ['true', 'false']
+        if candidate['label'] == 'true':
+            label_list.append(torch.tensor([1]))
+        elif candidate['label'] == 'false':
+            label_list.append(torch.tensor([0]))
+    return label_list
         
 def get_lookup(path):
     '''
