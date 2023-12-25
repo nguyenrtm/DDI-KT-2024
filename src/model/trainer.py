@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch import optim
 from tqdm import tqdm
 from torchmetrics.classification import F1Score, Precision, Recall, MulticlassF1Score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import wandb
 
 from model.model import Model
@@ -159,6 +160,26 @@ class Trainer:
             self.val_f_macro.append(f_macro.item())
             self.val_p_macro.append(p_macro.item())
             self.val_r_macro.append(r_macro.item())
+            
+    def plot_confusion_matrix(self, validation_loader):
+        predictions = torch.tensor([]).to(self.device)
+        labels = torch.tensor([]).to(self.device)
+        
+        with torch.no_grad():
+            for batch_data, batch_label in validation_loader:
+                batch_data = torch.tensor(batch_data).to(self.device)
+                batch_label = torch.tensor(batch_label).to(self.device)
+                outputs = self.model(batch_data)
+                
+                batch_prediction = torch.argmax(outputs, dim=1)
+                predictions = torch.cat((predictions, batch_prediction))
+                labels = torch.cat((labels, batch_label))
+        
+        label = labels.squeeze()
+        cm = confusion_matrix(label.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm,
+                                      display_labels=['false', 'advise', 'effect', 'mechanism', 'int'])
+        disp.plot()
     
     def train(self, training_loader, validation_loader, num_epochs):
         loss = list()
