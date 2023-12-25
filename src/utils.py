@@ -1,5 +1,31 @@
 import pickle as pkl
 import torch
+import numpy as np
+
+def get_trimmed_w2v_vectors(filename):
+    """
+    Args:
+        filename: path to the npz file
+    Returns:
+        matrix of embeddings (np array)
+    """
+    with np.load(filename) as data:
+        return data['embeddings']
+    
+def load_vocab(filename):
+    """
+    Args:
+        filename: file with a word per line
+    Returns:
+        d: dict[word] = index
+    """
+    d = dict()
+    with open(filename) as f:
+        for idx, word in enumerate(f):
+            word = word.strip()
+            d[word] = idx + 1  # preserve idx 0 for pad_tok
+    return d
+
 
 def id_find(lst, id):
     for element in lst:
@@ -27,7 +53,6 @@ def get_candidates(ddi_dictionary):
     Get relation pairs from ddi_dictionary.
     '''
     all_candidates = list()
-    i = 0
     for document in ddi_dictionary:
         document = document['document']
         for s in document['sentence']:
@@ -41,6 +66,7 @@ def get_candidates(ddi_dictionary):
                     candidate['label'] = _label
                     if _label == 'true':
                         try:
+                            assert pair['@type'] in ['effect', 'advise', 'mechanism', 'int']
                             candidate['label'] = pair['@type']
                         except:
                             if _id == 'DDI-DrugBank.d236.s29.p0':
@@ -49,8 +75,8 @@ def get_candidates(ddi_dictionary):
                     candidate['text'] = s['@text']
                     candidate['e1'] = id_find(s['entity'], _e1)
                     candidate['e2'] = id_find(s['entity'], _e2)
+                    assert candidate['label'] != 'true'
                     all_candidates.append(candidate)
-        i += 1
     return all_candidates
 
 def offset_to_idx(text, offset, nlp):
