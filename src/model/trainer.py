@@ -218,4 +218,4 @@ class Trainer:
                     "val_r_macro": self.val_r_macro[-1]
                 }
             )
-            wandb.finish()
+        wandb.finish()
