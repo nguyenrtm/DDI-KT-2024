@@ -54,7 +54,7 @@ class Trainer:
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
-        weight = torch.tensor([27792/23371, 27792/1319, 27792/1687, 27792/826, 27792/189]).to(device)
+        weight = torch.tensor([27792/23371 * 1.5, 27792/1319 * 1.5, 27792/1687 * 1.5, 27792/826 * 1.5, 27792/189 * 1.5]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
@@ -218,3 +218,4 @@ class Trainer:
                     "val_r_macro": self.val_r_macro[-1]
                 }
             )
+            wandb.finish()
