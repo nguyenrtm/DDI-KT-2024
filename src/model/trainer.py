@@ -2,11 +2,12 @@ import torch
 import torch.nn as nn
 from torch import optim
 from tqdm import tqdm
-from torchmetrics.classification import F1Score, Precision, Recall, MulticlassF1Score
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from torchmetrics.classification import MulticlassF1Score
+from sklearn.metrics import confusion_matrix
 import wandb
+import numpy as np
 
-from model.model import Model
+from .model import Model
 
 class Trainer:
     def __init__(self,
@@ -54,26 +55,15 @@ class Trainer:
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
-        weight = torch.tensor([27792/23371 * 1.5, 27792/1319 * 1.5, 27792/1687 * 1.5, 27792/826 * 1.5, 27792/189 * 1.5]).to(device)
+        weight = torch.tensor([21580/17559, 21580/826, 21580/1687, 21580/1319, 21580/189]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
         self.train_f = list()
-        self.train_f_micro = list()
-        self.train_p_micro = list()
-        self.train_r_micro = list()
-        self.train_f_macro = list()
-        self.train_p_macro = list()
-        self.train_r_macro = list()
         self.val_loss = list()
         self.val_f = list()
-        self.val_f_micro = list()
-        self.val_p_micro = list()
-        self.val_r_micro = list()
-        self.val_f_macro = list()
-        self.val_p_macro = list()
-        self.val_r_macro = list()
+        self.val_micro_f1 = list()
         
     def convert_label_to_2d(self, batch_label):
         i = 0
@@ -95,8 +85,8 @@ class Trainer:
         i = 0
 
         for batch_data, batch_label in training_loader:
-            batch_data = torch.tensor(batch_data).to(self.device)
-            batch_label = torch.tensor(batch_label).to(self.device)
+            batch_data = batch_data.clone().detach().to(self.device)
+            batch_label = batch_label.clone().detach().to(self.device)
             batch_label = self.convert_label_to_2d(batch_label)
             i += 1
             self.optimizer.zero_grad()
@@ -106,7 +96,8 @@ class Trainer:
             self.optimizer.step()
 
             running_loss += loss.item()
-
+            
+        self.train_loss.append(running_loss)
         return running_loss
 
     
@@ -117,8 +108,8 @@ class Trainer:
         
         with torch.no_grad():
             for batch_data, batch_label in validation_loader:
-                batch_data = torch.tensor(batch_data).to(self.device)
-                batch_label = torch.tensor(batch_label).to(self.device)
+                batch_data = batch_data.clone().detach().to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
                 outputs = self.model(batch_data)
                 batch_label_for_loss = self.convert_label_to_2d(batch_label)
                 loss = self.criterion(outputs, batch_label_for_loss)
@@ -133,33 +124,26 @@ class Trainer:
         for i in range(len(labels)):
             if labels[i].cpu() == 1:
                 true_pred.append(i)
+                
+        cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
+        _micro_f1 = self.micro_f1(cm)
 
-        f_micro = F1Score(task="multiclass", average='micro', num_classes=5).to(self.device)(predictions, labels)
-        p_micro = Precision(task="multiclass", average='micro', num_classes=5).to(self.device)(predictions, labels)
-        r_micro = Recall(task="multiclass", average='micro', num_classes=5).to(self.device)(predictions, labels)
-        f_macro = F1Score(task="multiclass", average='macro', num_classes=5).to(self.device)(predictions, labels)
-        p_macro = Precision(task="multiclass", average='macro', num_classes=5).to(self.device)(predictions, labels)
-        r_macro = Recall(task="multiclass", average='macro', num_classes=5).to(self.device)(predictions, labels)
         f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
         
         if option == 'train':
             self.train_loss.append(running_loss)
             self.train_f.append(f)
-            self.train_f_micro.append(f_micro.item())
-            self.train_p_micro.append(p_micro.item())
-            self.train_r_micro.append(r_micro.item())
-            self.train_f_macro.append(f_macro.item())
-            self.train_p_macro.append(p_macro.item())
-            self.train_r_macro.append(r_macro.item())
         elif option == 'val':
             self.val_loss.append(running_loss)
             self.val_f.append(f)
-            self.val_f_micro.append(f_micro.item())
-            self.val_p_micro.append(p_micro.item())
-            self.val_r_micro.append(r_micro.item())
-            self.val_f_macro.append(f_macro.item())
-            self.val_p_macro.append(p_macro.item())
-            self.val_r_macro.append(r_macro.item())
+            self.val_micro_f1.append(_micro_f1)
+    
+    def micro_f1(self, cm):
+        tp = cm[1][1] + cm[2][2] + cm[3][3] + cm[4][4]
+        fp = np.sum(cm[:,1]) + np.sum(cm[:,2]) + np.sum(cm[:,3]) + np.sum(cm[:,4]) - tp
+        fn = np.sum(cm[1,:]) + np.sum(cm[3,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
+        micro_f1 = tp / (tp + 1/2*(fp + fn))
+        return micro_f1
             
     def plot_confusion_matrix(self, validation_loader):
         predictions = torch.tensor([]).to(self.device)
@@ -167,8 +151,8 @@ class Trainer:
         
         with torch.no_grad():
             for batch_data, batch_label in validation_loader:
-                batch_data = torch.tensor(batch_data).to(self.device)
-                batch_label = torch.tensor(batch_label).to(self.device)
+                batch_data = batch_data.clone().detach().to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
                 outputs = self.model(batch_data)
                 
                 batch_prediction = torch.argmax(outputs, dim=1)
@@ -177,9 +161,7 @@ class Trainer:
         
         label = labels.squeeze()
         cm = confusion_matrix(label.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm,
-                                      display_labels=['false', 'advise', 'effect', 'mechanism', 'int'])
-        disp.plot()
+        return cm
     
     def train(self, training_loader, validation_loader, num_epochs):
         loss = list()
@@ -188,34 +170,17 @@ class Trainer:
             running_loss = self.train_one_epoch(training_loader)
             loss.append(running_loss)
             
-            self.validate(training_loader, 'train')
             self.validate(validation_loader, 'val')
             wandb.log(
                 {
                     "train_loss": self.train_loss[-1],
-                    "train_f_false": self.train_f[-1][0],
-                    "train_f_advise": self.train_f[-1][1],
-                    "train_f_effect": self.train_f[-1][2],
-                    "train_f_mechanism": self.train_f[-1][3],
-                    "train_f_int": self.train_f[-1][4],
-                    "train_f_micro": self.train_f_micro[-1],
-                    "train_p_micro": self.train_p_micro[-1],
-                    "train_r_micro": self.train_r_micro[-1],
-                    "train_f_macro": self.train_f_macro[-1],
-                    "train_p_macro": self.train_p_macro[-1],
-                    "train_r_macro": self.train_r_macro[-1],
                     "val_loss": self.val_loss[-1],
+                    "val_micro_f1": self.val_micro_f1[-1],
                     "val_f_false": self.val_f[-1][0],
                     "val_f_advise": self.val_f[-1][1],
                     "val_f_effect": self.val_f[-1][2],
                     "val_f_mechanism": self.val_f[-1][3],
                     "val_f_int": self.val_f[-1][4],
-                    "val_f_micro": self.val_f_micro[-1],
-                    "val_p_micro": self.val_p_micro[-1],
-                    "val_r_micro": self.val_r_micro[-1],
-                    "val_f_macro": self.val_f_macro[-1],
-                    "val_p_macro": self.val_p_macro[-1],
-                    "val_r_macro": self.val_r_macro[-1]
                 }
             )
         wandb.finish()
