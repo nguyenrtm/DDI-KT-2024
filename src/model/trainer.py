@@ -59,11 +59,6 @@ class Trainer:
                            conv1_length,
                            conv2_length,
                            conv3_length,
-                           w_false,
-                           w_advice,
-                           w_effect,
-                           w_mechanism,
-                           w_int,
                            target_class).to(device)
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
