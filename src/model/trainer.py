@@ -31,6 +31,11 @@ class Trainer:
                  conv2_length: int = 2,
                  conv3_length: int = 3,
                  target_class: int = 5,
+                 w_false: float = 21580 / 17759,
+                 w_advice: float = 21580 / 826,
+                 w_effect: float = 21580 / 1687,
+                 w_mechanism: float = 21580 / 1319,
+                 w_int: float = 21580 / 189,
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
                  device='cpu'):
@@ -54,8 +59,13 @@ class Trainer:
                            conv1_length,
                            conv2_length,
                            conv3_length,
+                           w_false,
+                           w_advice,
+                           w_effect,
+                           w_mechanism,
+                           w_int,
                            target_class).to(device)
-        weight = torch.tensor([21580/17559, 21580/826, 21580/1687, 21580/1319, 21580/189]).to(device)
+        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
