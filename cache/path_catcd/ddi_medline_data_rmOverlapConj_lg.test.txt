@@ -1,0 +1,362 @@
+21729965	T1_T2	EFFECT	Implanon/NNP (r_compound) failure/NN (l_prep) in/IN (l_pobj) woman/NN (l_prep) on/IN (l_pobj) therapy/NN (l_amod) antiretroviral/JJ
+21729965	T5_T6	EFFECT	antiretroviral/JJ (r_amod) therapy/NN (r_pobj) on/IN (r_prep) woman/NN (r_pobj) of/IN (r_prep) case/NN (l_acl) having/VBG (l_dobj) pregnancies/NNS (l_prep) on/IN (l_pobj) occasions/NNS (l_prep) with/IN (l_pobj) Implanon/NNP
+21720561	T2_T3	NONE	A/NN (l_appos) DZNep/NNP
+21720561	T7_T9	NONE	DZNep/VBG (r_nmod) cells/NNS (r_pobj) in/IN (r_prep) overexpressed/VBN (l_conj) cotreatment/NN (l_prep) with/IN (l_pobj) DZNep/NN (l_conj) ABT-737/NNP
+21720561	T8_T9	EFFECT	DZNep/NN (l_conj) ABT-737/NNP
+21720561	T9_T10	NONE	ABT-737/NNP (r_conj) DZNep/NN (r_pobj) with/IN (r_prep) cotreatment/NN (r_conj) overexpressed/VBN (l_conj) apoptosis/NN (l_prep) of/IN (l_pobj) cells/NNS (l_nmod) DZNep/NNP
+21720561	T12_T13	NONE	DZNep/NN (r_compound) insensitivity/NN (r_nsubjpass) associated/VBN (l_conj) induced/VBN (l_nsubj) combination/NN (l_prep) of/IN (l_pobj) ABT-737/NNP
+21720561	T13_T14	EFFECT	ABT-737/NNP (l_conj) DZNep/NN
+21706316	T1_T2	NONE	ketoconazole/RB (r_npadvmod) mediated/VBN (r_amod) inhibition/NN (l_prep) on/IN (l_pobj) pharmacokinetics/NNS (l_prep) of/IN (l_pobj) panobinostat/NN
+21706316	T1_T3	NONE	ketoconazole/RB (r_npadvmod) mediated/VBN (r_amod) inhibition/NN (l_appos) LBH589/NNP
+21706316	T1_T4	NONE	ketoconazole/RB (r_npadvmod) mediated/VBN (r_amod) inhibition/NN (r_pobj) of/IN (r_prep) Effect/NN (l_appos) inhibitor/NN
+21706316	T2_T3	NONE	panobinostat/NN (r_pobj) of/IN (r_prep) pharmacokinetics/NNS (r_pobj) on/IN (r_prep) inhibition/NN (l_appos) LBH589/NNP
+21706316	T2_T4	NONE	panobinostat/NN (r_pobj) of/IN (r_prep) pharmacokinetics/NNS (r_pobj) on/IN (r_prep) inhibition/NN (r_pobj) of/IN (r_prep) Effect/NN (l_appos) inhibitor/NN
+21706316	T3_T4	NONE	LBH589/NNP (r_appos) inhibition/NN (r_pobj) of/IN (r_prep) Effect/NN (l_appos) inhibitor/NN
+21706316	T6_T7	NONE	ketoconazole/JJ (l_prep) on/IN (l_pobj) pharmacokinetics/NNS (l_prep) of/IN (l_pobj) panobinostat/NN
+21706316	T10_T11	NONE	panobinostat/NN (r_compound) dose/NN (r_nsubj) was/VBD (r_auxpass) administered/VBN (r_punct) ./. (l_punct) with/IN (l_pobj) ketoconazole/NN
+21706316	T13_T14	MECHANISM	ketoconazole/NN (r_pobj) of/IN (r_prep) presence/NN (r_pobj) In/IN (r_prep) was/VBD (l_attr) 1.6-/CD (l_conj) increase/NN (l_conj) AUC/NNP (l_prep) of/IN (l_pobj) panobinostat/NN
+21813412	T1_T2	EFFECT	dasatinib/RB (r_npadvmod) enhanced/VBN (r_amod) cytotoxicity/NN (l_compound) paclitaxel/NN
+21813412	T6_T7	NONE	dasatinib/NN (l_prep) on/IN (l_pobj) sensitivity/NN (l_compound) paclitaxel/NN
+21813412	T12_T13	EFFECT	dasatinib/JJ (l_conj) paclitaxel/NN
+21813412	T14_T15	EFFECT	dasatinib/JJ (l_conj) paclitaxel/NN
+21813412	T14_T17	NONE	dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_advmod) more/JJR (l_prep) than/IN (l_pobj) treatment/NN (l_prep) with/IN (l_pobj) agent/NN (l_parataxis) volume/NN (l_prep) per/IN (l_pobj) mouse/NN (l_conj) dasatinib/JJ (l_conj) paclitaxel/NN
+21813412	T14_T18	NONE	dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_advmod) more/JJR (l_prep) than/IN (l_pobj) treatment/NN (l_prep) with/IN (l_pobj) agent/NN (l_parataxis) volume/NN (l_prep) per/IN (l_pobj) mouse/NN (l_conj) dasatinib/JJ (l_prep) vs/IN (l_pobj) paclitaxel/NN
+21813412	T14_T20	NONE	dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ (l_conj) paclitaxel/NN
+21813412	T15_T16	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_advmod) more/JJR (l_prep) than/IN (l_pobj) treatment/NN (l_prep) with/IN (l_pobj) agent/NN (l_parataxis) volume/NN (l_prep) per/IN (l_pobj) mouse/NN (l_conj) dasatinib/JJ
+21813412	T15_T19	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ
+21813412	T15_T21	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (r_pobj) with/IN (r_prep) mice/NNS (r_pobj) of/IN (r_prep) Treatment/NN (r_nsubj) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ (l_prep) vs./IN (l_pobj) dasatinib/NN
+21813412	T16_T18	NONE	dasatinib/JJ (l_prep) vs/IN (l_pobj) paclitaxel/NN
+21813412	T16_T20	NONE	dasatinib/JJ (r_conj) mouse/NN (r_pobj) per/IN (r_prep) volume/NN (r_parataxis) agent/NN (r_pobj) with/IN (r_prep) treatment/NN (r_pobj) than/IN (r_prep) more/JJR (r_advmod) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ (l_conj) paclitaxel/NN
+21813412	T17_T19	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (r_conj) mouse/NN (r_pobj) per/IN (r_prep) volume/NN (r_parataxis) agent/NN (r_pobj) with/IN (r_prep) treatment/NN (r_pobj) than/IN (r_prep) more/JJR (r_advmod) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ
+21813412	T17_T21	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (r_conj) mouse/NN (r_pobj) per/IN (r_prep) volume/NN (r_parataxis) agent/NN (r_pobj) with/IN (r_prep) treatment/NN (r_pobj) than/IN (r_prep) more/JJR (r_advmod) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ (l_prep) vs./IN (l_pobj) dasatinib/NN
+21813412	T18_T19	NONE	paclitaxel/NN (r_pobj) vs/IN (r_prep) dasatinib/JJ (r_conj) mouse/NN (r_pobj) per/IN (r_prep) volume/NN (r_parataxis) agent/NN (r_pobj) with/IN (r_prep) treatment/NN (r_pobj) than/IN (r_prep) more/JJR (r_advmod) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ
+21813412	T18_T21	NONE	paclitaxel/NN (r_pobj) vs/IN (r_prep) dasatinib/JJ (r_conj) mouse/NN (r_pobj) per/IN (r_prep) volume/NN (r_parataxis) agent/NN (r_pobj) with/IN (r_prep) treatment/NN (r_pobj) than/IN (r_prep) more/JJR (r_advmod) inhibited/JJ (l_npadvmod) 0.28/CD (l_conj) dasatinib/JJ (l_prep) vs./IN (l_pobj) dasatinib/NN
+21813412	T20_T21	NONE	paclitaxel/NN (r_conj) dasatinib/JJ (l_prep) vs./IN (l_pobj) dasatinib/NN
+21813412	T22_T23	NONE	dasatinib-/NN (l_conj) induced/VBN (l_compound) paclitaxel/NN
+21813412	T24_T25	EFFECT	dasatinib/RB (r_npadvmod) mediated/VBN (r_amod) induction/NN (r_nsubj) induced/VBN (l_compound) paclitaxel/NN
+21813412	T26_T27	EFFECT	dasatinib/NN (r_conj) siRNAs/JJ (r_pobj) with/IN (r_prep) kinases/NNS (r_nsubj) enhances/VBZ (l_dobj) sensitivity/NN (l_compound) paclitaxel/NN
+21753749	T1_T2	NONE	cyclosporine/NN (r_npadvmod) treated/VBN (r_pobj) in/IN (r_prep) lower/JJR (l_prep) as/IN (l_prep) compared/VBN (l_prep) with/IN (l_pobj) recipients/NNS (l_amod) treated/VBN (l_npadvmod) tacrolimus/NN
+21753749	T7_T8	NONE	cyclosporine/NN (r_npadvmod) treated/VBN (r_amod) patients/NNS (r_pobj) in/IN (r_prep) lower/JJR (l_prep) than/IN (l_prep) in/IN (l_pobj) patients/NNS (l_amod) treated/VBN (l_npadvmod) tacrolimus/NN
+21753749	T9_T10	NONE	midazolam/NN (r_amod) clearances/NNS (l_amod) similar/JJ (l_prep) to/IN (l_pobj) those/DT (l_prep) in/IN (l_pobj) cohorts/NNS (l_prep) of/IN (l_pobj) patients/NNS (l_amod) treated/VBN (l_npadvmod) tacrolimus/NN
+21753749	T9_T11	NONE	midazolam/NN (r_amod) clearances/NNS (r_dobj) displayed/VBD (l_conj) to/IN (l_pobj) those/DT (l_acl) receiving/VBG (l_dobj) regimen/NN (l_amod) free/JJ (l_npadvmod) inhibitor/NN
+21753749	T10_T11	NONE	tacrolimus/NN (r_npadvmod) treated/VBN (r_amod) patients/NNS (r_pobj) of/IN (r_prep) cohorts/NNS (r_pobj) in/IN (r_prep) those/DT (r_pobj) to/IN (r_prep) similar/JJ (r_amod) clearances/NNS (r_dobj) displayed/VBD (l_conj) to/IN (l_pobj) those/DT (l_acl) receiving/VBG (l_dobj) regimen/NN (l_amod) free/JJ (l_npadvmod) inhibitor/NN
+21753749	T12_T13	NONE	cyclosporine/NN (r_dobj) receiving/VBG (l_prep) than/IN (l_prep) in/IN (l_pobj) those/DT (l_acl) receiving/VBG (l_dobj) tacrolimus/NN
+21753749	T13_T14	NONE	tacrolimus/NN (r_dobj) receiving/VBG (r_acl) those/DT (r_pobj) in/IN (r_prep) than/IN (r_prep) receiving/VBG (r_acl) patients/NNS (r_pobj) in/IN (r_prep) are/VBP (l_advcl) indicating/VBG (l_ccomp) is/VBZ (l_nsubj) cyclosporine/NN
+21873163	T2_T3	NONE	197/CD (r_nummod) CRM197/NN
+21873163	T4_T5	NONE	CRM197/NN (r_pobj) of/IN (r_prep) effect/NN (l_prep) on/IN (l_conj) in/IN (l_pobj) combination/NN (l_prep) with/IN (l_pobj) agent/NN
+21873163	T8_T9	EFFECT	CRM197/NNP (r_pobj) of/IN (r_prep) combination/NN (l_conj) cytotoxicity/NN (l_nmod) doxorubicin/NN
+21809690	T3_T4	NONE	drug/NN (r_compound) hemantane/NN
+21809690	T3_T5	NONE	drug/NN (r_compound) hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) 2-adamantyl)hexamethylenimine/NN
+21809690	T3_T6	NONE	drug/NN (r_compound) hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_compound) drug/NN
+21809690	T3_T7	NONE	drug/NN (r_compound) hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN
+21809690	T3_T8	NONE	drug/NN (r_compound) hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD
+21809690	T3_T9	NONE	drug/NN (r_compound) hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T4_T5	NONE	hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) 2-adamantyl)hexamethylenimine/NN
+21809690	T4_T6	NONE	hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_compound) drug/NN
+21809690	T4_T7	NONE	hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN
+21809690	T4_T8	NONE	hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD
+21809690	T4_T9	NONE	hemantane/NN (r_pobj) of/IN (r_prep) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T5_T6	NONE	2-adamantyl)hexamethylenimine/NN (r_appos) effects/NNS (l_appos) doxycycline/NN (l_compound) drug/NN
+21809690	T5_T7	NONE	2-adamantyl)hexamethylenimine/NN (r_appos) effects/NNS (l_appos) doxycycline/NN
+21809690	T5_T8	NONE	2-adamantyl)hexamethylenimine/NN (r_appos) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD
+21809690	T5_T9	NONE	2-adamantyl)hexamethylenimine/NN (r_appos) effects/NNS (l_appos) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T6_T7	NONE	drug/NN (r_compound) doxycycline/NN
+21809690	T6_T8	NONE	drug/NN (r_compound) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD
+21809690	T6_T9	NONE	drug/NN (r_compound) doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T7_T8	NONE	doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD
+21809690	T7_T9	NONE	doxycycline/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) neurotoxin/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T8_T9	NONE	1-methyl-4-phenyl-1,2,3,4-tetrahydropyridine/CD (l_appos) MPTP/NNP
+21809690	T11_T12	EFFECT	hemantane/NN (l_conj) doxycycline/NN
+21762640	T1_T2	NONE	cinacalcet/NN (r_pobj) by/IN (r_prep) control/NN (r_nsubjpass) associated/VBN (l_prep) with/IN (l_pobj) reduction/NN (l_prep) in/IN (l_pobj) requirement/NN (l_amod) darbepoetin/NN
+21762640	T3_T4	NONE	erythropoietin/NN (r_nmod) resistance/NN (l_nmod) EPO/NNP
+21762640	T5_T6	NONE	cinacalcet/NN (r_pobj) with/IN (r_prep) treatment/NN (r_nsubj) is/VBZ (l_conj) is/VBZ (l_nsubj) effect/NN (l_prep) on/IN (l_pobj) dosing/NN (l_amod) darbepoetin/NN
+21762640	T8_T9	NONE	darbepoetin/NN (r_amod) responsiveness/NN (r_pobj) in/IN (r_prep) difference/NN (r_dobj) ascertain/VB (l_prep) before/IN (l_conj) after/IN (l_pobj) months/NNS (l_prep) of/IN (l_pobj) therapy/NN (l_compound) cinacalcet/NN
+21762640	T14_T15	EFFECT	cinacalcet/NN (r_pobj) by/IN (r_prep) Reduction/NN (r_nsubjpass) associated/VBN (l_prep) with/IN (l_pobj) decrease/NN (l_prep) in/IN (l_pobj) requirement/NN (l_amod) darbepoetin/NN
+21753255	T1_T2	NONE	Amphetamine/NN (r_compound) sensitization/NN (r_nsubj) treated/VBN (l_prep) with/IN (l_pobj) quinpirole/NN
+21753255	T4_T5	NONE	quinpirole/JJ (r_compound) treatment/NN (l_prep) on/IN (l_pobj) effects/NNS (l_prep) of/IN (l_pobj) amphetamine/NN
+21753255	T8_T9	EFFECT	quinpirole/JJ (r_compound) treatment/NN (r_npadvmod) enhanced/VBN (r_amod) sensitization/NN (l_compound) amphetamine/NN
+21753255	T8_T11	NONE	quinpirole/JJ (r_compound) treatment/NN (r_npadvmod) enhanced/VBN (r_amod) sensitization/NN (l_prep) compared/VBN (l_prep) with/IN (l_pobj) controls/NNS (l_acl) sensitized/VBN (l_prep) to/IN (l_pobj) amphetamine/NN
+21753255	T9_T10	NONE	amphetamine/NN (r_compound) sensitization/NN (l_prep) compared/VBN (l_prep) with/IN (l_pobj) controls/NNS (l_amod) free/JJ (l_npadvmod) quinpirole/NN
+21753255	T10_T11	NONE	quinpirole/NN (r_npadvmod) free/JJ (r_amod) controls/NNS (l_acl) sensitized/VBN (l_prep) to/IN (l_pobj) amphetamine/NN
+21753255	T12_T13	NONE	amphetamine/NN (r_pobj) to/IN (r_prep) sensitization/NN (r_dobj) demonstrated/VBD (l_advcl) muted/VBN (l_conj) were/VBD (l_acomp) unaffected/JJ (l_prep) by/IN (l_pobj) quinpirole/NN
+21753255	T15_T16	NONE	quinpirole/NN (r_pobj) with/IN (r_prep) treated/VBD (l_dobj) time/NN (l_acl) spent/VBN (l_prep) in/IN (l_pobj) context/NN (l_amod) paired/VBN (l_npadvmod) amphetamine/NN
+21753255	T15_T18	NONE	quinpirole/NN (r_pobj) with/IN (r_prep) treated/VBD (l_prep) compared/VBN (l_prep) with/IN (l_pobj) controls/NNS (l_acl) conditioned/VBN (l_prep) with/IN (l_pobj) amphetamine/NN
+21753255	T15_T19	NONE	quinpirole/NN (r_pobj) with/IN (r_prep) treated/VBD (l_conj) spent/VBD (l_nsubj) controls/NNS (l_acl) conditioned/VBN (l_prep) with/IN (l_pobj) amphetamine/NN
+21753255	T16_T17	NONE	amphetamine/NN (r_npadvmod) paired/VBN (r_amod) context/NN (r_pobj) in/IN (r_prep) spent/VBN (r_acl) time/NN (r_dobj) treated/VBD (l_prep) compared/VBN (l_prep) with/IN (l_pobj) controls/NNS (l_amod) free/JJ (l_npadvmod) quinpirole/NN
+21753255	T17_T18	NONE	quinpirole/NN (r_npadvmod) free/JJ (r_amod) controls/NNS (l_acl) conditioned/VBN (l_prep) with/IN (l_pobj) amphetamine/NN
+21753255	T17_T19	NONE	quinpirole/NN (r_npadvmod) free/JJ (r_amod) controls/NNS (r_pobj) with/IN (r_prep) compared/VBN (r_prep) treated/VBD (l_conj) spent/VBD (l_nsubj) controls/NNS (l_acl) conditioned/VBN (l_prep) with/IN (l_pobj) amphetamine/NN
+21741958	T8_T9	EFFECT	ABT/NNP (r_nsubj) decreased/VBD (l_npadvmod) I/PRP
+21741958	T10_T11	NONE	I/PRP (r_nmod) profile/NN (r_appos) precocene/NN (r_pobj) on/IN (r_prep) effect/NN (r_pobj) for/IN (r_prep) tested/VBD (r_acl) inhibitors/NNS (r_pobj) Of/IN (r_prep) was/VBD (l_nsubj) tranylcypromine/NN
+21741958	T12_T13	NONE	ABT/NNP (r_nsubj) diethyldithiocarbamate/JJ
+21741958	T12_T14	NONE	ABT/NNP (r_nsubj) diethyldithiocarbamate/JJ (r_acomp) was/VBD (l_advcl) tranylcypromine/NN
+21741958	T12_T15	NONE	ABT/NNP (r_nsubj) diethyldithiocarbamate/JJ (r_acomp) was/VBD (l_advcl) tranylcypromine/NN (l_dobj) ketoconazole/JJ
+21741958	T13_T14	NONE	diethyldithiocarbamate/JJ (r_acomp) was/VBD (l_advcl) tranylcypromine/NN
+21741958	T13_T15	NONE	diethyldithiocarbamate/JJ (r_acomp) was/VBD (l_advcl) tranylcypromine/NN (l_dobj) ketoconazole/JJ
+21741958	T14_T15	NONE	tranylcypromine/NN (l_dobj) ketoconazole/JJ
+21741958	T16_T18	NONE	Furafylline/NNP (r_nsubj) had/VBD (l_advcl) appeared/VBD (l_nsubj) quinidine/NN
+21741958	T16_T19	NONE	Furafylline/NNP (r_nsubj) had/VBD (l_advcl) appeared/VBD (l_xcomp) augment/VB (l_dobj) precocene/NN (l_dative) I/PRP
+21741958	T17_T18	NONE	sulfaphenazole/NN (r_conj) Furafylline/NNP (r_nsubj) had/VBD (l_advcl) appeared/VBD (l_nsubj) quinidine/NN
+21741958	T17_T19	NONE	sulfaphenazole/NN (r_conj) Furafylline/NNP (r_nsubj) had/VBD (l_advcl) appeared/VBD (l_xcomp) augment/VB (l_dobj) precocene/NN (l_dative) I/PRP
+21741958	T18_T19	EFFECT	quinidine/NN (r_nsubj) appeared/VBD (l_xcomp) augment/VB (l_dobj) precocene/NN (l_dative) I/PRP
+21844260	T1_T2	NONE	vaccines/NNS (r_conj) disease/NN (r_dobj) inactivated/VBN (l_prep) by/IN (l_pobj) administration/NN (l_prep) of/IN (l_pobj) saponins/NNS
+21844260	T3_T4	NONE	saponins/NNS (l_appos) GSLS/NNP
+21844260	T3_T5	NONE	saponins/NNS (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) effect/NN (r_dobj) evaluate/VB (l_advcl) inactivated/VBN (l_dobj) vaccines/NNS
+21844260	T3_T6	NONE	saponins/NNS (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) effect/NN (r_dobj) evaluate/VB (l_advcl) inactivated/VBN (l_dobj) vaccines/NNS
+21844260	T4_T5	NONE	GSLS/NNP (r_appos) saponins/NNS (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) effect/NN (r_dobj) evaluate/VB (l_advcl) inactivated/VBN (l_dobj) vaccines/NNS
+21844260	T4_T6	NONE	GSLS/NNP (r_appos) saponins/NNS (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) effect/NN (r_dobj) evaluate/VB (l_advcl) inactivated/VBN (l_dobj) vaccines/NNS
+21844260	T6_T5	NONE	vaccines/NNS
+21844260	T7_T8	NONE	GSLS/NNP (r_pobj) of/IN (r_prep) administration/NN (r_nsubj) injected/VBN (l_prep) with/IN (l_pobj) vaccine/NN
+21844260	T10_T11	EFFECT	GSLS/NNP (r_pobj) of/IN (r_prep) regimen/NN (r_nsubjpass) administered/VBN (l_prep) to/IN (l_pobj) chickens/NNS (l_acl) inoculated/VBN (l_prep) with/IN (l_pobj) vaccines/NNS
+21800506	T11_T12	EFFECT	methylglyoxal/NN (l_conj) piperacillin/VB
+21800506	T13_T14	EFFECT	methylglyoxal/NNP (r_nsubjpass) combined/VBN (l_prep) with/IN (l_pobj) carbenicillin/NN
+21800506	T13_T15	EFFECT	methylglyoxal/NNP (r_nsubjpass) combined/VBN (l_prep) with/IN (l_conj) amikacin/JJ
+21800506	T14_T15	NONE	carbenicillin/NN (r_pobj) with/IN (l_conj) amikacin/JJ
+21715267	T1_T2	NONE	moxifloxacin/JJ (r_pobj) of/IN (r_prep) study/NN (l_conj) lomefloxacin/NNS
+21715267	T3_T5	NONE	Moxifloxacin/NNS (r_nsubj) are/VBP (l_attr) antibiotics/NNS
+21715267	T4_T5	NONE	lomefloxacin/NNS (r_conj) Moxifloxacin/NNS (r_nsubj) are/VBP (l_attr) antibiotics/NNS
+21715267	T7_T8	NONE	moxifloxacin/JJ (r_acomp) Being/VBG (l_conj) lomefloxacin/NNS (l_dobj) fluoroquinolones/NNS
+21715267	T7_T9	NONE	moxifloxacin/JJ (r_acomp) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ
+21715267	T7_T10	NONE	moxifloxacin/JJ (r_acomp) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ (l_conj) gelusil/NN
+21715267	T7_T11	NONE	moxifloxacin/JJ (r_acomp) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ (l_conj) gelusil/NN (l_conj) erythromycin/JJ
+21715267	T7_T12	NONE	moxifloxacin/JJ (r_acomp) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS
+21715267	T8_T9	NONE	fluoroquinolones/NNS (r_dobj) lomefloxacin/NNS (r_conj) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ
+21715267	T8_T10	NONE	fluoroquinolones/NNS (r_dobj) lomefloxacin/NNS (r_conj) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ (l_conj) gelusil/NN
+21715267	T8_T11	NONE	fluoroquinolones/NNS (r_dobj) lomefloxacin/NNS (r_conj) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS (l_nmod) sucralfate/JJ (l_conj) gelusil/NN (l_conj) erythromycin/JJ
+21715267	T8_T12	NONE	fluoroquinolones/NNS (r_dobj) lomefloxacin/NNS (r_conj) Being/VBG (r_advcl) carried/VBN (l_prep) with/IN (l_pobj) minerals/NNS
+21715267	T9_T12	NONE	sucralfate/JJ (r_nmod) minerals/NNS
+21715267	T10_T12	NONE	gelusil/NN (r_conj) sucralfate/JJ (r_nmod) minerals/NNS
+21715267	T11_T12	NONE	erythromycin/JJ (r_conj) gelusil/NN (r_conj) sucralfate/JJ (r_nmod) minerals/NNS
+21715267	T13_T14	NONE	moxifloxacin/JJ (r_pobj) of/IN (r_prep) response/NN (l_conj) lomefloxacin/NNS
+21715267	T16_T18	MECHANISM	Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) with/IN (l_pobj) sucralfate/NN
+21715267	T16_T19	MECHANISM	Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) with/IN (l_pobj) sucralfate/NN (l_conj) gelusil/NN
+21715267	T16_T20	MECHANISM	Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN
+21715267	T16_T21	MECHANISM	Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN (l_prep) in/IN (l_pobj) media/NNS (l_conj) minerals/NNS
+21715267	T17_T18	MECHANISM	Lomefloxacin/NNP (r_conj) Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) with/IN (l_pobj) sucralfate/NN
+21715267	T17_T19	MECHANISM	Lomefloxacin/NNP (r_conj) Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) with/IN (l_pobj) sucralfate/NN (l_conj) gelusil/NN
+21715267	T17_T20	MECHANISM	Lomefloxacin/NNP (r_conj) Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN
+21715267	T17_T21	MECHANISM	Lomefloxacin/NNP (r_conj) Moxifloxacin/NNP (r_nsubj) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN (l_prep) in/IN (l_pobj) media/NNS (l_conj) minerals/NNS
+21715267	T18_T20	NONE	sucralfate/NN (r_pobj) with/IN (r_prep) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN
+21715267	T18_T21	NONE	sucralfate/NN (r_pobj) with/IN (r_prep) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN (l_prep) in/IN (l_pobj) media/NNS (l_conj) minerals/NNS
+21715267	T19_T20	NONE	gelusil/NN (r_conj) sucralfate/NN (r_pobj) with/IN (r_prep) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN
+21715267	T19_T21	NONE	gelusil/NN (r_conj) sucralfate/NN (r_pobj) with/IN (r_prep) reacts/VBZ (l_prep) whereas/RB (l_pcomp) with/IN (l_pobj) erythromycin/NN (l_prep) in/IN (l_pobj) media/NNS (l_conj) minerals/NNS
+21715267	T20_T21	NONE	erythromycin/NN (l_prep) in/IN (l_pobj) media/NNS (l_conj) minerals/NNS
+21825263	T1_T4	NONE	lenalidomide/NN (r_pobj) of/IN (r_prep) trial/NN (l_appos) evidence/NN (l_prep) for/IN (l_pobj) interaction/NN (l_compound) CCI-779/NNP
+21825263	T2_T3	NONE	CCI-779/NNP (r_conj) lenalidomide/NN (r_pobj) of/IN (r_prep) trial/NN (l_appos) evidence/NN (l_prep) for/IN (l_pobj) interaction/NN (l_compound) CCI-779/NNP (l_compound) lenalidomide/NN
+21825263	T3_T4	NONE	lenalidomide/NN (r_compound) CCI-779/NNP
+21825263	T6_T7	EFFECT	lenalidomide/NN (l_prep) with/IN (l_pobj) CCI-779/NNP
+21731754	T1_T2	NONE	Antidepressant/NNP (r_compound) warfarin/JJ
+21731754	T5_T6	NONE	antidepressant/NN (r_pobj) of/IN (r_prep) initiation/NN (r_nsubj) increases/VBZ (l_dobj) risk/NN (l_prep) of/IN (l_pobj) hospitalization/NN (l_prep) for/IN (l_pobj) bleeding/NN (l_prep) in/IN (l_pobj) users/NNS (l_amod) warfarin/JJ
+21731754	T11_T12	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_prep) upon/IN (l_pobj) initiation/NN (l_prep) of/IN (l_pobj) citalopram/NN
+21731754	T11_T13	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_dobj) paroxetine/NN (l_dep) fluoxetine/NN
+21731754	T11_T14	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_dobj) paroxetine/NN
+21731754	T11_T15	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_dobj) paroxetine/NN (l_appos) amitriptyline/FW
+21731754	T12_T13	NONE	citalopram/NN (r_pobj) of/IN (r_prep) initiation/NN (r_pobj) upon/IN (r_prep) had/VBD (l_dobj) paroxetine/NN (l_dep) fluoxetine/NN
+21731754	T12_T14	NONE	citalopram/NN (r_pobj) of/IN (r_prep) initiation/NN (r_pobj) upon/IN (r_prep) had/VBD (l_dobj) paroxetine/NN
+21731754	T12_T15	NONE	citalopram/NN (r_pobj) of/IN (r_prep) initiation/NN (r_pobj) upon/IN (r_prep) had/VBD (l_dobj) paroxetine/NN (l_appos) amitriptyline/FW
+21731754	T13_T14	NONE	fluoxetine/NN (r_dep) paroxetine/NN
+21731754	T13_T15	NONE	fluoxetine/NN (r_dep) paroxetine/NN (l_appos) amitriptyline/FW
+21731754	T14_T15	NONE	paroxetine/NN (l_appos) amitriptyline/FW
+21731754	T16_T17	EFFECT	mirtazapine/RB (l_relcl) believed/VBN (l_xcomp) interact/VB (l_prep) with/IN (l_pobj) warfarin/NN
+21731754	T18_T19	EFFECT	Warfarin/NNP (r_compound) users/NNS (l_relcl) initiated/VBD (l_dobj) citalopram/NN
+21731754	T18_T20	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_advmod) fluoxetine/NN
+21731754	T18_T21	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN
+21731754	T18_T22	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN
+21731754	T18_T23	EFFECT	Warfarin/NNP (r_compound) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN (l_conj) mirtazapine/NN
+21731754	T19_T20	NONE	citalopram/NN (r_dobj) initiated/VBD (r_relcl) users/NNS (r_nsubj) had/VBD (l_advmod) fluoxetine/NN
+21731754	T19_T21	NONE	citalopram/NN (r_dobj) initiated/VBD (r_relcl) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN
+21731754	T19_T22	NONE	citalopram/NN (r_dobj) initiated/VBD (r_relcl) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN
+21731754	T19_T23	NONE	citalopram/NN (r_dobj) initiated/VBD (r_relcl) users/NNS (r_nsubj) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN (l_conj) mirtazapine/NN
+21731754	T20_T21	NONE	fluoxetine/NN (r_advmod) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN
+21731754	T20_T22	NONE	fluoxetine/NN (r_advmod) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN
+21731754	T20_T23	NONE	fluoxetine/NN (r_advmod) had/VBD (l_punct) ,/, (l_preconj) paroxetine/NN (l_conj) amitriptyline/NN (l_conj) mirtazapine/NN
+21897348	T1_T2	NONE	Ticagrelor/NNP (r_dep) Plavix/NNP (l_dep) Brilinta)--better/NN
+21897348	T1_T3	NONE	Ticagrelor/NNP (r_dep) Plavix/NNP (l_dep) Brilinta)--better/NN (l_prep) than/IN (l_pobj) clopidogrel/JJ
+21897348	T1_T4	NONE	Ticagrelor/NNP (r_dep) Plavix/NNP
+21897348	T2_T3	NONE	Brilinta)--better/NN (l_prep) than/IN (l_pobj) clopidogrel/JJ
+21897348	T2_T4	NONE	Brilinta)--better/NN (r_dep) Plavix/NNP
+21897348	T3_T4	NONE	clopidogrel/JJ (r_pobj) than/IN (r_prep) Brilinta)--better/NN (r_dep) Plavix/NNP
+21897348	T5_T6	NONE	ticagrelor/NN (l_appos) AstraZeneca/NNP (l_compound) Brilinta/NNP
+21897348	T5_T7	NONE	ticagrelor/NN (l_appos) drug/NN
+21897348	T5_T8	EFFECT	ticagrelor/NN (l_prep) for/IN (l_pobj) use/NN (l_prep) with/IN (l_pobj) aspirin/NN
+21897348	T6_T7	NONE	Brilinta/NNP (r_compound) AstraZeneca/NNP (r_appos) ticagrelor/NN (l_appos) drug/NN
+21897348	T6_T8	EFFECT	Brilinta/NNP (r_compound) AstraZeneca/NNP (r_appos) ticagrelor/NN (l_prep) for/IN (l_pobj) use/NN (l_prep) with/IN (l_pobj) aspirin/NN
+21897348	T7_T8	NONE	drug/NN (r_appos) ticagrelor/NN (l_prep) for/IN (l_pobj) use/NN (l_prep) with/IN (l_pobj) aspirin/NN
+21897348	T9_T10	NONE	clopidogrel/JJ (l_appos) Plavix/NNP
+21897348	T9_T11	NONE	clopidogrel/JJ (l_appos) Plavix/NNP (l_conj) prasugrel/NN
+21897348	T9_T12	NONE	clopidogrel/JJ (l_appos) Plavix/NNP (l_conj) prasugrel/NN (l_appos) Effient/NNP
+21897348	T10_T12	NONE	Plavix/NNP (l_conj) prasugrel/NN (l_appos) Effient/NNP
+21897348	T11_T12	NONE	prasugrel/NN (l_appos) Effient/NNP
+21878082	T1_T2	NONE	amlodipine/NN (r_pobj) of/IN (r_prep) Efficacy/NN (r_nmod) valsartan/NN
+21878082	T3_T4	NONE	amlodipine/NN (r_pobj) of/IN (r_prep) tolerability/NN (r_conj) Efficacy/NN (r_nsubjpass) studied/VBN (l_nsubjpass) combination/NN (l_compound) valsartan/JJ
+21878082	T5_T6	NONE	amlodipine/NN (r_nmod) valsartan/JJ
+21878082	T8_T9	NONE	amlodipine/NN (r_nmod) valsartan/NN
+21878082	T10_T11	EFFECT	amlodipine/NN (l_appos) valsartan/NN
+21878082	T10_T12	NONE	amlodipine/NN (r_pobj) of/IN (r_prep) use/NN (r_nsubjpass) associated/VBN (l_appos) number/NN (l_prep) of/IN (l_pobj) drugs/NNS
+21878082	T11_T12	NONE	valsartan/NN (r_appos) amlodipine/NN (r_pobj) of/IN (r_prep) use/NN (r_nsubjpass) associated/VBN (l_appos) number/NN (l_prep) of/IN (l_pobj) drugs/NNS
+21878082	T13_T14	EFFECT	amlodipine/NN (r_nmod) combination/NN (l_compound) valsartan/JJ
+21878082	T13_T15	NONE	amlodipine/NN (r_nmod) combination/NN (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) appropriateness/NN (r_dobj) demonstrated/VBN (l_prep) with/IN (l_pobj) use/NN (l_prep) of/IN (l_pobj) drugs/NNS
+21878082	T14_T15	NONE	valsartan/JJ (r_compound) combination/NN (r_pobj) of/IN (r_prep) administration/NN (r_pobj) of/IN (r_prep) appropriateness/NN (r_dobj) demonstrated/VBN (l_prep) with/IN (l_pobj) use/NN (l_prep) of/IN (l_pobj) drugs/NNS
+21868551	T1_T2	EFFECT	Lapatinib/NNP (r_nsubj) enhances/VBZ (l_dobj) cytotoxicity/NN (l_amod) mediated/VBN (l_npadvmod) herceptin/NN
+21868551	T3_T4	EFFECT	lapatinib/NN (l_acl) combined/VBN (l_prep) with/IN (l_pobj) Herceptin/NNP
+21868551	T3_T6	NONE	lapatinib/NN (r_nsubj) improved/VBD (l_prep) compared/VBN (l_prep) with/IN (l_pobj) lapatinib/NN (l_prep) for/IN (l_pobj) patients/NNS (l_prep) with/IN (l_pobj) cancer/NN (l_nmod) Herceptin/NNP
+21868551	T4_T5	NONE	Herceptin/NNP (r_pobj) with/IN (r_prep) combined/VBN (r_acl) lapatinib/NN (r_nsubj) improved/VBD (l_prep) compared/VBN (l_prep) with/IN (l_pobj) lapatinib/NN
+21868551	T5_T6	NONE	lapatinib/NN (l_prep) for/IN (l_pobj) patients/NNS (l_prep) with/IN (l_pobj) cancer/NN (l_nmod) Herceptin/NNP
+21868551	T7_T8	NONE	lapatinib/NN (r_nsubj) interacts/VBZ (l_prep) with/IN (l_pobj) Herceptin/NNP
+21868551	T7_T9	NONE	lapatinib/NN (r_nsubj) interacts/VBZ (l_prep) with/IN (l_pobj) focus/NN (l_prep) on/IN (l_pobj) cytotoxicity/NN (l_amod) mediated/VBN (l_npadvmod) Herceptin/NNP
+21868551	T10_T11	EFFECT	lapatinib/NN (r_nsubj) induced/VBD (l_advcl) leading/VBG (l_prep) to/IN (l_pobj) enhancement/NN (l_prep) of/IN (l_pobj) ADCC/NNP (l_amod) mediated/VBN (l_npadvmod) Herceptin/NNP
+21868551	T12_T13	EFFECT	Herceptin/NNP (r_compound) treatment/NN (l_prep) following/VBG (l_pobj) lapatinib/NN
+21868551	T14_T15	NONE	Lapatinib/NNP (r_nsubj) have/VB (l_dobj) potential/NN (l_acl) convert/VB (l_dobj) refractory/JJ (l_compound) Herceptin/NNP
+21868551	T14_T16	NONE	Lapatinib/NNP (r_nsubj) have/VB (l_dobj) potential/NN (l_acl) convert/VB (l_prep) to/IN (l_pobj) tumors/NNS (l_amod) sensitive/JJ (l_npadvmod) Herceptin/NNP
+21763710	T1_T2	EFFECT	celecoxib/NN (r_pobj) of/IN (r_prep) Interaction/NN (l_prep) with/IN (l_pobj) drugs/NNS
+21763710	T4_T5	NONE	inhibitors/NNS (r_pobj) of/IN (r_prep) ability/NN (l_acl) sensitize/VB (l_dobj) cells/NNS (l_prep) to/IN (l_pobj) agents/NNS
+21763710	T6_T7	NONE	5-FU/CD (r_pobj) to/IN (r_prep) lines/NNS (r_pobj) of/IN (r_prep) damage/NN (r_conj) apoptosis/NN (l_conj) cisplatin/NN
+21763710	T6_T8	NONE	5-FU/CD (r_pobj) to/IN (r_prep) lines/NNS (r_pobj) of/IN (r_prep) damage/NN (r_conj) apoptosis/NN (l_conj) doxorubicin/NN
+21763710	T6_T9	NONE	5-FU/CD (r_pobj) to/IN (r_prep) lines/NNS (r_pobj) of/IN (r_prep) damage/NN (r_conj) apoptosis/NN (l_conj) doxorubicin/NN (l_conj) celecoxib/NNS (l_poss) etoposide/NN
+21763710	T6_T10	NONE	5-FU/CD (r_pobj) to/IN (r_prep) lines/NNS (r_pobj) of/IN (r_prep) damage/NN (r_conj) apoptosis/NN (l_conj) doxorubicin/NN (l_conj) celecoxib/NNS
+21763710	T7_T9	NONE	cisplatin/NN (r_conj) apoptosis/NN (l_conj) doxorubicin/NN (l_conj) celecoxib/NNS (l_poss) etoposide/NN
+21763710	T8_T9	NONE	doxorubicin/NN (l_conj) celecoxib/NNS (l_poss) etoposide/NN
+21763710	T9_T10	NONE	etoposide/NN (r_poss) celecoxib/NNS
+21763710	T11_T13	NONE	celecoxib/NN (r_pobj) between/IN (r_prep) antagonism/NN (l_prep) following/VBG (l_conj) between/IN (l_pobj) celecoxib/NN (l_conj) doxorubicin/NN
+21763710	T12_T13	EFFECT	celecoxib/NN (l_conj) doxorubicin/NN
+21763710	T16_T17	NONE	celecoxib/NN (r_nsubj) is/VBZ (l_attr) chemosensitizer/NN (l_prep) for/IN (l_conj) with/IN (l_pobj) doxorubicin/NN
+22029226	T1_T2	NONE	piperine/NN (l_prep) on/IN (l_pobj) ibuprofen/NNP
+22029226	T5_T6	EFFECT	piperine/NN (r_pobj) In/IN (r_prep) increased/VBD (l_dobj) activity/NN (l_prep) of/IN (l_pobj) ibuprofen/NNP
+22029226	T5_T7	NONE	piperine/NN (r_pobj) In/IN (r_prep) increased/VBD (l_dobj) activity/NN (l_acl) evaluated/VBN (l_agent) by/IN (l_pobj) acid/NN
+22029226	T5_T8	NONE	piperine/NN (r_pobj) In/IN (r_prep) increased/VBD (l_advcl) writhing/VBG (l_advcl) administered/VBN (l_prep) with/IN (l_pobj) ibuprofen/NNP
+22029226	T6_T7	NONE	ibuprofen/NNP (r_pobj) of/IN (r_prep) activity/NN (l_acl) evaluated/VBN (l_agent) by/IN (l_pobj) acid/NN
+22029226	T7_T8	NONE	acid/NN (r_pobj) by/IN (r_agent) evaluated/VBN (r_acl) activity/NN (r_dobj) increased/VBD (l_advcl) writhing/VBG (l_advcl) administered/VBN (l_prep) with/IN (l_pobj) ibuprofen/NNP
+22029226	T9_T10	MECHANISM	Ibuprofen/NNP (r_compound) concentration/NN (r_nsubjpass) increased/VBN (l_advcl) administered/VBN (l_prep) with/IN (l_pobj) piperine/NN
+22029226	T11_T12	MECHANISM	ibuprofen/NN (r_pobj) of/IN (r_prep) activity/NN (l_acl) administered/VBN (l_prep) with/IN (l_pobj) piperine/NN
+22029226	T12_T13	NONE	piperine/NN (r_pobj) with/IN (r_prep) administered/VBN (r_acl) activity/NN (r_nsubjpass) attributed/VBN (l_prep) to/IN (l_pobj) concentration/NN (l_prep) of/IN (l_pobj) ibuprofen/NNP
+22029226	T14_T15	EFFECT	piperine/NN (r_nsubjpass) used/VBN (l_prep) as/IN (l_pobj) bioenhancer/NN (l_prep) along/IN (l_prep) with/IN (l_pobj) ibuprofen/NN
+21750604	T2_T3	NONE	virus-2/NNP (r_nmod) AAV2/NNP
+21750604	T4_T5	NONE	AAV2/NNP (r_nsubj) containing/VBG (l_conj) delivered/VBN (l_prep) in/IN (l_pobj) conjunction/NN (l_prep) with/IN (l_pobj) enzymes/NNS (l_prep) including/VBG (l_pobj) collagenase/NN
+21750604	T4_T6	NONE	AAV2/NNP (r_nsubj) containing/VBG (l_conj) delivered/VBN (l_prep) in/IN (l_pobj) conjunction/NN (l_prep) with/IN (l_pobj) enzymes/NNS (l_prep) including/VBG (l_pobj) collagenase/NN (l_conj) lyase/NN
+21750604	T4_T7	NONE	AAV2/NNP (r_nsubj) containing/VBG (l_conj) delivered/VBN (l_prep) in/IN (l_pobj) conjunction/NN (l_prep) with/IN (l_pobj) enzymes/NNS (l_prep) including/VBG (l_pobj) collagenase/NN (l_conj) lyase/NN (l_conj) lyase/NN (l_nsubj) III/CD
+21750604	T4_T8	NONE	AAV2/NNP (r_nsubj) containing/VBG (l_conj) delivered/VBN (l_prep) in/IN (l_pobj) conjunction/NN (l_prep) with/IN (l_pobj) enzymes/NNS (l_prep) including/VBG (l_pobj) collagenase/NN (l_conj) lyase/NN (l_conj) lyase/NN
+21750604	T5_T7	NONE	collagenase/NN (l_conj) lyase/NN (l_conj) lyase/NN (l_nsubj) III/CD
+21750604	T6_T7	NONE	lyase/NN (l_conj) lyase/NN (l_nsubj) III/CD
+21750604	T7_T8	NONE	III/CD (r_nsubj) lyase/NN
+21750604	T9_T10	NONE	III/CD (r_pobj) of/IN (r_prep) addition/NN (r_nsubj) lyase/NN
+21750604	T11_T12	NONE	lyase/VBZ (r_nsubj) had/VBD (l_conj) was/VBD (l_nsubj) collagenase/NN
+21750604	T13_T14	NONE	III/CD (r_pobj) of/IN (r_prep) concentrations/NNS (r_pobj) with/IN (r_prep) survived/VBD (l_dobj) lyase/NN
+21750604	T15_T16	EFFECT	AAV2-mediated/VBN (r_amod) transduction/NN (r_nsubjpass) improved/VBN (l_ccomp) lyase/NN (l_punct) of/IN (l_pobj) III/CD
+21750604	T15_T17	EFFECT	AAV2-mediated/VBN (r_amod) transduction/NN (r_nsubjpass) improved/VBN (l_ccomp) lyase/NN
+21750604	T16_T17	NONE	III/CD (r_pobj) of/IN (r_punct) lyase/NN
+21785118	T5_T6	INT	levothyroxine/NN (r_pobj) on/IN (r_prep) hypothyroidism/NN (l_relcl) experienced/VBD (l_dobj) interaction/NN (l_prep) with/IN (l_pobj) simeticone/NN
+21785118	T8_T9	NONE	Infacol/NNP (r_dobj) taking/VBG (l_prep) on/IN (l_pobj) levothyroxine/NN
+21785118	T10_T11	NONE	thyroxine/NN (r_pobj) of/IN (r_prep) interaction/NN (l_prep) with/IN (l_pobj) simeticone/NN
+21705423	T2_T3	NONE	pyridine/NN (r_appos) antagonist/NN (r_nsubj) reduces/VBZ (l_dobj) parkinsonian/NN (l_prep) by/IN (l_pobj) treatment/NN (l_prep) with/IN (l_pobj) doses/NNS (l_prep) of/IN (l_pobj) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21705423	T4_T5	NONE	1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD (r_compound) injections/NNS (l_prep) in/IN (l_pobj) combination/NN (l_prep) with/IN (l_pobj) administration/NN (l_prep) of/IN (l_pobj) pyridine/NN
+21705423	T4_T7	NONE	1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD (r_compound) injections/NNS (r_nsubjpass) performed/VBN (l_prep) until/IN (l_pobj) development/NN (l_prep) in/IN (l_pobj) either/DT (l_prep) of/IN (l_pobj) groups/NNS (l_appos) pyridine/NN
+21705423	T5_T6	NONE	pyridine/NN (r_pobj) of/IN (r_prep) administration/NN (r_pobj) with/IN (r_prep) combination/NN (r_pobj) in/IN (r_prep) injections/NNS (r_nsubjpass) performed/VBN (l_prep) until/IN (l_pobj) development/NN (l_prep) in/IN (l_pobj) either/DT (l_prep) of/IN (l_pobj) groups/NNS (l_appos) pyridine/NN (l_nmod) ethynyl/NN (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/3-[(2-methyl-1,3-thiazol-4-yl/CD
+21705423	T5_T8	NONE	pyridine/NN (r_pobj) of/IN (r_prep) administration/NN (r_pobj) with/IN (r_prep) combination/NN (r_pobj) in/IN (r_prep) injections/NNS (r_nsubjpass) performed/VBN (l_prep) until/IN (l_pobj) development/NN (l_prep) in/IN (l_pobj) either/DT (l_prep) of/IN (l_pobj) groups/NNS (l_appos) pyridine/NN (l_prep) versus/IN (l_pobj) vehicle/NN (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21705423	T7_T6	NONE	pyridine/NN (l_nmod) ethynyl/NN (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/3-[(2-methyl-1,3-thiazol-4-yl/CD
+21705423	T7_T8	NONE	pyridine/NN (l_prep) versus/IN (l_pobj) vehicle/NN (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21705423	T9_T12	NONE	1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD (r_compound) treatment/NN (r_pobj) of/IN (r_prep) weeks/NNS (r_pobj) After/IN (r_prep) displayed/VBD (l_advcl) affected/VBN (l_nsubjpass) none/NN (l_prep) of/IN (l_pobj) monkeys/NNS (l_amod) treated/VBN (l_npadvmod) pyridine/NN
+21705423	T10_T12	NONE	1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD (r_nmod) animals/NNS (r_nsubj) displayed/VBD (l_advcl) affected/VBN (l_nsubjpass) none/NN (l_prep) of/IN (l_pobj) monkeys/NNS (l_amod) treated/VBN (l_npadvmod) pyridine/NN
+21705423	T12_T11	EFFECT(r)	pyridine/NN (r_npadvmod) treated/VBN (r_amod) monkeys/NNS (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/3-[(2-methyl-1,3-thiazol-4-yl/JJ
+21705423	T14_T13	EFFECT(r)	pyridine/NN (r_npadvmod) treated/VBN (r_amod) animals/NNS (l_nummod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/3-[(2-methyl-1,3-thiazol-4-yl/CD
+21705423	T14_T15	NONE	pyridine/NN (r_npadvmod) treated/VBN (r_amod) animals/NNS (r_pobj) in/IN (r_prep) were/VBD (l_prep) than/IN (l_prep) in/IN (l_pobj) monkeys/NNS (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21705423	T16_T17	EFFECT	pyridine/NN (r_compound) treatment/NN (r_nsubj) had/VBD (l_dobj) effect/NN (l_prep) on/IN (l_pobj) loss/NN (l_amod) induced/VBN (l_npadvmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21705423	T20_T19	EFFECT(r)	pyridine/NN (r_npadvmod) treated/VBN (r_amod) monkeys/NNS (l_nmod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/3-[(2-methyl-1,3-thiazol-4-yl/CD
+21705423	T21_T22	EFFECT	pyridine/NN (r_appos) antagonist/NN (r_appos) receptor/NN (r_pobj) with/IN (r_prep) treatment/NN (r_nsubj) reduces/VBZ (l_dobj) toxicity/NN (l_nummod) 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine/CD
+21796416	T1_T2	INT	sunitinib/NNS (l_conj) docetaxel/NN
+21796416	T4_T6	NONE	sunitinib/NN (r_pobj) of/IN (r_prep) use/NN (r_pobj) of/IN (r_prep) efficacy/NN (l_conj) that/DT (l_prep) of/IN (l_pobj) administration/NN (l_prep) of/IN (l_pobj) sunitinib/NNS (l_conj) docetaxel/NNS
+21796416	T9_T10	NONE	Sunitinib/NNP (r_nsubj) exhibited/VBD (l_advcl) arrested/VBN (l_nsubj) docetaxel/NNS
+21796416	T11_T12	EFFECT	sunitinib/NN (l_conj) docetaxel/NNS
+21796416	T13_T14	EFFECT	docetaxel/NNS (r_pobj) to/IN (r_prep) exposed/VBN (r_advcl) followed/VBN (l_agent) by/IN (l_pobj) sunitinib/NNS
+21796416	T15_T16	EFFECT	docetaxel/NNS (r_det) exposure/NN (r_pobj) by/IN (r_agent) activated/VBN (r_relcl) pathways/NNS (r_nsubjpass) suppressed/VBN (l_agent) by/IN (l_pobj) exposure/NN (l_prep) to/IN (l_pobj) sunitinib/VB
+21796416	T17_T18	NONE	Sunitinib/NNP (r_nsubj) exhibits/VBZ (l_dobj) effects/NNS (l_conj) administration/NN (l_prep) of/IN (l_pobj) docetaxel/NNS
+21796416	T17_T21	NONE	Sunitinib/NNP (r_nsubj) exhibits/VBZ (l_ccomp) is/VBZ (l_acomp) superior/JJ (l_prep) to/IN (l_pobj) sunitinib/NNS (l_acl) followed/VBN (l_agent) by/IN (l_pobj) docetaxel/NNS
+21796416	T18_T19	EFFECT	docetaxel/NNS (r_pobj) of/IN (r_prep) administration/NN (l_acl) followed/VBN (l_agent) by/IN (l_pobj) sunitinib/NNS
+21796416	T18_T20	NONE	docetaxel/NNS (r_pobj) of/IN (r_prep) administration/NN (r_conj) effects/NNS (r_dobj) exhibits/VBZ (l_ccomp) is/VBZ (l_acomp) superior/JJ (l_prep) to/IN (l_pobj) sunitinib/NNS
+21796416	T19_T21	NONE	sunitinib/NNS (r_pobj) by/IN (r_agent) followed/VBN (r_acl) administration/NN (r_conj) effects/NNS (r_dobj) exhibits/VBZ (l_ccomp) is/VBZ (l_acomp) superior/JJ (l_prep) to/IN (l_pobj) sunitinib/NNS (l_acl) followed/VBN (l_agent) by/IN (l_pobj) docetaxel/NNS
+21796416	T20_T21	NONE	sunitinib/NNS (l_acl) followed/VBN (l_agent) by/IN (l_pobj) docetaxel/NNS
+21795430	T1_T2	NONE	Calcium/NN (r_nsubj) inhibit/VB (l_dobj) absorption/NN (l_prep) of/IN (l_pobj) milligrams/NNS (l_prep) of/IN (l_pobj) iron/NN
+21795430	T1_T3	NONE	Calcium/NN (r_nsubj) inhibit/VB (l_dobj) absorption/NN (l_prep) of/IN (l_pobj) milligrams/NNS (l_prep) of/IN (l_pobj) iron/NN
+21795430	T4_T5	MECHANISM	Calcium/NN (r_nsubj) is/VBZ (l_attr) component/NN (l_relcl) affect/VB (l_dobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T4_T6	MECHANISM	Calcium/NN (r_nsubj) is/VBZ (l_attr) component/NN (l_relcl) affect/VB (l_dobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T7_T8	MECHANISM	calcium/NN (r_compound) effect/NN (l_prep) on/IN (l_pobj) absorption/NN (l_compound) iron/NN
+21795430	T8_T9	NONE	iron/NN (r_compound) absorption/NN (r_pobj) on/IN (r_prep) effect/NN (r_pobj) for/IN (r_prep) evidence/NN (r_nsubj) comes/VBZ (l_prep) from/IN (l_pobj) studies/NNS (l_relcl) isolate/VB (l_dobj) effect/NN (l_prep) of/IN (l_pobj) calcium/NN
+21795430	T10_T11	NONE	calcium/NN (r_pobj) of/IN (r_prep) effects/NNS (l_prep) on/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T10_T12	NONE	calcium/NN (r_pobj) of/IN (r_prep) effects/NNS (l_prep) on/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T14_T15	NONE	calcium/NN (r_compound) doses/NNS (r_pobj) of/IN (r_prep) effects/NNS (r_dobj) evaluated/VBD (l_npadvmod) mg/NN (l_prep) on/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T14_T16	NONE	calcium/NN (r_compound) doses/NNS (r_pobj) of/IN (r_prep) effects/NNS (r_dobj) evaluated/VBD (l_npadvmod) mg/NN (l_prep) on/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN (l_prep) as/IN (l_pobj) sulfate/NN
+21795430	T15_T16	NONE	iron/NN (l_prep) as/IN (l_pobj) sulfate/NN
+21795430	T17_T18	NONE	calcium/NN (r_compound) doses/NNS (r_pobj) of/IN (r_prep) effects/NNS (r_dobj) evaluated/VBD (l_dobj) mg/NNS (l_prep) on/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T19_T20	NONE	Calcium/NN (r_nsubjpass) administered/VBN (l_prep) as/IN (l_pobj) chloride/NN
+21795430	T19_T21	NONE	Calcium/NN (r_nsubjpass) administered/VBN (l_prep) as/IN (l_pobj) chloride/NN (l_prep) in/IN (l_pobj) studies/NNS (l_conj) minerals/NNS
+21795430	T20_T21	NONE	chloride/NN (l_prep) in/IN (l_pobj) studies/NNS (l_conj) minerals/NNS
+21795430	T24_T25	MECHANISM	calcium/NN (r_compound) dose/NN (l_prep) of/IN (l_pobj) absorption/NN (l_prep) of/IN (l_pobj) iron/NN
+21795430	T26_T27	MECHANISM	calcium/NN (r_pobj) of/IN (r_prep) effect/NN (l_conj) iron/NN
+21795430	T26_T28	MECHANISM	calcium/NN (r_pobj) of/IN (r_prep) effect/NN (l_conj) iron/NN
+21751692	T1_T2	NONE	ketamine/NN (r_dobj) receiving/VBG (r_acl) children/NNS (r_pobj) in/IN (r_prep) Prevention/NN (l_conj) propofol/NN
+21751692	T3_T4	NONE	ketamine/NN (r_dobj) received/VBD (l_prep) in/IN (l_pobj) conjunction/NN (l_prep) with/IN (l_pobj) propofol/NN
+21751692	T5_T6	NONE	propofol/VBN (r_amod) TIVA/NNP (r_pobj) with/IN (r_prep) association/NN (r_pobj) in/IN (r_prep) patients/NNS (r_pobj) in/IN (r_prep) observed/VBN (l_conj) recur/VB (l_prep) in/IN (l_pobj) any/DT (l_prep) of/IN (l_pobj) sessions/NNS (l_relcl) added/VBN (l_nsubjpass) ketamine/NN
+21751692	T6_T7	NONE	ketamine/NN (r_nsubjpass) added/VBN (l_advcl) propofol/NN
+21751692	T8_T9	EFFECT	ketamine/NN (l_acl) added/VBD (l_xcomp) propofol/NN
+21751692	T8_T10	NONE	ketamine/NN (r_nsubjpass) associated/VBN (l_prep) with/IN (l_pobj) prevention/NN (l_prep) with/IN (l_pobj) history/NN (l_prep) with/IN (l_pobj) TIVA/NNP (l_amod) propofol/NN
+21716267	T1_T2	NONE	ketamine/NN (r_pobj) to/IN (r_prep) Exposure/NN (r_nsubj) is/VBZ (l_acomp) unaffected/JJ (l_prep) by/IN (l_pobj) itraconazole/NN
+21716267	T1_T3	EFFECT	ketamine/NN (r_pobj) to/IN (r_prep) Exposure/NN (r_nsubj) is/VBZ (l_conj) increased/VBN (l_agent) by/IN (l_pobj) ticlopidine/NN
+21716267	T2_T3	NONE	itraconazole/NN (r_pobj) by/IN (r_prep) unaffected/JJ (r_acomp) is/VBZ (l_conj) increased/VBN (l_agent) by/IN (l_pobj) ticlopidine/NN
+21716267	T5_T6	NONE	ticlopidine/NN (r_advmod) inhibitor/NN (l_conj) itraconazole/NN
+21716267	T7_T8	NONE	ketamine/NN (r_dobj) ingested/VBD (l_prep) after/IN (l_pobj) pretreatments/NNS (l_prep) with/IN (l_pobj) ticlopidine/NN
+21716267	T7_T9	NONE	ketamine/NN (r_dobj) ingested/VBD (l_conj) itraconazole/NN
+21716267	T8_T9	NONE	ticlopidine/NN (r_pobj) with/IN (r_prep) pretreatments/NNS (r_pobj) after/IN (r_prep) ingested/VBD (l_conj) itraconazole/NN
+21716267	T10_T11	MECHANISM	Ticlopidine/NNP (r_compound) treatment/NN (r_nsubj) increased/VBD (l_dobj) area/NN (l_acl) extrapolated/VBD (l_prep) to/IN (l_pobj) infinity/NN (l_prep) of/IN (l_pobj) ketamine/NN
+21716267	T10_T12	NONE	Ticlopidine/NNP (r_compound) treatment/NN (r_nsubj) increased/VBD (l_advcl) increase/VB (l_nsubj) treatment/NN (l_compound) itraconazole/NN
+21716267	T10_T13	NONE	Ticlopidine/NNP (r_compound) treatment/NN (r_nsubj) increased/VBD (l_advcl) increase/VB (l_dobj) exposure/NN (l_prep) to/IN (l_pobj) ketamine/NN
+21716267	T11_T12	NONE	ketamine/NN (r_pobj) of/IN (r_prep) infinity/NN (r_pobj) to/IN (r_prep) extrapolated/VBD (r_acl) area/NN (r_dobj) increased/VBD (l_advcl) increase/VB (l_nsubj) treatment/NN (l_compound) itraconazole/NN
+21716267	T12_T13	NONE	itraconazole/NN (r_compound) treatment/NN (r_nsubj) increase/VB (l_dobj) exposure/NN (l_prep) to/IN (l_pobj) ketamine/NN
+21716267	T14_T15	NONE	norketamine/NN (r_compound) AUC(0-/NNP (r_pobj) of/IN (r_prep) ratio/NN (l_relcl) ketamine/NNP
+21716267	T14_T16	NONE	norketamine/NN (r_compound) AUC(0-/NNP (r_pobj) of/IN (r_prep) ratio/NN (r_nsubjpass) decreased/VBN (l_prep) in/IN (l_pobj) ticlopidine/NN
+21716267	T14_T17	NONE	norketamine/NN (r_compound) AUC(0-/NNP (r_pobj) of/IN (r_prep) ratio/NN (r_nsubjpass) decreased/VBN (l_prep) in/IN (l_pobj) ticlopidine/NN (l_appos) P/NN (l_conj) phases/NNS (l_compound) itraconazole/NN
+21716267	T15_T16	NONE	ketamine/NNP (r_relcl) ratio/NN (r_nsubjpass) decreased/VBN (l_prep) in/IN (l_pobj) ticlopidine/NN
+21716267	T15_T17	NONE	ketamine/NNP (r_relcl) ratio/NN (r_nsubjpass) decreased/VBN (l_prep) in/IN (l_pobj) ticlopidine/NN (l_appos) P/NN (l_conj) phases/NNS (l_compound) itraconazole/NN
+21716267	T16_T17	NONE	ticlopidine/NN (l_appos) P/NN (l_conj) phases/NNS (l_compound) itraconazole/NN
+21716267	T20_T21	ADVISE	ketamine/NN (r_pobj) of/IN (r_prep) dosage/NN (r_nsubjpass) reduced/VBN (l_prep) in/IN (l_pobj) patients/NNS (l_acl) receiving/VBG (l_advmod) ticlopidine/RB
+21807063	T3_T4	EFFECT	carnitine/NN (r_nsubj) elicits/VBZ (r_conj) i/NN (r_appos) findings/NNS (l_acl) induced/VBN (l_dobj) toxicity/NN (l_relcl) potentiated/VBN (l_agent) by/IN (l_pobj) acid/NN
+21868520	T3_T4	NONE	dacarbazine/NN (l_appos) DTIC/NNP
+21868520	T4_T5	NONE	DTIC/NNP (r_appos) dacarbazine/NN (l_conj) imexon/JJ
+21868520	T8_T9	NONE	imexon/JJ (r_pobj) with/IN (r_prep) cysteine/NN (r_conj) glutathione/NN (r_pobj) in/IN (r_prep) reduction/NN (r_attr) was/VBD (l_conj) DTIC/NNP
+21868520	T10_T11	EFFECT	Imexon/JJ (l_conj) show/NN (l_compound) dacarbazine/NN
+21876510	T1_T2	EFFECT	Ephedrine/NNP (r_nsubj) enhances/VBZ (l_dobj) effect/NN (l_prep) of/IN (l_pobj) dexmedetomidine/NN
+21876510	T4_T5	NONE	ephedrine/NN (r_appos) drug/NN (r_nsubj) has/VBZ (l_dobj) effect/NN (l_prep) on/IN (l_pobj) antinociception/NN (l_amod) induced/VBN (l_npadvmod) dexmedetomidine/NN
+21876510	T6_T7	NONE	ephedrine/JJ (l_parataxis) mg/kg/NN (l_conj) saline/NN (l_conj) saline/NN (l_conj) dexmedetomidine/NN
+21876510	T7_T8	NONE	dexmedetomidine/NN (r_conj) saline/NN (r_conj) saline/NN (l_appos) kg/NNS (l_conj) ephedrine/JJ
+21876510	T10_T11	EFFECT	dexmedetomidine/JJ (l_prep) with/IN (l_pobj) ephedrine/JJ
+21876510	T11_T12	NONE	ephedrine/JJ (r_pobj) with/IN (r_prep) dexmedetomidine/JJ (l_conj) enhanced/VBN (l_conj) prolonged/VBD (l_dobj) duration/NN (l_prep) of/IN (l_pobj) antinociception/NN (l_acl) induced/VBN (l_agent) by/IN (l_pobj) dexmedetomidine/NN
+21876510	T13_T14	EFFECT	dexmedetomidine/NN (r_pobj) of/IN (r_prep) effect/NN (r_nsubjpass) counteracted/VBN (l_agent) by/IN (l_pobj) ephedrine/NN
+21876510	T15_T16	EFFECT	dexmedetomidine/NN (l_prep) with/IN (l_pobj) ephedrine/NN
+21876510	T15_T18	NONE	dexmedetomidine/NN (r_pobj) of/IN (r_prep) administration/NN (r_nsubj) have/VB (l_dobj) effects/NNS (l_relcl) limits/VBZ (l_dobj) use/NN (l_prep) as/IN (l_pobj) analgesic/NN
+21876510	T16_T17	NONE	ephedrine/NN (r_pobj) with/IN (r_prep) dexmedetomidine/NN (r_pobj) of/IN (r_prep) administration/NN (r_nsubj) have/VB (l_dobj) effects/NNS (l_relcl) limits/VBZ (l_dobj) use/NN (l_prep) of/IN (l_pobj) dexmedetomidine/NN
+21876510	T16_T18	NONE	ephedrine/NN (r_pobj) with/IN (r_prep) dexmedetomidine/NN (r_pobj) of/IN (r_prep) administration/NN (r_nsubj) have/VB (l_dobj) effects/NNS (l_relcl) limits/VBZ (l_dobj) use/NN (l_prep) as/IN (l_pobj) analgesic/NN
+21876510	T17_T18	NONE	dexmedetomidine/NN (r_pobj) of/IN (r_prep) use/NN (l_prep) as/IN (l_pobj) analgesic/NN
+21772306	T1_T2	NONE	minocycline/NN (r_pobj) of/IN (r_prep) activity/NN (l_acl) combined/VBN (l_prep) with/IN (l_pobj) fosfomycin/NNS
+21772306	T1_T3	NONE	minocycline/NN (r_pobj) of/IN (r_prep) activity/NN (l_acl) combined/VBN (l_prep) with/IN (l_pobj) fosfomycin/NNS (l_prep) against/IN (l_pobj) isolates/NNS (l_prep) of/IN (l_pobj) aureus/NNP (l_amod) resistant/JJ (l_npadvmod) methicillin/NN
+21772306	T2_T3	NONE	fosfomycin/NNS (l_prep) against/IN (l_pobj) isolates/NNS (l_prep) of/IN (l_pobj) aureus/NNP (l_amod) resistant/JJ (l_npadvmod) methicillin/NN
+21772306	T4_T5	NONE	minocycline/NN (r_pobj) of/IN (r_prep) activity/NN (l_acl) combined/VBN (l_prep) with/IN (l_pobj) fosfomycin/NNS
+21772306	T4_T6	NONE	minocycline/NN (r_pobj) of/IN (r_prep) activity/NN (l_acl) combined/VBN (l_prep) with/IN (l_pobj) fosfomycin/NNS (l_prep) against/IN (l_pobj) isolates/NNS (l_prep) of/IN (l_pobj) aureus/NNP (l_amod) resistant/JJ (l_npadvmod) methicillin/NN
+21772306	T5_T6	NONE	fosfomycin/NNS (l_prep) against/IN (l_pobj) isolates/NNS (l_prep) of/IN (l_pobj) aureus/NNP (l_amod) resistant/JJ (l_npadvmod) methicillin/NN
+21772306	T10_T11	EFFECT	minocycline/NN (l_conj) fosfomycin/NN
+21771377	T1_T2	NONE	clopidogrel/JJ (r_nmod) inhibitors/NNS
+21771377	T5_T6	NONE	inhibitors/NNS (r_pobj) of/IN (r_prep) effect/NN (l_prep) on/IN (l_conj) on/IN (l_pobj) outcome/NN (l_prep) in/IN (l_pobj) patients/NNS (l_amod) treated/VBN (l_npadvmod) clopidogrel/RB
+21771377	T7_T8	MECHANISM	omeprazole/NN (l_conj) clopidogrel/NN
+21771377	T8_T9	NONE	clopidogrel/NN (r_conj) omeprazole/NN (r_pobj) of/IN (r_prep) use/NN (r_nsubjpass) found/VBN (l_xcomp) decrease/VB (l_advcl) increase/VB (l_prep) as/IN (l_pobj) result/NN (l_prep) of/IN (l_pobj) inhibition/NN (l_prep) by/IN (l_pobj) omeprazole/NN
+21771377	T10_T11	MECHANISM	Pantoprazole/NNP (r_nsubj) has/VBZ (l_dobj) effect/NN (l_prep) on/IN (l_pobj) pharmacokinetics/NNS (l_poss) clopidogrel/NNP
+21771377	T12_T13	NONE	inhibitors/NNS (r_pobj) of/IN (r_prep) influence/NN (l_acl) used/VBN (l_prep) with/IN (l_pobj) clopidogrel/JJ
+21771377	T14_T15	ADVISE	clopidogrel/JJ (r_pobj) of/IN (r_prep) combination/NN (l_conj) omeprazole/NN
+21771377	T14_T16	ADVISE	clopidogrel/JJ (r_pobj) of/IN (r_prep) combination/NN (l_conj) omeprazole/NN (l_conj) esomeprazole/NN
+21751753	T2_T3	NONE	Tamoxifen/NNP (r_npadvmod) is/VBZ (l_nsubj) antagonist/NN
+21751753	T7_T9	MECHANISM	Paroxetine/NNP (r_nsubj) reduce/VB (l_dobj) concentration/NN (l_prep) of/IN (l_pobj) endoxifen/VBN
+21751753	T8_T9	MECHANISM	fluoxetine/NN (r_conj) Paroxetine/NNP (r_nsubj) reduce/VB (l_dobj) concentration/NN (l_prep) of/IN (l_pobj) endoxifen/VBN
+21751753	T11_T12	ADVISE	tamoxifen/NN (r_pobj) with/IN (r_prep) treated/VBN (r_acl) women/NNS (l_appos) antidepressants/NNS
+21751753	T11_T13	ADVISE	tamoxifen/NN (r_pobj) with/IN (r_prep) treated/VBN (r_acl) women/NNS (l_appos) antidepressants/NNS (l_prep) as/IN (l_pobj) paroxetine/NN
+21751753	T11_T14	ADVISE	tamoxifen/NN (r_pobj) with/IN (r_prep) treated/VBN (r_acl) women/NNS (l_appos) antidepressants/NNS (l_prep) as/IN (l_pobj) paroxetine/NN (l_conj) fluoxetine/NN
+21751753	T12_T13	NONE	antidepressants/NNS (l_prep) as/IN (l_pobj) paroxetine/NN
+21751753	T12_T14	NONE	antidepressants/NNS (l_prep) as/IN (l_pobj) paroxetine/NN (l_conj) fluoxetine/NN
+21751753	T15_T16	NONE	drug/NN (r_compound) therapy/NN (r_dobj) require/VB (l_conj) have/VBP (l_nsubj) antidepressants/NNS
+21751753	T17_T18	ADVISE	antidepressant/NN (r_nsubjpass) considered/VBN (r_ccomp) be/VB (l_acomp) advisable/JJ (l_xcomp) replace/VB (l_dobj) tamoxifen/NN
+21751753	T17_T19	NONE	antidepressant/NN (r_nsubjpass) considered/VBN (r_ccomp) be/VB (l_acomp) advisable/JJ (l_xcomp) replace/VB (l_prep) with/IN (l_pobj) anastrozole/NN
+21751753	T18_T19	NONE	tamoxifen/NN (r_dobj) replace/VB (l_prep) with/IN (l_pobj) anastrozole/NN

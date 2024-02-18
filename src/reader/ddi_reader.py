@@ -2,7 +2,7 @@ import os
 import re
 import xmltodict
 
-class DDICorpusReader:
+class DDICorpusXMLReader:
     def __init__(self, path):
         self.path = path
         self.train_path = os.path.join(self.path, 'Train')
