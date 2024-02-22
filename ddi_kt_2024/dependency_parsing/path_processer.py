@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-from src.utils import offset_to_idx
+from ddi_kt_2024.utils import offset_to_idx
 
 class PathProcesser:
     def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction):
