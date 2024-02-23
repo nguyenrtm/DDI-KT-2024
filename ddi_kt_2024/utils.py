@@ -2,6 +2,23 @@ import pickle as pkl
 import torch
 import numpy as np
 
+class DictAccessor:
+    def __init__(self, data):
+        self.data = data
+
+    def __getattr__(self, attr):
+        return self.data.get(attr)
+
+    def __getitem__(self, item):
+        parts = item.split('.')
+        value = self.data
+        for part in parts:
+            value = value.get(part)
+            if value is None:
+                return None
+        return value
+
+
 def get_trimmed_w2v_vectors(filename):
     """
     Args:
