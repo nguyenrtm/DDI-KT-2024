@@ -38,7 +38,8 @@ class Trainer:
                  w_int: float = 21580 / 189,
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
-                 device='cpu'):
+                 device='cpu',
+                 wandb_available=False):
         
         self.model = Model(we, 
                            dropout_rate,
@@ -69,6 +70,7 @@ class Trainer:
         self.val_loss = list()
         self.val_f = list()
         self.val_micro_f1 = list()
+        self.wandb_available = wandb_available
         
     def convert_label_to_2d(self, batch_label):
         i = 0
@@ -176,16 +178,18 @@ class Trainer:
             loss.append(running_loss)
             
             self.validate(validation_loader, 'val')
-            wandb.log(
-                {
-                    "train_loss": self.train_loss[-1],
-                    "val_loss": self.val_loss[-1],
-                    "val_micro_f1": self.val_micro_f1[-1],
-                    "val_f_false": self.val_f[-1][0],
-                    "val_f_advise": self.val_f[-1][1],
-                    "val_f_effect": self.val_f[-1][2],
-                    "val_f_mechanism": self.val_f[-1][3],
-                    "val_f_int": self.val_f[-1][4],
-                }
-            )
-        wandb.finish()
+            if self.wandb_available:
+                wandb.log(
+                    {
+                        "train_loss": self.train_loss[-1],
+                        "val_loss": self.val_loss[-1],
+                        "val_micro_f1": self.val_micro_f1[-1],
+                        "val_f_false": self.val_f[-1][0],
+                        "val_f_advise": self.val_f[-1][1],
+                        "val_f_effect": self.val_f[-1][2],
+                        "val_f_mechanism": self.val_f[-1][3],
+                        "val_f_int": self.val_f[-1][4],
+                    }
+                )
+        if self.wandb_available:
+            wandb.finish()

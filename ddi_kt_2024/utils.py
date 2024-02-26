@@ -110,3 +110,17 @@ def load_pkl(path):
 def dump_pkl(obj, path):
     with open(path, 'wb') as file:
         pkl.dump(obj, file)
+
+def standardlize_config(config):
+    # Temporary def 
+    if isinstance(config.w_false, str):
+        config.w_false = eval(config.w_false)
+    if isinstance(config.w_advice, str):
+        config.w_advice = eval(config.w_advice)
+    if isinstance(config.w_effect, str):
+        config.w_effect = eval(config.w_effect)
+    if isinstance(config.w_mechanism, str):
+        config.w_mechanism = eval(config.w_mechanism)
+    if isinstance(config.w_int, str):
+        config.w_int = eval(config.w_int)
+    return config

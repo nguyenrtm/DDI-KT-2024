@@ -19,13 +19,15 @@ from ddi_kt_2024.model.trainer import Trainer
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup
 from ddi_kt_2024 import logging_config
+from ddi_kt_2024.utils import standardlize_config
 
 @click.command()
 @click.option("--yaml_path", required=True, type=str, help="Path to the yaml config")
 def run_train(yaml_path):
     # Initialize
     config = get_yaml_config(yaml_path)
-    config = wandb_setup(config)
+    config, wandb_available = wandb_setup(config)
+    config = standardlize_config(config)
 
     # Load pkl files
     all_candidates_train = load_pkl(config.all_candidates_train)
@@ -77,7 +79,8 @@ def run_train(yaml_path):
         target_class=5,
         lr=config.lr,
         weight_decay=config.weight_decay,
-        device=config.device)
+        device=config.device,
+        wandb_available=wandb_available)
 
     # Model train
     model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)
