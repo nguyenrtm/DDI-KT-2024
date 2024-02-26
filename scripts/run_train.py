@@ -28,7 +28,7 @@ def run_train(yaml_path):
     config = get_yaml_config(yaml_path)
     config, wandb_available = wandb_setup(config)
     config = standardlize_config(config)
-
+    breakpoint()
     # Load pkl files
     all_candidates_train = load_pkl(config.all_candidates_train)
     all_candidates_test = load_pkl(config.all_candidates_test)

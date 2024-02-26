@@ -1,6 +1,12 @@
 import pickle as pkl
+from pathlib import Path
+import logging
+
 import torch
 import numpy as np
+
+import ddi_kt_2024.logging_config
+from ddi_kt_2024.reader.yaml_reader import save_yaml_config
 
 class DictAccessor:
     def __init__(self, data):
@@ -124,3 +130,28 @@ def standardlize_config(config):
     if isinstance(config.w_int, str):
         config.w_int = eval(config.w_int)
     return config
+
+def check_and_create_folder(path, folder_name):
+    p = Path(Path(path) / folder_name)
+    if not p.exists():
+        p.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Path {str(p)} has been created!")
+    else:
+        logging.info(f"Path {str(p)} is already existed!")
+
+def save_model(output_path, file_name, config, model):
+    """
+    The folder structure is following:
+    <save_folder>
+        config.yaml
+        <Save file 1>
+        <Save file 2>
+    """
+    # Check if .yaml is existing
+    if len(list(Path(output_path).glob("*.yaml"))) ==0:
+        # Saving yaml
+        save_yaml_config(str(Path(output_path) / "config.yaml"), config.data)
+    # Save .pt file
+    torch.save(model.state_dict(), str(Path(output_path) / file_name))
+    logging.info(f"Model saved into {str(Path(output_path) / file_name)}")
+    
