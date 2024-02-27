@@ -39,6 +39,7 @@ def smi_to_pyg(smi):
       edge_index = torch.LongTensor([(0), (0)])
       edge_attr = torch.FloatTensor([[0., 0.]])
     else:
+      edge_index = torch.LongTensor(edge_index)
       edge_attr = torch.FloatTensor(bond_features)
 
     return Data(edge_index=edge_index,
