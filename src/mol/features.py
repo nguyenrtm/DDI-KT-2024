@@ -36,10 +36,13 @@ def smi_to_pyg(smi):
 
     edge_index = list(zip(*atom_pairs))
     if edge_index == []:
-      edge_index = torch.LongTensor([[0, 0], [0, 0]])
+      edge_index = torch.LongTensor([(0), (0)])
+      edge_attr = torch.FloatTensor([[0., 0.]])
+    else:
+      edge_attr = torch.FloatTensor(bond_features)
 
     return Data(edge_index=edge_index,
                 x=torch.FloatTensor(atom_features),
-                edge_attr=torch.FloatTensor(bond_features),
+                edge_attr=edge_attr,
                 mol=mol,
                 smiles=smi)
