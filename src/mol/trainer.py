@@ -106,18 +106,15 @@ class Trainer:
         return micro_f1
         
     def train(self, dataset_train, dataset_test, num_epochs):
-        loss = list()
-
         for epoch in tqdm(range(num_epochs)):
             running_loss = self.train_one_epoch(dataset_train)
-            
-            self.validate(dataset_train, 'train')
+            self.train_loss.append(running_loss)
+
             self.validate(dataset_test, 'val')
             
             wandb.log(
                 {
                     "train_loss": self.train_loss[-1],
-                    "train_f": self.train_f[-1],
                     "val_loss": self.val_loss[-1],
                     "val_micro_f1": self.val_micro_f1[-1],
                     "val_f_false": self.val_f[-1][0],
