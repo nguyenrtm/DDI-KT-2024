@@ -90,6 +90,18 @@ def get_labels(all_candidates):
         elif candidate['label'] == 'int':
             label_list.append(torch.tensor([4]))
     return label_list
+
+def get_decode_a_label(result):
+    if int(result[0])==0:
+        return 'false'
+    elif int(result[0])==1:
+        return 'advise'
+    elif int(result[0])==2:
+        return 'effect'
+    elif int(result[0])==3:
+        return 'mechanism'
+    elif int(result[0])==4:
+        return 'int'
         
 def get_lookup(path):
     '''
@@ -131,8 +143,11 @@ def standardlize_config(config):
         config.w_int = eval(config.w_int)
     return config
 
-def check_and_create_folder(path, folder_name):
-    p = Path(Path(path) / folder_name)
+def check_and_create_folder(path, folder_name=None):
+    if folder_name is not None:
+        p = Path(Path(path) / folder_name)
+    else:
+        p = Path(path)
     if not p.exists():
         p.mkdir(parents=True, exist_ok=True)
         logging.info(f"Path {str(p)} has been created!")
@@ -147,6 +162,8 @@ def save_model(output_path, file_name, config, model):
         <Save file 1>
         <Save file 2>
     """
+    if not Path(output_path).exists():
+        check_and_create_folder(output_path)
     # Check if .yaml is existing
     if len(list(Path(output_path).glob("*.yaml"))) ==0:
         # Saving yaml

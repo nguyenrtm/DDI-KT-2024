@@ -1,5 +1,12 @@
 
 # PLEASE CREATE NEW CONFIG INSTEAD OF OVERRIDE THIS CONFIG
+# Change this string to change the folder name of saving models
+training_session_name: "Test_training"
+
+# Wandb init info
+representation: "SDP"
+preprocess: "None"
+features: "fasttext, tag, position"
 
 # Lookup
 lookup_word: 'cache/fasttext/nguyennb/all_words.txt'
@@ -15,8 +22,7 @@ sdp_test_mapped: 'cache/pkl/v2/notprocessed.mapped.sdp.test.pkl'
 fasttext_path: 'cache/fasttext/nguyennb/fastText_ddi.npz'
 vocab_path: 'cache/fasttext/nguyennb/all_words.txt'
 
-# Train configls
-
+# Train configs
 min_batch_size: 3
 batch_size: 128
 weight_decay: 0.001
@@ -46,9 +52,4 @@ w_effect: 27792 / 1687
 w_mechanism: 27792 / 1319
 w_int: 27792 / 189
 device: "cuda"
-
-# Wandb init info
-representation: "SDP"
-preprocess: "None"
-features: "fasttext, tag, position"
 

@@ -1,3 +1,8 @@
+# Avoid pushing model and infer result
+/checkpoints
+/results
+
+# From nbn
 /drugbank
 /relation_candidates
 /__pycache__

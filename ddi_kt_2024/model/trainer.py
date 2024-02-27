@@ -8,6 +8,7 @@ import wandb
 import numpy as np
 
 from .model import Model
+from ddi_kt_2024.utils import save_model
 
 class Trainer:
     def __init__(self,
@@ -191,5 +192,9 @@ class Trainer:
                         "val_f_int": self.val_f[-1][4],
                     }
                 )
+
+            # Save model
+            if loss[-1] == min(loss):
+                save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}loss{loss[-1]}.pt", self.config, self.model)
         if self.wandb_available:
             wandb.finish()
