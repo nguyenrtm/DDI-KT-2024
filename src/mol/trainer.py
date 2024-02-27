@@ -1,6 +1,11 @@
+import torch
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 from torchmetrics.classification import MulticlassF1Score
+import numpy as np
+import wandb
+
+from src.mol.gcn import GCN
 
 class Trainer:
     def __init__(self,
@@ -17,7 +22,7 @@ class Trainer:
                  ):
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.model = GCN(num_node_features=num_node_features, hidden_channels=hidden_channels, device=device).to(device)
-        self.optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight)
         self.device = device
         self.train_loss = list()
