@@ -16,30 +16,33 @@ class GCN(torch.nn.Module):
         super(GCN, self).__init__()
         torch.manual_seed(MANUAL_SEED)
         self.device = device
-        self.conv1 = GCNConv(num_node_features, hidden_channels)
-        self.conv2 = GCNConv(hidden_channels, hidden_channels)
-        self.conv3 = GCNConv(hidden_channels, hidden_channels)
+        self.conva_1 = GCNConv(num_node_features, hidden_channels)
+        self.conva_2 = GCNConv(hidden_channels, hidden_channels)
+        self.conva_3 = GCNConv(hidden_channels, hidden_channels)
+        self.convb_1 = GCNConv(num_node_features, hidden_channels)
+        self.convb_2 = GCNConv(hidden_channels, hidden_channels)
+        self.convb_3 = GCNConv(hidden_channels, hidden_channels)
         self.lin = Linear(hidden_channels, num_classes)
 
     def forward(self, mol1, mol2):
         x_1, edge_index_1 = mol1.x, mol1.edge_index
         x_2, edge_index_2 = mol2.x, mol2.edge_index
 
-        x_1 = self.conv1(x_1, edge_index_1)
+        x_1 = self.conva_1(x_1, edge_index_1)
         x_1 = F.relu(x_1)
         x_1 = F.dropout(x_1, p=0.2, training=self.training)
-        x_1 = self.conv2(x_1, edge_index_1)
+        x_1 = self.conva_2(x_1, edge_index_1)
         x_1 = x_1.relu()
         x_1 = F.dropout(x_1, p=0.2, training=self.training)
-        x_1 = self.conv3(x_1, edge_index_1)
+        x_1 = self.conva_3(x_1, edge_index_1)
 
-        x_2 = self.conv1(x_2, edge_index_2)
+        x_2 = self.convb_1(x_2, edge_index_2)
         x_2 = F.relu(x_2)
         x_2 = F.dropout(x_2, p=0.2, training=self.training)
-        x_2 = self.conv2(x_2, edge_index_2)
+        x_2 = self.convb_2(x_2, edge_index_2)
         x_2 = x_2.relu()
         x_2 = F.dropout(x_2, p=0.2, training=self.training)
-        x_2 = self.conv3(x_2, edge_index_2)
+        x_2 = self.convb_3(x_2, edge_index_2)
 
         x = torch.cat([x_1, x_2], dim=0)
         
