@@ -17,6 +17,15 @@ def wandb_setup(model_config: dict):
         )
         config = wandb.config
         wandb_available = True
+
+        # Update eval values
+        wandb.config.update({
+            "w_false": eval(config.w_false), 
+            "w_advice": eval(config.w_advice),
+            "w_effect": eval(config.w_effect),
+            "w_mechanism": eval(config.w_mechanism),
+            "w_int": eval(config.w_int)
+            }, allow_val_change=True)
     else:
         logging.warning("No key found. Wandb won't record the training process.")
         config = DictAccessor(model_config)

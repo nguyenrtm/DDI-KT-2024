@@ -154,7 +154,7 @@ def check_and_create_folder(path, folder_name=None):
     else:
         logging.info(f"Path {str(p)} is already existed!")
 
-def save_model(output_path, file_name, config, model):
+def save_model(output_path, file_name, config, model, wandb_available=False):
     """
     The folder structure is following:
     <save_folder>
@@ -167,7 +167,10 @@ def save_model(output_path, file_name, config, model):
     # Check if .yaml is existing
     if len(list(Path(output_path).glob("*.yaml"))) ==0:
         # Saving yaml
-        save_yaml_config(str(Path(output_path) / "config.yaml"), config.data)
+        if not wandb_available:
+            save_yaml_config(str(Path(output_path) / "config.yaml"), config.data)
+        else:
+            save_yaml_config(str(Path(output_path) / "config.yaml"), config)
     # Save .pt file
     torch.save(model.state_dict(), str(Path(output_path) / file_name))
     logging.info(f"Model saved into {str(Path(output_path) / file_name)}")

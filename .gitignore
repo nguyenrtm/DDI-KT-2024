@@ -1,3 +1,6 @@
+# Wandb
+wandb/
+
 # Avoid pushing model and infer result
 /checkpoints
 /results
