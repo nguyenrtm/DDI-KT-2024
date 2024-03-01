@@ -86,13 +86,14 @@ class Trainer:
         i = 0
 
         for data in dataset_train:
-            mol1 = data[0][0].to(self.device)
-            mol2 = data[0][1].to(self.device)
+            text = data[0][0].clone().detach().to(self.device)
+            mol1 = data[0][1][0].to(self.device)
+            mol2 = data[0][1][1].to(self.device)
             label = data[1]
             label = self.convert_label_to_2d(label)
             
             i += 1
-            out = self.model(mol1, mol2)
+            out = self.model(text, mol1, mol2)
             self.optimizer.zero_grad()
             loss = self.criterion(out, label)
             loss.backward()
@@ -110,11 +111,13 @@ class Trainer:
         
         with torch.no_grad():
             for data in dataset_test:
-                mol1 = data[0][0].to(self.device)
-                mol2 = data[0][1].to(self.device)
+                text = data[0][0].clone().detach().to(self.device)
+                mol1 = data[0][1][0].to(self.device)
+                mol2 = data[0][1][1].to(self.device)
                 label = torch.tensor([data[1]]).to(self.device)
 
-                out = self.model(mol1, mol2)
+                out = self.model(text, mol1, mol2)
+
                 label_for_loss = self.convert_label_to_2d(label)
                 loss = self.criterion(out, label_for_loss)
                 running_loss += loss.item()
@@ -155,18 +158,27 @@ class Trainer:
             self.train_loss.append(running_loss)
 
             self.validate(dataset_test, 'val')
+            print(f'Epoch: {epoch}, Train Loss: {self.train_loss[-1]}, Val Loss: {self.val_loss[-1]}, Val Micro F1: {self.val_micro_f1[-1]}')
+        #     wandb.log(
+        #         {
+        #             "train_loss": self.train_loss[-1],
+        #             "val_loss": self.val_loss[-1],
+        #             "val_micro_f1": self.val_micro_f1[-1],
+        #             "val_f_false": self.val_f[-1][0],
+        #             "val_f_advise": self.val_f[-1][1],
+        #             "val_f_effect": self.val_f[-1][2],
+        #             "val_f_mechanism": self.val_f[-1][3],
+        #             "val_f_int": self.val_f[-1][4],
+        #         }
+        #     )
             
-            wandb.log(
-                {
-                    "train_loss": self.train_loss[-1],
-                    "val_loss": self.val_loss[-1],
-                    "val_micro_f1": self.val_micro_f1[-1],
-                    "val_f_false": self.val_f[-1][0],
-                    "val_f_advise": self.val_f[-1][1],
-                    "val_f_effect": self.val_f[-1][2],
-                    "val_f_mechanism": self.val_f[-1][3],
-                    "val_f_int": self.val_f[-1][4],
-                }
-            )
-            
+        # wandb.finish()
+        wandb.log(
+            {
+                "train_loss": self.train_loss,
+                "val_loss": self.val_loss,
+                "val_micro_f1": self.val_micro_f1
+            }
+        )
+
         wandb.finish()
