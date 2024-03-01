@@ -163,27 +163,18 @@ class Trainer:
 
             self.validate(dataset_test, 'val')
             print(f'Epoch: {epoch}, Train Loss: {self.train_loss[-1]}, Val Loss: {self.val_loss[-1]}, Val Micro F1: {self.val_micro_f1[-1]}')
+            self.log()
             
     def log(self):
-        f_false, f_adv, f_eff, f_mech, f_int = list(), list(), list(), list(), list()
-        for x in self.val_f:
-            f_false.append(x[0])
-            f_adv.append(x[1])
-            f_eff.append(x[2])
-            f_mech.append(x[3])
-            f_int.append(x[4])
-            
         wandb.log(
             {
-                "train_loss": self.train_loss,
-                "val_loss": self.val_loss,
-                "val_micro_f1": self.val_micro_f1,
-                "val_f_false": f_false,
-                "val_f_adv": f_adv,
-                "val_f_eff": f_eff,
-                "val_f_mech": f_mech,
-                "val_f_int": f_int
+                "train_loss": self.train_loss[-1],
+                "val_loss": self.val_loss[-1],
+                "val_micro_f1": self.val_micro_f1[-1],
+                "val_f_false": self.val_f[-1][0],
+                "val_f_advise": self.val_f[-1][1],
+                "val_f_effect": self.val_f[-1][2],
+                "val_f_mechanism": self.val_f[-1][3],
+                "val_f_int": self.val_f[-1][4],
             }
         )
-
-        wandb.finish()
