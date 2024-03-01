@@ -6,7 +6,7 @@ class MultimodalDataset(Dataset):
     label = list()
     for i in range(len(text_dataset)):
       data_list.append([text_dataset[i][0], mol_dataset[i][0]])
-      label.append(text_dataset[i][1])
+      label.append(mol_dataset[i][1])
     self.x = data_list
     self.y = label
 
