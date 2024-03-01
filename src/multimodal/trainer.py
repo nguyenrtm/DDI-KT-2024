@@ -64,7 +64,7 @@ class Trainer:
                                     target_class=target_class,
                                     num_node_features=num_node_features,
                                     hidden_channels=hidden_channels,
-                                    device=device)
+                                    device=device).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight)

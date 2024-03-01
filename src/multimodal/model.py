@@ -56,17 +56,17 @@ class MultimodalModel(torch.nn.Module):
                                     conv1_length=conv1_length,
                                     conv2_length=conv2_length,
                                     conv3_length=conv3_length,
-                                    target_class=target_class)
+                                    target_class=target_class).to(device)
 
         self.gcn1 = GCN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
                        dropout_rate=dropout_rate, 
-                       device=device)
+                       device=device).to(device)
         
         self.gcn2 = GCN(num_node_features=num_node_features,
                         hidden_channels=hidden_channels,
                         dropout_rate=dropout_rate, 
-                        device=device)
+                        device=device).to(device)
 
         self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
                                             out_features=target_class,
