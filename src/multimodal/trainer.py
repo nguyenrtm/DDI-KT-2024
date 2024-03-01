@@ -85,7 +85,7 @@ class Trainer:
         running_loss = 0.
         i = 0
 
-        for data in tqdm(dataset_train):
+        for data in dataset_train:
             text = data[0][0].clone().detach().to(self.device)
             if data[0][1][0]:
                 mol1 = data[0][1][0].to(self.device)
@@ -116,7 +116,7 @@ class Trainer:
         labels = torch.tensor([]).to(self.device)
         
         with torch.no_grad():
-            for data in tqdm(dataset_test):
+            for data in dataset_test:
                 text = data[0][0].clone().detach().to(self.device)
                 if data[0][1][0]:
                     mol1 = data[0][1][0].to(self.device)
