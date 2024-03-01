@@ -193,7 +193,7 @@ class Trainer:
                 )
 
             # Save model
-            if self.val_micro_f1[-1] == min(self.val_micro_f1):
+            if self.val_micro_f1[-1] == max(self.val_micro_f1):
                 save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}loss{self.val_loss[-1]}val_micro_f1{self.val_micro_f1[-1]}.pt", self.config, self.model, self.wandb_available)
         if self.wandb_available:
             wandb.finish()

@@ -19,7 +19,7 @@ all_candidates_train: 'cache/pkl/v2/notprocessed.candidates.train.pkl'
 all_candidates_test: 'cache/pkl/v2/notprocessed.candidates.test.pkl'
 sdp_train_mapped: 'cache/pkl/v2/notprocessed.mapped.sdp.train.pkl'
 sdp_test_mapped: 'cache/pkl/v2/notprocessed.mapped.sdp.test.pkl'
-fasttext_path: 'D:\ResearchMultimodal\MultimodalResearch-20240301T033016Z-001\MultimodalResearch\bert_mean_token.npz'
+fasttext_path: 'D:\ResearchMultimodal\MultimodalResearch-20240301T033016Z-001\MultimodalResearch\bert_first_token.npz'
 vocab_path: 'cache/fasttext/nguyennb/all_words.txt'
 
 # Train configs
