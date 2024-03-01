@@ -31,7 +31,7 @@ class MultimodalModel(torch.nn.Module):
                  conv3_length: int = 3,
                  target_class: int = 5,
                  num_node_features: int = 4, 
-                 hidden_channels: int = 16,
+                 hidden_channels: int = 256,
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
         torch.manual_seed(MANUAL_SEED)
@@ -56,8 +56,7 @@ class MultimodalModel(torch.nn.Module):
                                     conv1_length=conv1_length,
                                     conv2_length=conv2_length,
                                     conv3_length=conv3_length,
-                                    target_class=target_class,
-                                    device=device)
+                                    target_class=target_class)
 
         self.gcn1 = GCN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
@@ -69,14 +68,21 @@ class MultimodalModel(torch.nn.Module):
                         dropout_rate=dropout_rate, 
                         device=device)
 
+        self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
+                                            out_features=target_class,
+                                            bias=False)
+
+        self.softmax = torch.nn.Softmax(dim=1)
+
     def forward(self, text_x, mol_x1, mol_x2):
         text_x = self.text_model(text_x)
-        mol_x1 = self.gcn(mol_x1)
-        mol_x2 = self.gcn(mol_x2)
-
-        print(text_x.shape, mol_x1.shape, mol_x2.shape)
+        mol_x1 = self.gcn1(mol_x1)
+        mol_x2 = self.gcn2(mol_x2)
 
         x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
-        print(x.shape)
+
+        # Classifier
+        x = self.dense_to_tag(x)
+        x = self.softmax(x)
 
         return x
