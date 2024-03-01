@@ -23,6 +23,9 @@ def bond_feature(bond):
           bond.GetStereo()]
 
 def smi_to_pyg(smi):
+    if smi == 'None':
+      return None
+    
     mol = Chem.MolFromSmiles(smi)
     if mol is None:
       return None

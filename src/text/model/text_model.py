@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class Model(nn.Module):
+class TextModel(nn.Module):
     def __init__(self,
                  we,
                  dropout_rate: float = 0.5,
@@ -25,7 +25,7 @@ class Model(nn.Module):
                  target_class: int = 5
                  ):
 
-        super(Model, self).__init__()
+        super(TextModel, self).__init__()
 
         self.w2v = nn.Embedding.from_pretrained(torch.tensor(we.vectors))
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)

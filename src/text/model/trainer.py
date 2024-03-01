@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 import wandb
 import numpy as np
 
-from .model import Model
+from .text_model import TextModel
 
 class Trainer:
     def __init__(self,
@@ -40,7 +40,7 @@ class Trainer:
                  weight_decay: float = 1e-4,
                  device='cpu'):
         
-        self.model = Model(we, 
+        self.model = TextModel(we, 
                            dropout_rate,
                            word_embedding_size,
                            tag_number,

@@ -19,19 +19,18 @@ def candidate_smiles(all_candidates, mapped_smiles):
         e2 = c['e2']['@text']
         smiles1 = find_drug_smiles(mapped_smiles, e1)
         smiles2 = find_drug_smiles(mapped_smiles, e2)
-        if smiles1 != 'None' and smiles2 != 'None':
-            label = c['label']
-            if label == 'false':
-                label = 0
-            elif label == 'advise':
-                label = 1
-            elif label == 'effect':
-                label = 2
-            elif label == 'mechanism':
-                label = 3
-            elif label == 'int':
-                label = 4
-            x.append([smiles1, smiles2])
-            y.append(label)
+        label = c['label']
+        if label == 'false':
+            label = 0
+        elif label == 'advise':
+            label = 1
+        elif label == 'effect':
+            label = 2
+        elif label == 'mechanism':
+            label = 3
+        elif label == 'int':
+            label = 4
+        x.append([smiles1, smiles2])
+        y.append(label)
     
     return x, y

@@ -1,56 +1,46 @@
 import torch
-from torch.nn import Linear
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 from torch_geometric.nn import global_mean_pool
 
-MANUAL_SEED = 41
-
+from src.seed import MANUAL_SEED
 
 class GCN(torch.nn.Module):
     def __init__(self, 
                  num_node_features: int = 4, 
                  hidden_channels: int = 16, 
-                 num_classes: int = 5,
+                 dropout_rate: float = 0.2,
                  device: str = 'cpu'):
         super(GCN, self).__init__()
         torch.manual_seed(MANUAL_SEED)
         self.device = device
-        self.conva_1 = GCNConv(num_node_features, hidden_channels)
-        self.conva_2 = GCNConv(hidden_channels, hidden_channels)
-        self.conva_3 = GCNConv(hidden_channels, hidden_channels)
-        self.convb_1 = GCNConv(num_node_features, hidden_channels)
-        self.convb_2 = GCNConv(hidden_channels, hidden_channels)
-        self.convb_3 = GCNConv(hidden_channels, hidden_channels)
-        self.lin = Linear(hidden_channels, num_classes)
+        self.dropout = dropout_rate
+        self.hidden_channels = hidden_channels
+        self.conv1 = GCNConv(num_node_features, hidden_channels)
+        self.conv2 = GCNConv(hidden_channels, hidden_channels)
+        self.conv3 = GCNConv(hidden_channels, hidden_channels)
+        self.conv4 = GCNConv(hidden_channels, hidden_channels)
 
-    def forward(self, mol1, mol2):
-        x_1, edge_index_1 = mol1.x, mol1.edge_index
-        x_2, edge_index_2 = mol2.x, mol2.edge_index
-
-        x_1 = self.conva_1(x_1, edge_index_1)
-        x_1 = F.relu(x_1)
-        x_1 = F.dropout(x_1, p=0.2, training=self.training)
-        x_1 = self.conva_2(x_1, edge_index_1)
-        x_1 = x_1.relu()
-        x_1 = F.dropout(x_1, p=0.2, training=self.training)
-        x_1 = self.conva_3(x_1, edge_index_1)
-
-        x_2 = self.convb_1(x_2, edge_index_2)
-        x_2 = F.relu(x_2)
-        x_2 = F.dropout(x_2, p=0.2, training=self.training)
-        x_2 = self.convb_2(x_2, edge_index_2)
-        x_2 = x_2.relu()
-        x_2 = F.dropout(x_2, p=0.2, training=self.training)
-        x_2 = self.convb_3(x_2, edge_index_2)
-
-        x = torch.cat([x_1, x_2], dim=0)
+    def forward(self, mol):
+        if mol == None:
+            return torch.zeros([1, self.hidden_channels]).to(self.device)
         
-        # Readout layer
-        batch = torch.zeros(x_1.size(0) + x_2.size(0), dtype=torch.long).to(self.device)
-        x = global_mean_pool(x, batch)
+        x, edge_index = mol.x, mol.edge_index
 
-        # Final classifier
-        x = self.lin(x)
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv2(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv3(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv4(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+
+        batch = torch.zeros(x.size(0), dtype=torch.long).to(self.device)
+        x = global_mean_pool(x, batch)
         
         return x
