@@ -151,7 +151,7 @@ class Trainer:
 
         if self.log == True:
             wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
-                            y_true=labels, preds=predictions,
+                            y_true=labels.cpu().numpy(), preds=predictions.cpu().numpy(),
                             class_names=['false', 'advise', 'effect', 'mechanism', 'int'])})
 
         f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
