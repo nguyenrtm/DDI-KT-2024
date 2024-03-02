@@ -14,7 +14,7 @@ from ddi_kt_2024.utils import (
     get_labels
 )
 from ddi_kt_2024.reader.yaml_reader import get_yaml_config
-from ddi_kt_2024.model.custom_dataset import CustomDataset
+from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
 from ddi_kt_2024.model.trainer import Trainer
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup

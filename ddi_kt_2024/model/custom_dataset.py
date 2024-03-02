@@ -50,3 +50,23 @@ class CustomDataset(Dataset):
             sample = self.data[idx]
             label = self.labels[idx]
             return sample, label
+
+class BertEmbeddingDataset(CustomDataset):
+    """ 
+    In this class, text will be consider to overlap 
+    the old fasttext embedding
+    """
+    def __init__(self, all_candidates, data, labels):
+        self.all_candidates = all_candidates
+        self.data = data
+        self.labels = labels
+        self.get_text()
+
+    def get_text(self):
+        self.text = [iter['text'] for iter in self.all_candidates]
+
+    def __getitem__(self,idx):
+        text = self.text[idx]
+        sample = self.data[idx]
+        label = self.labels[idx]
+        return text, sample, label

@@ -92,6 +92,7 @@ class Trainer:
         running_loss = 0.
         i = 0
 
+
         for batch_data, batch_label in training_loader:
             batch_data = batch_data.clone().detach().to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
@@ -104,6 +105,7 @@ class Trainer:
             self.optimizer.step()
 
             running_loss += loss.item()
+
             
         self.train_loss.append(running_loss)
         return running_loss
