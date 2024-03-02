@@ -181,9 +181,9 @@ class Trainer:
             self.validate(val_loader_text, val_loader_mol1, val_loader_mol2, 'val')
             
             if self.log == True:
-                self.log()
+                self.log_wandb()
             
-    def log(self):
+    def log_wandb(self):
         wandb.log(
             {
                 "train_loss": self.train_loss[-1],
