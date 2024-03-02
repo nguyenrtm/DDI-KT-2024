@@ -53,8 +53,7 @@ class TextModel(nn.Module):
                       kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU(),
-            nn.Dropout(dropout_rate)
+            nn.ReLU()
         )
 
         self.conv2 = nn.Sequential(
@@ -63,8 +62,7 @@ class TextModel(nn.Module):
                       kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU(),
-            nn.Dropout(dropout_rate)
+            nn.ReLU()
         )
 
         self.conv3 = nn.Sequential(
@@ -73,8 +71,7 @@ class TextModel(nn.Module):
                       kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU(),
-            nn.Dropout(dropout_rate)
+            nn.ReLU()
         )
 
         self.relu = nn.ReLU()
