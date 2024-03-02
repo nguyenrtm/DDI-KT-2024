@@ -53,7 +53,8 @@ class TextModel(nn.Module):
                       kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(dropout_rate)
         )
 
         self.conv2 = nn.Sequential(
@@ -62,7 +63,8 @@ class TextModel(nn.Module):
                       kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(dropout_rate)
         )
 
         self.conv3 = nn.Sequential(
@@ -71,7 +73,8 @@ class TextModel(nn.Module):
                       kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
                       stride=1,
                       bias=False),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(dropout_rate)
         )
 
         self.relu = nn.ReLU()
@@ -83,25 +86,25 @@ class TextModel(nn.Module):
 
     def forward(self, x):
         word_embedding_ent1 = self.w2v(x[:, :, 0])
-        tag_embedding_ent1 = self.tag_embedding(x[:, :, 1])
+        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1])))
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
-        position_embedding_ent1 = position_embedding_ent1
+        position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
-        direction_embedding = self.direction_embedding(x[:, :, 6])
-        edge_embedding = self.edge_embedding(x[:, :, 7])
+        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6])))
+        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7])))
 
         word_embedding_ent2 = self.w2v(x[:, :, 8])
-        tag_embedding_ent2 = self.tag_embedding(x[:, :, 9])
+        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9])))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
-        position_embedding_ent2 = self.relu(position_embedding_ent2)
+        position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()
         dep = torch.cat((direction_embedding, edge_embedding), dim=2).float()
 
-        tokens_ent1 = self.relu(self.normalize_tokens(tokens_ent1))
-        tokens_ent2 = self.relu(self.normalize_tokens(tokens_ent2))
-        dep = self.relu(self.normalize_dep(dep))
+        tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
+        tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
+        dep = self.dropout(self.relu(self.normalize_dep(dep)))
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
