@@ -172,12 +172,13 @@ class Trainer:
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
         
-    def train(self, dataset_train, dataset_test, num_epochs):
+    def train(self, train_loader_text, train_loader_mol1, train_loader_mol2,
+                    val_loader_text, val_loader_mol1, val_loader_mol2, num_epochs):
         for epoch in range(num_epochs):
-            running_loss = self.train_one_epoch(dataset_train)
+            running_loss = self.train_one_epoch(train_loader_text, train_loader_mol1, train_loader_mol2)
             self.train_loss.append(running_loss)
 
-            self.validate(dataset_test, 'val')
+            self.validate(val_loader_text, val_loader_mol1, val_loader_mol2, 'val')
             print(f'Epoch: {epoch}, Train Loss: {round(self.train_loss[-1], 2)}, Val Loss: {round(self.val_loss[-1], 2)}, Val Micro F1: {round(self.val_micro_f1[-1], 2)}')
             
             if self.log == True:
