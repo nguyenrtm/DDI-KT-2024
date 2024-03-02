@@ -199,3 +199,7 @@ class Trainer:
                 save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}loss{self.val_loss[-1]}val_micro_f1{self.val_micro_f1[-1]}.pt", self.config, self.model, self.wandb_available)
         if self.wandb_available:
             wandb.finish()
+
+class BERT_trainer:
+    def __init__(self, bert_embedded):
+        pass

@@ -42,17 +42,31 @@ def run_train(yaml_path):
     # Data preparation
     y_train = get_labels(all_candidates_train)
     y_test = get_labels(all_candidates_test)
-    data_train = CustomDataset(sdp_train_mapped, y_train)
+    # data_train = CustomDataset(sdp_train_mapped, y_train)
+    # data_train.fix_exception()
+    # data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+    # data_train.squeeze()
+    # data_test = CustomDataset(sdp_test_mapped, y_test)
+    # data_test.fix_exception()
+    # data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+    # data_test.squeeze()
+    data_train = BertEmbeddingDataset(all_candidates_train, sdp_train_mapped, y_train)
     data_train.fix_exception()
     data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+    data_train.add_embed_to_data(
+        all_words_path=config.lookup_word
+    )
     data_train.squeeze()
-    data_test = CustomDataset(sdp_test_mapped, y_test)
+    data_test = BertEmbeddingDataset(all_candidates_test, sdp_test_mapped, y_test)
     data_test.fix_exception()
     data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+    data_test.add_embed_to_data(
+        all_words_path=config.lookup_word
+    )
     data_test.squeeze()
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
     dataloader_test = DataLoader(data_test, batch_size=config.batch_size)
-
+    
     # Model initialization
     model = Trainer(we,
         dropout_rate=config.dropout_rate,
