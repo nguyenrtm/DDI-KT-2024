@@ -174,12 +174,11 @@ class Trainer:
         
     def train(self, train_loader_text, train_loader_mol1, train_loader_mol2,
                     val_loader_text, val_loader_mol1, val_loader_mol2, num_epochs):
-        for epoch in range(num_epochs):
+        for epoch in tqdm(range(num_epochs), desc='Training...'):
             running_loss = self.train_one_epoch(train_loader_text, train_loader_mol1, train_loader_mol2)
             self.train_loss.append(running_loss)
 
             self.validate(val_loader_text, val_loader_mol1, val_loader_mol2, 'val')
-            print(f'Epoch: {epoch}, Train Loss: {round(self.train_loss[-1], 2)}, Val Loss: {round(self.val_loss[-1], 2)}, Val Micro F1: {round(self.val_micro_f1[-1], 2)}')
             
             if self.log == True:
                 self.log()
