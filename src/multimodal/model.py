@@ -1,10 +1,6 @@
 import torch
 import torch.nn
-import torch.nn.functional as F
-from torch_geometric.nn import GCNConv
-from torch_geometric.nn import global_mean_pool
 
-from src.seed import MANUAL_SEED
 from src.text.model.text_model import TextModel
 from src.mol.gcn import GCN
 
@@ -34,7 +30,6 @@ class MultimodalModel(torch.nn.Module):
                  hidden_channels: int = 256,
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
-        torch.manual_seed(MANUAL_SEED)
         self.device = device
 
         self.text_model = TextModel(we=we,

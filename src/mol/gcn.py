@@ -3,8 +3,6 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 from torch_geometric.nn import global_mean_pool
 
-from src.seed import MANUAL_SEED
-
 class GCN(torch.nn.Module):
     def __init__(self, 
                  num_node_features: int = 4, 
@@ -12,7 +10,6 @@ class GCN(torch.nn.Module):
                  dropout_rate: float = 0.2,
                  device: str = 'cpu'):
         super(GCN, self).__init__()
-        torch.manual_seed(MANUAL_SEED)
         self.device = device
         self.dropout = dropout_rate
         self.hidden_channels = hidden_channels
