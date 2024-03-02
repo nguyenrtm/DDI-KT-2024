@@ -59,7 +59,8 @@ class Trainer:
                            conv1_length,
                            conv2_length,
                            conv3_length,
-                           target_class).to(device)
+                           target_class,
+                           classifier=True).to(device)
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)

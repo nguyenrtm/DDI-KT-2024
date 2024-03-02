@@ -30,7 +30,7 @@ class Trainer:
                  conv3_length: int = 3,
                  target_class: int = 5,
                  num_node_features: int = 4, 
-                 hidden_channels: int = 256,
+                 hidden_channels: int = 512,
                  w_false: float = 21580 / 17759,
                  w_advice: float = 21580 / 826,
                  w_effect: float = 21580 / 1687,
@@ -38,6 +38,7 @@ class Trainer:
                  w_int: float = 21580 / 189,
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
+                 log: bool = True,
                  device: str = 'cpu'
                  ):
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
@@ -74,34 +75,40 @@ class Trainer:
         self.val_loss = list()
         self.val_f = list()
         self.val_micro_f1 = list()
+        self.confusion_matrix = list()
+        self.log = log
         
-    def convert_label_to_2d(self, label):
-        tmp = torch.zeros((5)).to(self.device)
-        tmp[label] = 1.
+    def convert_label_to_2d(self, batch_label):
+        i = 0
+        for label in batch_label:
+            i += 1
+            tmp = torch.zeros((5)).to(self.device)
+            tmp[label] = 1.
+            
+            if i == 1:
+                to_return = tmp.unsqueeze(0)
+            else:
+                to_return = torch.vstack((to_return, tmp))
         
-        return tmp.unsqueeze(dim=0)
+        return to_return
     
-    def train_one_epoch(self, dataset_train):
+    def train_one_epoch(self, train_loader_text, train_loader_mol1, train_loader_mol2):
         running_loss = 0.
         i = 0
 
-        for data in dataset_train:
-            text = data[0][0].clone().detach().to(self.device)
-            if data[0][1][0]:
-                mol1 = data[0][1][0].to(self.device)
-            else:
-                mol1 = None
-            if data[0][1][1]:
-                mol2 = data[0][1][1].to(self.device)
-            else:
-                mol2 = None
-            label = data[1]
-            label = self.convert_label_to_2d(label)
+        for ((a, batch_label), b, c) in zip(train_loader_text, train_loader_mol1, train_loader_mol2):
+            text = a.clone().detach().to(self.device)
+            mol1 = b.to(self.device)
+            mol2 = c.to(self.device)
+            batch_label = batch_label.clone().detach().to(self.device)
+
+            batch_label = self.convert_label_to_2d(batch_label)
             
             i += 1
+
             out = self.model(text, mol1, mol2)
             self.optimizer.zero_grad()
-            loss = self.criterion(out, label)
+            loss = self.criterion(out, batch_label)
             loss.backward()
             self.optimizer.step()
 
@@ -110,33 +117,28 @@ class Trainer:
         self.train_loss.append(running_loss)
         return running_loss
     
-    def validate(self, dataset_test, option):
+    def validate(self, val_loader_text, val_loader_mol1, val_loader_mol2, option):
         running_loss = 0.
         predictions = torch.tensor([]).to(self.device)
         labels = torch.tensor([]).to(self.device)
         
         with torch.no_grad():
-            for data in dataset_test:
-                text = data[0][0].clone().detach().to(self.device)
-                if data[0][1][0]:
-                    mol1 = data[0][1][0].to(self.device)
-                else:
-                    mol1 = None
-                if data[0][1][1]:
-                    mol2 = data[0][1][1].to(self.device)
-                else:
-                    mol2 = None
-                label = torch.tensor([data[1]]).to(self.device)
+            for ((a, batch_label), b, c) in zip(val_loader_text, val_loader_mol1, val_loader_mol2):
+                text = a.clone().detach().to(self.device)
+                mol1 = b.to(self.device)
+                mol2 = c.to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
 
                 out = self.model(text, mol1, mol2)
 
-                label_for_loss = self.convert_label_to_2d(label)
-                loss = self.criterion(out, label_for_loss)
+                batch_label_for_loss = self.convert_label_to_2d(batch_label)
+                loss = self.criterion(out, batch_label_for_loss)
                 running_loss += loss.item()
-                prediction = torch.argmax(out, dim=1)
 
-                predictions = torch.cat((predictions, prediction))
-                labels = torch.cat((labels, label))
+                batch_prediction = torch.argmax(out, dim=1)
+
+                predictions = torch.cat((predictions, batch_prediction))
+                labels = torch.cat((labels, batch_label))
         
         labels = labels.squeeze()
         true_pred = []
@@ -147,12 +149,18 @@ class Trainer:
         cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
         _micro_f1 = self.micro_f1(cm)
 
+        if self.log == True:
+            wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
+                            y_true=labels, preds=predictions,
+                            class_names=['false', 'advise', 'effect', 'mechanism', 'int'])})
+
         f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
         
         if option == 'train':
             self.train_loss.append(running_loss)
             self.train_f.append(f)
         elif option == 'val':
+            self.confusion_matrix.append(cm)
             self.val_loss.append(running_loss)
             self.val_f.append(f)
             self.val_micro_f1.append(_micro_f1)
@@ -164,15 +172,15 @@ class Trainer:
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
         
-    def train(self, dataset_train, dataset_test, num_epochs, log=True):
+    def train(self, dataset_train, dataset_test, num_epochs):
         for epoch in range(num_epochs):
             running_loss = self.train_one_epoch(dataset_train)
             self.train_loss.append(running_loss)
 
             self.validate(dataset_test, 'val')
-            print(f'Epoch: {epoch}, Train Loss: {self.train_loss[-1]}, Val Loss: {self.val_loss[-1]}, Val Micro F1: {self.val_micro_f1[-1]}')
+            print(f'Epoch: {epoch}, Train Loss: {round(self.train_loss[-1], 2)}, Val Loss: {round(self.val_loss[-1], 2)}, Val Micro F1: {round(self.val_micro_f1[-1], 2)}')
             
-            if log == True:
+            if self.log == True:
                 self.log()
             
     def log(self):

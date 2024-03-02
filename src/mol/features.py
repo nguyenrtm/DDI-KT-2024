@@ -24,8 +24,12 @@ def bond_feature(bond):
 
 def smi_to_pyg(smi):
     if smi == 'None':
-      return None
-    
+      return Data(edge_index=torch.LongTensor([(0, 0), (0, 0)]),
+                  x=torch.FloatTensor([[0, 0, 0, 0]]),
+                  edge_attr=torch.FloatTensor([[0, 0]]),
+                  mol="None",
+                  smiles="None")
+
     mol = Chem.MolFromSmiles(smi)
     if mol is None:
       return None

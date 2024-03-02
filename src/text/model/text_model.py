@@ -22,7 +22,8 @@ class TextModel(nn.Module):
                  conv1_length: int = 1,
                  conv2_length: int = 2,
                  conv3_length: int = 3,
-                 target_class: int = 5
+                 target_class: int = 5,
+                 classifier: bool = False
                  ):
 
         super(TextModel, self).__init__()
@@ -77,6 +78,7 @@ class TextModel(nn.Module):
         self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
                                       out_features=target_class,
                                       bias=False)
+        self.classifier = classifier
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
@@ -116,7 +118,8 @@ class TextModel(nn.Module):
         x = torch.cat((x1, x2, x3), dim=1)
 
         # classifier
-        x = self.dense_to_tag(x)
-        x = self.softmax(x)
+        if self.classifier == True:
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
 
         return x

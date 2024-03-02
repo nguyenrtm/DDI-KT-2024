@@ -25,7 +25,7 @@ class GCN(torch.nn.Module):
         if mol == None:
             return torch.zeros([1, self.hidden_channels]).to(self.device)
         
-        x, edge_index = mol.x, mol.edge_index
+        x, edge_index, batch = mol.x, mol.edge_index, mol.batch
 
         x = self.conv1(x, edge_index)
         x = F.relu(x)
@@ -40,7 +40,6 @@ class GCN(torch.nn.Module):
         x = F.relu(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
 
-        batch = torch.zeros(x.size(0), dtype=torch.long).to(self.device)
         x = global_mean_pool(x, batch)
         
         return x

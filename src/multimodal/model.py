@@ -56,7 +56,8 @@ class MultimodalModel(torch.nn.Module):
                                     conv1_length=conv1_length,
                                     conv2_length=conv2_length,
                                     conv3_length=conv3_length,
-                                    target_class=target_class).to(device)
+                                    target_class=target_class,
+                                    classifier=False).to(device)
 
         self.gcn1 = GCN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
