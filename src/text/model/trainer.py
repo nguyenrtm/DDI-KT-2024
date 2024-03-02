@@ -1,11 +1,13 @@
 import torch
+import torch.nn as nn
+from torch import optim
 from tqdm import tqdm
-from sklearn.metrics import confusion_matrix
 from torchmetrics.classification import MulticlassF1Score
-import numpy as np
+from sklearn.metrics import confusion_matrix
 import wandb
+import numpy as np
 
-from src.multimodal.model import MultimodalModel
+from .text_model import TextModel
 
 class Trainer:
     def __init__(self,
@@ -29,8 +31,6 @@ class Trainer:
                  conv2_length: int = 2,
                  conv3_length: int = 3,
                  target_class: int = 5,
-                 num_node_features: int = 4, 
-                 hidden_channels: int = 256,
                  w_false: float = 21580 / 17759,
                  w_advice: float = 21580 / 826,
                  w_effect: float = 21580 / 1687,
@@ -38,36 +38,31 @@ class Trainer:
                  w_int: float = 21580 / 189,
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
-                 device: str = 'cpu'
-                 ):
-        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+                 device='cpu'):
         
-        self.model = MultimodalModel(we=we,
-                                    dropout_rate=dropout_rate,
-                                    word_embedding_size=word_embedding_size,
-                                    tag_number=tag_number,
-                                    tag_embedding_size=tag_embedding_size,
-                                    position_number=position_number,
-                                    position_embedding_size=position_embedding_size,
-                                    direction_number=direction_number,
-                                    direction_embedding_size=direction_embedding_size,
-                                    edge_number=edge_number,
-                                    edge_embedding_size=edge_embedding_size,
-                                    token_embedding_size=token_embedding_size,
-                                    dep_embedding_size=dep_embedding_size,
-                                    conv1_out_channels=conv1_out_channels,
-                                    conv2_out_channels=conv2_out_channels,
-                                    conv3_out_channels=conv3_out_channels,
-                                    conv1_length=conv1_length,
-                                    conv2_length=conv2_length,
-                                    conv3_length=conv3_length,
-                                    target_class=target_class,
-                                    num_node_features=num_node_features,
-                                    hidden_channels=hidden_channels,
-                                    device=device)
-                                     
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
-        self.criterion = torch.nn.CrossEntropyLoss(weight=weight)
+        self.model = TextModel(we, 
+                           dropout_rate,
+                           word_embedding_size,
+                           tag_number,
+                           tag_embedding_size,
+                           position_number,
+                           position_embedding_size,
+                           direction_number,
+                           direction_embedding_size,
+                           edge_number,
+                           edge_embedding_size,
+                           token_embedding_size,
+                           dep_embedding_size,
+                           conv1_out_channels,
+                           conv2_out_channels,
+                           conv3_out_channels,
+                           conv1_length,
+                           conv2_length,
+                           conv3_length,
+                           target_class).to(device)
+        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
         self.train_f = list()
@@ -75,29 +70,33 @@ class Trainer:
         self.val_f = list()
         self.val_micro_f1 = list()
         
-    def convert_label_to_2d(self, label):
-        tmp = torch.zeros((5)).to(self.device)
-        tmp[label] = 1.
+    def convert_label_to_2d(self, batch_label):
+        i = 0
+        for label in batch_label:
+            i += 1
+            tmp = torch.zeros((5)).to(self.device)
+            tmp[label] = 1.
+            
+            if i == 1:
+                to_return = tmp.unsqueeze(0)
+            else:
+                to_return = torch.vstack((to_return, tmp))
         
-        return tmp.unsqueeze(dim=0)
-    
-    def train_one_epoch(self, dataset_train):
+        return to_return
+                
+
+    def train_one_epoch(self, training_loader):
         running_loss = 0.
         i = 0
 
-        for data in tqdm(dataset_train):
-            text = data[0][0].clone().detach().to(self.device)
-            if data[0][1][0]:
-                mol1 = data[0][1][0].to(self.device)
-            if data[0][1][1]:
-                mol2 = data[0][1][1].to(self.device)
-            label = data[1]
-            label = self.convert_label_to_2d(label)
-            
+        for batch_data, batch_label in training_loader:
+            batch_data = batch_data.clone().detach().to(self.device)
+            batch_label = batch_label.clone().detach().to(self.device)
+            batch_label = self.convert_label_to_2d(batch_label)
             i += 1
-            out = self.model(text, mol1, mol2)
             self.optimizer.zero_grad()
-            loss = self.criterion(out, label)
+            outputs = self.model(batch_data)
+            loss = self.criterion(outputs, batch_label)
             loss.backward()
             self.optimizer.step()
 
@@ -105,30 +104,25 @@ class Trainer:
             
         self.train_loss.append(running_loss)
         return running_loss
+
     
-    def validate(self, dataset_test, option):
+    def validate(self, validation_loader, option):
         running_loss = 0.
         predictions = torch.tensor([]).to(self.device)
         labels = torch.tensor([]).to(self.device)
         
         with torch.no_grad():
-            for data in tqdm(dataset_test):
-                text = data[0][0].clone().detach().to(self.device)
-                if data[0][1][0]:
-                    mol1 = data[0][1][0].to(self.device)
-                if data[0][1][1]:
-                    mol2 = data[0][1][1].to(self.device)
-                label = torch.tensor([data[1]]).to(self.device)
-
-                out = self.model(text, mol1, mol2)
-
-                label_for_loss = self.convert_label_to_2d(label)
-                loss = self.criterion(out, label_for_loss)
+            for batch_data, batch_label in validation_loader:
+                batch_data = batch_data.clone().detach().to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
+                outputs = self.model(batch_data)
+                batch_label_for_loss = self.convert_label_to_2d(batch_label)
+                loss = self.criterion(outputs, batch_label_for_loss)
                 running_loss += loss.item()
-                prediction = torch.argmax(out, dim=1)
-
-                predictions = torch.cat((predictions, prediction))
-                labels = torch.cat((labels, label))
+                
+                batch_prediction = torch.argmax(outputs, dim=1)
+                predictions = torch.cat((predictions, batch_prediction))
+                labels = torch.cat((labels, batch_label))
         
         labels = labels.squeeze()
         true_pred = []
@@ -155,16 +149,37 @@ class Trainer:
         fn = np.sum(cm[1,:]) + np.sum(cm[3,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
-        
-    def train(self, dataset_train, dataset_test, num_epochs):
-        for epoch in tqdm(range(num_epochs)):
-            running_loss = self.train_one_epoch(dataset_train)
-            self.train_loss.append(running_loss)
-
-            self.validate(dataset_test, 'val')
-            print(f'Epoch: {epoch}, Train Loss: {self.train_loss[-1]}, Val Loss: {self.val_loss[-1]}, Val Micro F1: {self.val_micro_f1[-1]}')
-            self.log()
             
+    def plot_confusion_matrix(self, validation_loader):
+        predictions = torch.tensor([]).to(self.device)
+        labels = torch.tensor([]).to(self.device)
+        
+        with torch.no_grad():
+            for batch_data, batch_label in validation_loader:
+                batch_data = batch_data.clone().detach().to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
+                outputs = self.model(batch_data)
+                
+                batch_prediction = torch.argmax(outputs, dim=1)
+                predictions = torch.cat((predictions, batch_prediction))
+                labels = torch.cat((labels, batch_label))
+        
+        label = labels.squeeze()
+        cm = confusion_matrix(label.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
+        return cm
+    
+    def train(self, training_loader, validation_loader, num_epochs, log=True):
+        for epoch in tqdm(range(num_epochs)):
+            running_loss = self.train_one_epoch(training_loader)
+            self.train_loss.append(running_loss)
+            
+            self.validate(validation_loader, 'val')
+            print(f'Epoch: {epoch}, Train Loss: {self.train_loss[-1]}, Val Loss: {self.val_loss[-1]}, Val Micro F1: {self.val_micro_f1[-1]}')
+
+            if log==True:
+                self.log()
+        
+
     def log(self):
         wandb.log(
             {

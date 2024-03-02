@@ -116,7 +116,7 @@ class TextModel(nn.Module):
         x = torch.cat((x1, x2, x3), dim=1)
 
         # classifier
-        # x = self.dense_to_tag(x)
-        # x = self.softmax(x)
+        x = self.dense_to_tag(x)
+        x = self.softmax(x)
 
         return x
