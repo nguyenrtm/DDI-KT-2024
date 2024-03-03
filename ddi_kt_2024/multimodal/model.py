@@ -1,8 +1,8 @@
 import torch
 import torch.nn
 
-from src.text.model.text_model import TextModel
-from src.mol.gnn import GNN
+from ddi_kt_2024.text.model.text_model import BertModel
+from ddi_kt_2024.mol.gnn import GNN
 
 class MultimodalModel(torch.nn.Module):
     def __init__(self, 
@@ -32,7 +32,7 @@ class MultimodalModel(torch.nn.Module):
         super(MultimodalModel, self).__init__()
         self.device = device
 
-        self.text_model = TextModel(we=we,
+        self.text_model = BertModel(we=we,
                                     dropout_rate=dropout_rate,
                                     word_embedding_size=word_embedding_size,
                                     tag_number=tag_number,

@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 import wandb
 import numpy as np
 
-from .model import TextModel, BertModel
+from .text_model import TextModel, BertModel
 from ddi_kt_2024.utils import save_model
 
 class BaseTrainer:
