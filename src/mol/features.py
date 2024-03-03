@@ -34,7 +34,7 @@ def smi_to_pyg(smi):
     if smi == 'None':
       return Data(edge_index=torch.LongTensor([(0, 0), (0, 0)]),
                   x=torch.FloatTensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, -1]]),
-                  edge_attr=torch.FloatTensor([[0, 0, -1, -1]]),
+                  edge_attr=torch.FloatTensor([[0, 0, -1, -1], [0, 0, -1, -1]]),
                   mol="None",
                   smiles="None")
 
