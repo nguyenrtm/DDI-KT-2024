@@ -114,17 +114,17 @@ class BertEmbeddingDataset(CustomDataset):
                 result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
 
             if mode == 'first':
-                torch.cat(
+                self.data[i] = torch.cat(
                     (self.data[i], this_sent_embedded_first.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'mean':
-                torch.cat(
+                self.data[i] = torch.cat(
                     (self.data[i], this_sent_embedded_mean.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'last':
-                torch.cat(
+                self.data[i] = torch.cat(
                     (self.data[i], this_sent_embedded_last.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
