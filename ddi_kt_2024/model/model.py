@@ -144,10 +144,11 @@ class BertModel(nn.Module):
 
         super(BertModel, self).__init__()
 
+        self.word_embedding_size = word_embedding_size
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
         self.edge_embedding = nn.Embedding(edge_number, edge_embedding_size, padding_idx=0)
-
+        
         self.normalize_position = nn.Linear(in_features=position_number,
                                             out_features=position_embedding_size,
                                             bias=False)
