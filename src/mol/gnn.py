@@ -20,9 +20,9 @@ class GNN(torch.nn.Module):
         self.dropout = dropout_rate
         self.hidden_channels = hidden_channels
 
-        self.atom_encoder = nn.Embedding(num_embeddings=118, embedding_dim=atom_embedding_dim, padding_idx=0)
-        self.bond_encoder = nn.Embedding(num_embeddings=21, embedding_dim=bond_embedding_dim, padding_idx=0)
-        self.boolean_encoder = nn.Embedding(num_embeddings=2, embedding_dim=bool_embedding_dim, padding_idx=-1)
+        self.atom_encoder = nn.Embedding(num_embeddings=119, embedding_dim=atom_embedding_dim, padding_idx=0)
+        self.bond_encoder = nn.Embedding(num_embeddings=22, embedding_dim=bond_embedding_dim, padding_idx=0)
+        self.boolean_encoder = nn.Embedding(num_embeddings=3, embedding_dim=bool_embedding_dim, padding_idx=-1)
 
         self.conv1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
                                hidden_channels,
