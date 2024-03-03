@@ -5,7 +5,7 @@ from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
 
-from src.mol.gcn import GCN
+from src.mol.gnn import GNN
 
 class Trainer:
     def __init__(self,
@@ -21,7 +21,7 @@ class Trainer:
                  device: str = 'cpu'
                  ):
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
-        self.model = GCN(num_node_features=num_node_features, hidden_channels=hidden_channels, device=device).to(device)
+        self.model = GNN(num_node_features=num_node_features, hidden_channels=hidden_channels, device=device).to(device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight)
         self.device = device

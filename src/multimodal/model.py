@@ -2,7 +2,7 @@ import torch
 import torch.nn
 
 from src.text.model.text_model import TextModel
-from src.mol.gcn import GCN
+from src.mol.gnn import GNN
 
 class MultimodalModel(torch.nn.Module):
     def __init__(self, 
@@ -54,12 +54,12 @@ class MultimodalModel(torch.nn.Module):
                                     target_class=target_class,
                                     classifier=False).to(device)
 
-        self.gcn1 = GCN(num_node_features=num_node_features,
+        self.gnn1 = GNN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
                        dropout_rate=dropout_rate, 
                        device=device).to(device)
         
-        self.gcn2 = GCN(num_node_features=num_node_features,
+        self.gnn2 = GNN(num_node_features=num_node_features,
                         hidden_channels=hidden_channels,
                         dropout_rate=dropout_rate, 
                         device=device).to(device)
@@ -72,8 +72,8 @@ class MultimodalModel(torch.nn.Module):
 
     def forward(self, text_x, mol_x1, mol_x2):
         text_x = self.text_model(text_x)
-        mol_x1 = self.gcn1(mol_x1)
-        mol_x2 = self.gcn2(mol_x2)
+        mol_x1 = self.gnn1(mol_x1)
+        mol_x2 = self.gnn2(mol_x2)
 
         x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 

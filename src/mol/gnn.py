@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch_geometric.nn import GATv2Conv
 from torch_geometric.nn import global_mean_pool
 
-class GCN(torch.nn.Module):
+class GNN(torch.nn.Module):
     def __init__(self, 
                  atom_embedding_dim: int = 64,
                  bond_embedding_dim: int = 16,
@@ -15,7 +15,7 @@ class GCN(torch.nn.Module):
                  dropout_rate: float = 0.2,
                  device: str = 'cpu'):
         
-        super(GCN, self).__init__()
+        super(GNN, self).__init__()
         self.device = device
         self.dropout = dropout_rate
         self.hidden_channels = hidden_channels
