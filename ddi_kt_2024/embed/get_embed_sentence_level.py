@@ -12,17 +12,17 @@ from ddi_kt_2024 import logging_config
 # from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
 from ddi_kt_2024.utils import dump_pkl, load_pkl, get_labels
 
-def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last):
+def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size=768):
     this_sent_embedded_first = torch.cat(
         (this_sent_embedded_first, 
         torch.reshape(
-            result[0,tokenize_status['min_id'], :], (1, 1, 768))), dim=1
+            result[0,tokenize_status['min_id'], :], (1, 1, embed_size))), dim=1
     )
     if tokenize_status['max_id'] - tokenize_status['min_id'] ==0:
         this_sent_embedded_mean = torch.cat(
             (this_sent_embedded_mean, 
             torch.reshape(
-                result[0,tokenize_status['min_id'], :], (1, 1, 768))), dim=1
+                result[0,tokenize_status['min_id'], :], (1, 1, embed_size))), dim=1
         )
     else:
         this_sent_embedded_mean = torch.cat(
@@ -31,13 +31,13 @@ def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sen
                 torch.mean(
                     result[0,tokenize_status['min_id']: tokenize_status['max_id']+1, :], axis =0
                 , keepdim=True)
-                , (1, 1, 768)
+                , (1, 1, embed_size)
                 )), dim=1
         )
     this_sent_embedded_last = torch.cat(
         ( this_sent_embedded_last, 
         torch.reshape(
-            result[0,tokenize_status['max_id'], :], (1, 1, 768))), dim=1
+            result[0,tokenize_status['max_id'], :], (1, 1, embed_size))), dim=1
     )
     return this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last
 

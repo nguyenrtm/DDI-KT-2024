@@ -72,7 +72,8 @@ class BertEmbeddingDataset(CustomDataset):
 
     def add_embed_to_data(self, 
     huggingface_model_name = 'dmis-lab/biobert-base-cased-v1.2', 
-    all_words_path ='cache/fasttext/nguyennb/all_words.txt', mode = 'mean'):
+    all_words_path ='cache/fasttext/nguyennb/all_words.txt', mode = 'mean',
+    embed_size=768):
         """ 
         Add embed BERT to data:
         -> Loop through self.data -> append function
@@ -106,11 +107,11 @@ class BertEmbeddingDataset(CustomDataset):
 
             for tokenize_status in tokenize_map_0_ids:
                 this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last)
+                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
 
             for tokenize_status in tokenize_map_8_ids:
                 this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last)
+                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
 
             if mode == 'first':
                 torch.cat(
