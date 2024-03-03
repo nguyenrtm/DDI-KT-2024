@@ -198,15 +198,15 @@ class BertModel(nn.Module):
 
     def forward(self, x):
         word_embedding_ent1 = x[:, :, 14:14+self.word_embedding_size]
-        tag_embedding_ent1 = self.tag_embedding(x[:, :, 1])
+        tag_embedding_ent1 = self.tag_embedding(x[:, :, 1].long())
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
         position_embedding_ent1 = position_embedding_ent1
 
-        direction_embedding = self.direction_embedding(x[:, :, 6])
-        edge_embedding = self.edge_embedding(x[:, :, 7])
+        direction_embedding = self.direction_embedding(x[:, :, 6].long())
+        edge_embedding = self.edge_embedding(x[:, :, 7].long())
 
         word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:]
-        tag_embedding_ent2 = self.tag_embedding(x[:, :, 9])
+        tag_embedding_ent2 = self.tag_embedding(x[:, :, 9].long())
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
         position_embedding_ent2 = self.relu(position_embedding_ent2)
 
