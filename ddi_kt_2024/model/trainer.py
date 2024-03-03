@@ -7,72 +7,12 @@ from sklearn.metrics import confusion_matrix
 import wandb
 import numpy as np
 
-from .model import Model
+from .model import Model, BertModel
 from ddi_kt_2024.utils import save_model
 
-class Trainer:
-    def __init__(self,
-                 we,
-                 dropout_rate: float = 0.5,
-                 word_embedding_size: int = 200,
-                 tag_number: int = 51,
-                 tag_embedding_size: int = 50,
-                 position_number: int = 4,
-                 position_embedding_size: int = 50,
-                 direction_number: int = 3,
-                 direction_embedding_size: int = 50,
-                 edge_number: int = 46,
-                 edge_embedding_size: int = 200,
-                 token_embedding_size: int = 500,
-                 dep_embedding_size: int = 500,
-                 conv1_out_channels: int = 256,
-                 conv2_out_channels: int = 256,
-                 conv3_out_channels: int = 256,
-                 conv1_length: int = 1,
-                 conv2_length: int = 2,
-                 conv3_length: int = 3,
-                 target_class: int = 5,
-                 w_false: float = 21580 / 17759,
-                 w_advice: float = 21580 / 826,
-                 w_effect: float = 21580 / 1687,
-                 w_mechanism: float = 21580 / 1319,
-                 w_int: float = 21580 / 189,
-                 lr: float = 0.0001,
-                 weight_decay: float = 1e-4,
-                 device='cpu',
-                 wandb_available=False):
-        
-        self.model = Model(we, 
-                           dropout_rate,
-                           word_embedding_size,
-                           tag_number,
-                           tag_embedding_size,
-                           position_number,
-                           position_embedding_size,
-                           direction_number,
-                           direction_embedding_size,
-                           edge_number,
-                           edge_embedding_size,
-                           token_embedding_size,
-                           dep_embedding_size,
-                           conv1_out_channels,
-                           conv2_out_channels,
-                           conv3_out_channels,
-                           conv1_length,
-                           conv2_length,
-                           conv3_length,
-                           target_class).to(device)
-        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
-        self.criterion = nn.CrossEntropyLoss(weight=weight)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
-        self.device = device
-        self.train_loss = list()
-        self.train_f = list()
-        self.val_loss = list()
-        self.val_f = list()
-        self.val_micro_f1 = list()
-        self.wandb_available = wandb_available
-        
+class BaseTrainer:
+    def __init__(self):
+        pass
     def convert_label_to_2d(self, batch_label):
         i = 0
         for label in batch_label:
@@ -200,6 +140,127 @@ class Trainer:
         if self.wandb_available:
             wandb.finish()
 
-class BERT_trainer:
-    def __init__(self, bert_embedded):
-        pass
+
+class Trainer(BaseTrainer):
+    def __init__(self,
+                 we,
+                 dropout_rate: float = 0.5,
+                 word_embedding_size: int = 200,
+                 tag_number: int = 51,
+                 tag_embedding_size: int = 50,
+                 position_number: int = 4,
+                 position_embedding_size: int = 50,
+                 direction_number: int = 3,
+                 direction_embedding_size: int = 50,
+                 edge_number: int = 46,
+                 edge_embedding_size: int = 200,
+                 token_embedding_size: int = 500,
+                 dep_embedding_size: int = 500,
+                 conv1_out_channels: int = 256,
+                 conv2_out_channels: int = 256,
+                 conv3_out_channels: int = 256,
+                 conv1_length: int = 1,
+                 conv2_length: int = 2,
+                 conv3_length: int = 3,
+                 target_class: int = 5,
+                 w_false: float = 21580 / 17759,
+                 w_advice: float = 21580 / 826,
+                 w_effect: float = 21580 / 1687,
+                 w_mechanism: float = 21580 / 1319,
+                 w_int: float = 21580 / 189,
+                 lr: float = 0.0001,
+                 weight_decay: float = 1e-4,
+                 device='cpu',
+                 wandb_available=False):
+        
+        self.model = Model(we, 
+                           dropout_rate,
+                           word_embedding_size,
+                           tag_number,
+                           tag_embedding_size,
+                           position_number,
+                           position_embedding_size,
+                           direction_number,
+                           direction_embedding_size,
+                           edge_number,
+                           edge_embedding_size,
+                           token_embedding_size,
+                           dep_embedding_size,
+                           conv1_out_channels,
+                           conv2_out_channels,
+                           conv3_out_channels,
+                           conv1_length,
+                           conv2_length,
+                           conv3_length,
+                           target_class).to(device)
+        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
+        self.device = device
+        self.train_loss = list()
+        self.train_f = list()
+        self.val_loss = list()
+        self.val_f = list()
+        self.val_micro_f1 = list()
+        self.wandb_available = wandb_available
+    
+class BertTrainer(BaseTrainer):
+    def __init__(self,
+            dropout_rate: float = 0.5,
+            word_embedding_size: int = 200,
+            tag_number: int = 51,
+            tag_embedding_size: int = 50,
+            position_number: int = 4,
+            position_embedding_size: int = 50,
+            direction_number: int = 3,
+            direction_embedding_size: int = 50,
+            edge_number: int = 46,
+            edge_embedding_size: int = 200,
+            token_embedding_size: int = 500,
+            dep_embedding_size: int = 500,
+            conv1_out_channels: int = 256,
+            conv2_out_channels: int = 256,
+            conv3_out_channels: int = 256,
+            conv1_length: int = 1,
+            conv2_length: int = 2,
+            conv3_length: int = 3,
+            target_class: int = 5,
+            w_false: float = 21580 / 17759,
+            w_advice: float = 21580 / 826,
+            w_effect: float = 21580 / 1687,
+            w_mechanism: float = 21580 / 1319,
+            w_int: float = 21580 / 189,
+            lr: float = 0.0001,
+            weight_decay: float = 1e-4,
+            device='cpu',
+            wandb_available=False
+            ):
+        self.model = BertModel(dropout_rate,
+                           word_embedding_size,
+                           tag_number,
+                           tag_embedding_size,
+                           position_number,
+                           position_embedding_size,
+                           direction_number,
+                           direction_embedding_size,
+                           edge_number,
+                           edge_embedding_size,
+                           token_embedding_size,
+                           dep_embedding_size,
+                           conv1_out_channels,
+                           conv2_out_channels,
+                           conv3_out_channels,
+                           conv1_length,
+                           conv2_length,
+                           conv3_length,
+                           target_class).to(device)
+        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
+        self.device = device
+        self.train_loss = list()
+        self.train_f = list()
+        self.val_loss = list()
+        self.val_f = list()
+        self.val_micro_f1 = list()
+        self.wandb_available = wandb_available

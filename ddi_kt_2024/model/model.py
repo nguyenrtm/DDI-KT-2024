@@ -142,7 +142,7 @@ class BertModel(nn.Module):
                  target_class: int = 5
                  ):
 
-        super(Model, self).__init__()
+        super(BertModel, self).__init__()
 
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -195,9 +195,8 @@ class BertModel(nn.Module):
                                       bias=False)
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, x, bert_embedded):
-        #TODO: Edit
-        word_embedding_ent1 = self.w2v(x[:, :, 0])
+    def forward(self, x):
+        word_embedding_ent1 = x[:, :, 14:782]
         tag_embedding_ent1 = self.tag_embedding(x[:, :, 1])
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
         position_embedding_ent1 = position_embedding_ent1
@@ -205,7 +204,7 @@ class BertModel(nn.Module):
         direction_embedding = self.direction_embedding(x[:, :, 6])
         edge_embedding = self.edge_embedding(x[:, :, 7])
 
-        word_embedding_ent2 = self.w2v(x[:, :, 8])
+        word_embedding_ent2 = x[:, :, 782:]
         tag_embedding_ent2 = self.tag_embedding(x[:, :, 9])
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
         position_embedding_ent2 = self.relu(position_embedding_ent2)

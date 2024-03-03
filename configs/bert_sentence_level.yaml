@@ -9,7 +9,7 @@ preprocess: "None"
 features: "fasttext, tag, position"
 
 # Lookup
-type_embed: "fasttext"
+type_embed: 'bert_sentence'
 lookup_word: 'cache/fasttext/nguyennb/all_words.txt'
 lookup_tag: 'cache/fasttext/nguyennb/all_pos.txt'
 lookup_dep: 'cache/fasttext/nguyennb/all_dep.txt'
@@ -23,6 +23,10 @@ sdp_test_mapped: 'cache/pkl/v2/notprocessed.mapped.sdp.test.pkl'
 fasttext_path: 'cache/fasttext/nguyennb/fastText_ddi.npz'
 vocab_path: 'cache/fasttext/nguyennb/all_words.txt'
 
+# Saved customdataset
+train_custom_dataset: 'D:\ResearchMultimodal\pt_files\train.pt'
+test_custom_dataset: 'D:\ResearchMultimodal\pt_files\test.pt'
+
 # Train configs
 min_batch_size: 3
 batch_size: 128
@@ -30,7 +34,7 @@ weight_decay: 0.001
 lr: 0.0001
 epochs: 300
 dropout_rate: 0
-word_embedding_size: 200
+word_embedding_size: 768
 tag_number: 51
 tag_embedding_size: 50
 position_number: 4
