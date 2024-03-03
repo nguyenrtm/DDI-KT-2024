@@ -3,8 +3,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 import logging
 
-from ddi_kt_2024.model.huggingface_model import get_model
-from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
+from ddi_kt_2024.text.model.huggingface_model import get_model
+from ddi_kt_2024.text.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
 from ddi_kt_2024 import logging_config
 
 class CustomDataset(Dataset):

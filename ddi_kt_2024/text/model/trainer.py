@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 import wandb
 import numpy as np
 
-from .model import Model, BertModel
+from .model import TextModel, BertModel
 from ddi_kt_2024.utils import save_model
 
 class BaseTrainer:
@@ -173,7 +173,7 @@ class Trainer(BaseTrainer):
                  device='cpu',
                  wandb_available=False):
         
-        self.model = Model(we, 
+        self.model = TextModel(we, 
                            dropout_rate,
                            word_embedding_size,
                            tag_number,

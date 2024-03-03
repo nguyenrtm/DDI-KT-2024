@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class Model(nn.Module):
+class TextModel(nn.Module):
     def __init__(self,
                  we,
                  dropout_rate: float = 0.5,
@@ -22,11 +22,12 @@ class Model(nn.Module):
                  conv1_length: int = 1,
                  conv2_length: int = 2,
                  conv3_length: int = 3,
-                 target_class: int = 5
+                 target_class: int = 5,
+                 classifier: bool = False
                  ):
 
-        super(Model, self).__init__()
-
+        super(TextModel, self).__init__()
+        self.classifier = classifier
         self.w2v = nn.Embedding.from_pretrained(torch.tensor(we.vectors))
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -81,25 +82,25 @@ class Model(nn.Module):
 
     def forward(self, x):
         word_embedding_ent1 = self.w2v(x[:, :, 0])
-        tag_embedding_ent1 = self.tag_embedding(x[:, :, 1])
+        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1])))
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
-        position_embedding_ent1 = position_embedding_ent1
+        position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
-        direction_embedding = self.direction_embedding(x[:, :, 6])
-        edge_embedding = self.edge_embedding(x[:, :, 7])
+        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6])))
+        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7])))
 
         word_embedding_ent2 = self.w2v(x[:, :, 8])
-        tag_embedding_ent2 = self.tag_embedding(x[:, :, 9])
+        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9])))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
-        position_embedding_ent2 = self.relu(position_embedding_ent2)
+        position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()
         dep = torch.cat((direction_embedding, edge_embedding), dim=2).float()
 
-        tokens_ent1 = self.relu(self.normalize_tokens(tokens_ent1))
-        tokens_ent2 = self.relu(self.normalize_tokens(tokens_ent2))
-        dep = self.relu(self.normalize_dep(dep))
+        tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
+        tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
+        dep = self.dropout(self.relu(self.normalize_dep(dep)))
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
@@ -114,8 +115,11 @@ class Model(nn.Module):
         x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
 
         x = torch.cat((x1, x2, x3), dim=1)
-        x = self.dense_to_tag(x)
-        x = self.softmax(x)
+
+        # classifier
+        if self.classifier == True:
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
 
         return x
 
@@ -139,11 +143,12 @@ class BertModel(nn.Module):
                  conv1_length: int = 1,
                  conv2_length: int = 2,
                  conv3_length: int = 3,
-                 target_class: int = 5
+                 target_class: int = 5,
+                 classifier: bool = False
                  ):
 
         super(BertModel, self).__init__()
-
+        self.classifier = classifier
         self.word_embedding_size = word_embedding_size
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -198,25 +203,25 @@ class BertModel(nn.Module):
 
     def forward(self, x):
         word_embedding_ent1 = x[:, :, 14:14+self.word_embedding_size]
-        tag_embedding_ent1 = self.tag_embedding(x[:, :, 1].long())
+        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1])))
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
-        position_embedding_ent1 = position_embedding_ent1
+        position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
-        direction_embedding = self.direction_embedding(x[:, :, 6].long())
-        edge_embedding = self.edge_embedding(x[:, :, 7].long())
+        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6])))
+        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7])))
 
         word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:]
-        tag_embedding_ent2 = self.tag_embedding(x[:, :, 9].long())
+        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9])))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
-        position_embedding_ent2 = self.relu(position_embedding_ent2)
+        position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()
         dep = torch.cat((direction_embedding, edge_embedding), dim=2).float()
 
-        tokens_ent1 = self.relu(self.normalize_tokens(tokens_ent1))
-        tokens_ent2 = self.relu(self.normalize_tokens(tokens_ent2))
-        dep = self.relu(self.normalize_dep(dep))
+        tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
+        tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
+        dep = self.dropout(self.relu(self.normalize_dep(dep)))
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
@@ -231,7 +236,9 @@ class BertModel(nn.Module):
         x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
 
         x = torch.cat((x1, x2, x3), dim=1)
-        x = self.dense_to_tag(x)
-        x = self.softmax(x)
+
+        if self.classifier == True:
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
 
         return x
