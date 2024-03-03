@@ -22,7 +22,7 @@ class GNN(torch.nn.Module):
 
         self.atom_encoder = nn.Embedding(num_embeddings=119, embedding_dim=atom_embedding_dim, padding_idx=0)
         self.bond_encoder = nn.Embedding(num_embeddings=22, embedding_dim=bond_embedding_dim, padding_idx=0)
-        self.boolean_encoder = nn.Embedding(num_embeddings=3, embedding_dim=bool_embedding_dim, padding_idx=-1)
+        self.boolean_encoder = nn.Embedding(num_embeddings=3, embedding_dim=bool_embedding_dim, padding_idx=2)
 
         self.conv1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
                                hidden_channels,
