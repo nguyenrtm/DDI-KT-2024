@@ -29,6 +29,7 @@ class MultimodalModel(torch.nn.Module):
                  num_node_features: int = 4, 
                  hidden_channels: int = 256,
                  text_model: str = 'bert',
+                 modal: str = 'multimodal',
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
         self.device = device
@@ -93,15 +94,26 @@ class MultimodalModel(torch.nn.Module):
 
         self.softmax = torch.nn.Softmax(dim=1)
 
+        self.modal = modal
+
     def forward(self, text_x, mol_x1, mol_x2):
-        text_x = self.text_model(text_x)
-        mol_x1 = self.gnn1(mol_x1)
-        mol_x2 = self.gnn2(mol_x2)
+        if self.modal == 'text_only':
+            x = self.text_model(text_x)
 
-        x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
 
-        # Classifier
-        x = self.dense_to_tag(x)
-        x = self.softmax(x)
+            return x
+        elif self.modal == 'multimodal':
+            text_x = self.text_model(text_x)
+            mol_x1 = self.gnn1(mol_x1)
+            mol_x2 = self.gnn2(mol_x2)
 
-        return x
+            x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
