@@ -81,16 +81,16 @@ class TextModel(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
-        word_embedding_ent1 = self.w2v(x[:, :, 0])
-        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1])))
+        word_embedding_ent1 = x[:, :, 14:14+self.word_embedding_size]
+        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1].int())))
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
         position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
-        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6])))
-        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7])))
+        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6].int())))
+        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7].int())))
 
-        word_embedding_ent2 = self.w2v(x[:, :, 8])
-        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9])))
+        word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:]
+        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9].int())))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
         position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
@@ -203,15 +203,15 @@ class BertModel(nn.Module):
 
     def forward(self, x):
         word_embedding_ent1 = x[:, :, 14:14+self.word_embedding_size]
-        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1])))
+        tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1].int())))
         position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
         position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
-        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6])))
-        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7])))
+        direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6].int())))
+        edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7].int())))
 
         word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:]
-        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9])))
+        tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9].int())))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
         position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
