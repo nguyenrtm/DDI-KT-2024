@@ -38,6 +38,7 @@ class Trainer:
                  w_int: float = 21580 / 189,
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
+                 text_model: str = 'bert',
                  log: bool = True,
                  device: str = 'cpu'
                  ):
@@ -65,6 +66,7 @@ class Trainer:
                                     target_class=target_class,
                                     num_node_features=num_node_features,
                                     hidden_channels=hidden_channels,
+                                    text_model=text_model,
                                     device=device).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
