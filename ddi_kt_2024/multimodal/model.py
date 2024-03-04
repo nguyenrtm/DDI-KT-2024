@@ -1,7 +1,7 @@
 import torch
 import torch.nn
 
-from ddi_kt_2024.text.model.text_model import BertModel
+from ddi_kt_2024.text.model.text_model import TextModel, BertModel
 from ddi_kt_2024.mol.gnn import GNN
 
 class MultimodalModel(torch.nn.Module):
@@ -28,31 +28,54 @@ class MultimodalModel(torch.nn.Module):
                  target_class: int = 5,
                  num_node_features: int = 4, 
                  hidden_channels: int = 256,
+                 text_model: str = 'bert',
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
         self.device = device
 
-        self.text_model = BertModel(we=we,
-                                    dropout_rate=dropout_rate,
-                                    word_embedding_size=word_embedding_size,
-                                    tag_number=tag_number,
-                                    tag_embedding_size=tag_embedding_size,
-                                    position_number=position_number,
-                                    position_embedding_size=position_embedding_size,
-                                    direction_number=direction_number,
-                                    direction_embedding_size=direction_embedding_size,
-                                    edge_number=edge_number,
-                                    edge_embedding_size=edge_embedding_size,
-                                    token_embedding_size=token_embedding_size,
-                                    dep_embedding_size=dep_embedding_size,
-                                    conv1_out_channels=conv1_out_channels,
-                                    conv2_out_channels=conv2_out_channels,
-                                    conv3_out_channels=conv3_out_channels,
-                                    conv1_length=conv1_length,
-                                    conv2_length=conv2_length,
-                                    conv3_length=conv3_length,
-                                    target_class=target_class,
-                                    classifier=False).to(device)
+        if text_model == 'bert':
+            self.text_model = BertModel(dropout_rate=dropout_rate,
+                                        word_embedding_size=word_embedding_size,
+                                        tag_number=tag_number,
+                                        tag_embedding_size=tag_embedding_size,
+                                        position_number=position_number,
+                                        position_embedding_size=position_embedding_size,
+                                        direction_number=direction_number,
+                                        direction_embedding_size=direction_embedding_size,
+                                        edge_number=edge_number,
+                                        edge_embedding_size=edge_embedding_size,
+                                        token_embedding_size=token_embedding_size,
+                                        dep_embedding_size=dep_embedding_size,
+                                        conv1_out_channels=conv1_out_channels,
+                                        conv2_out_channels=conv2_out_channels,
+                                        conv3_out_channels=conv3_out_channels,
+                                        conv1_length=conv1_length,
+                                        conv2_length=conv2_length,
+                                        conv3_length=conv3_length,
+                                        target_class=target_class,
+                                        classifier=False).to(device)
+        elif text_model == 'fasttext':
+            self.text_model = TextModel(we=we,
+                                        dropout_rate=dropout_rate,
+                                        word_embedding_size=word_embedding_size,
+                                        tag_number=tag_number,
+                                        tag_embedding_size=tag_embedding_size,
+                                        position_number=position_number,
+                                        position_embedding_size=position_embedding_size,
+                                        direction_number=direction_number,
+                                        direction_embedding_size=direction_embedding_size,
+                                        edge_number=edge_number,
+                                        edge_embedding_size=edge_embedding_size,
+                                        token_embedding_size=token_embedding_size,
+                                        dep_embedding_size=dep_embedding_size,
+                                        conv1_out_channels=conv1_out_channels,
+                                        conv2_out_channels=conv2_out_channels,
+                                        conv3_out_channels=conv3_out_channels,
+                                        conv1_length=conv1_length,
+                                        conv2_length=conv2_length,
+                                        conv3_length=conv3_length,
+                                        target_class=target_class,
+                                        classifier=False).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
