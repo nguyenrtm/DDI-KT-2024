@@ -5,7 +5,7 @@ from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
 
-from src.multimodal.model import MultimodalModel
+from ddi_kt_2024.multimodal.model import MultimodalModel
 
 class Trainer:
     def __init__(self,
