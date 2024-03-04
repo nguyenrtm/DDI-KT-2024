@@ -88,6 +88,7 @@ class MultimodalModel(torch.nn.Module):
                         dropout_rate=dropout_rate, 
                         device=device).to(device)
 
+        self.modal = modal
         if self.modal == 'multimodal':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
                                                 out_features=target_class,
@@ -98,8 +99,6 @@ class MultimodalModel(torch.nn.Module):
                                                 bias=False)
 
         self.softmax = torch.nn.Softmax(dim=1)
-
-        self.modal = modal
 
     def forward(self, text_x, mol_x1, mol_x2):
         if self.modal == 'text_only':
