@@ -29,19 +29,19 @@ class GNN(torch.nn.Module):
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
         self.conv2 = GATv2Conv(hidden_channels, 
-                               hidden_channels,
+                               hidden_channels*2,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
-        self.conv3 = GATv2Conv(hidden_channels, 
+        self.conv3 = GATv2Conv(hidden_channels*2, 
                                hidden_channels,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
         self.conv4 = GATv2Conv(hidden_channels, 
-                               hidden_channels,
+                               hidden_channels / 2,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
 
     def forward(self, mol):
-        if mol == None:
+        if mol.mol == None:
             return torch.zeros([1, self.hidden_channels]).to(self.device)
         
         x, edge_index, edge_attr, batch = mol.x, mol.edge_index, mol.edge_attr, mol.batch
