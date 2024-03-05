@@ -137,6 +137,9 @@ class MultimodalModel(torch.nn.Module):
             return x
         elif self.modal == '2':
             text_x = self.text_model(text_x)
+            
+            mol_x1_smiles = mol_x1_smiles.squeeze(dim=1).float()
+            mol_x2_smiles = mol_x2_smiles.squeeze(dim=1).float()
 
             x = torch.cat((text_x, mol_x1_smiles, mol_x2_smiles), dim=1)
 
@@ -149,7 +152,10 @@ class MultimodalModel(torch.nn.Module):
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
-
+            
+            mol_x1_smiles = mol_x1_smiles.squeeze(dim=1).float()
+            mol_x2_smiles = mol_x2_smiles.squeeze(dim=1).float()
+            
             x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_smiles, mol_x2_smiles), dim=1)
 
             # Classifier
