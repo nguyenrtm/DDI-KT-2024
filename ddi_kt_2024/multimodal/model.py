@@ -3,7 +3,6 @@ import torch.nn
 
 from ddi_kt_2024.text.model.text_model import TextModel, BertModel
 from ddi_kt_2024.mol.gnn import GNN
-from ddi_kt_2024.mol.smiles_bert import SMILESEmbedding
 
 class MultimodalModel(torch.nn.Module):
     def __init__(self, 
@@ -112,7 +111,12 @@ class MultimodalModel(torch.nn.Module):
 
         self.softmax = torch.nn.Softmax(dim=1)
 
-    def forward(self, text_x, mol_x1, mol_x2):
+    def forward(self, 
+                text_x, 
+                mol_x1 = None, 
+                mol_x2 = None, 
+                mol_x1_smiles = None, 
+                mol_x2_smiles = None):
         if self.modal == '0':
             x = self.text_model(text_x)
 

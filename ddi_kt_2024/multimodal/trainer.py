@@ -96,21 +96,34 @@ class Trainer:
         
         return to_return
     
-    def train_one_epoch(self, train_loader_text, train_loader_mol1, train_loader_mol2):
+    def train_one_epoch(self, 
+                        train_loader_text, 
+                        train_loader_mol1, 
+                        train_loader_mol2,
+                        train_loader_mol1_bert,
+                        train_loader_mol2_bert):
+        
         running_loss = 0.
         i = 0
 
-        for ((a, batch_label), b, c) in zip(train_loader_text, train_loader_mol1, train_loader_mol2):
+        for ((a, batch_label), b, c, d, e) in zip(train_loader_text, 
+                                            train_loader_mol1, 
+                                            train_loader_mol2,
+                                            train_loader_mol1_bert,
+                                            train_loader_mol2_bert):
+            
             text = a.clone().detach().to(self.device)
             mol1 = b.to(self.device)
             mol2 = c.to(self.device)
+            mol1_bert = d.to(self.device)
+            mol2_bert = e.to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
 
             batch_label = self.convert_label_to_2d(batch_label)
             
             i += 1
 
-            out = self.model(text, mol1, mol2)
+            out = self.model(text, mol1, mol2, mol1_bert, mol2_bert)
             self.optimizer.zero_grad()
             loss = self.criterion(out, batch_label)
             loss.backward()
@@ -121,19 +134,32 @@ class Trainer:
         self.train_loss.append(running_loss)
         return running_loss
     
-    def validate(self, val_loader_text, val_loader_mol1, val_loader_mol2, option):
+    def validate(self, 
+                 val_loader_text, 
+                 val_loader_mol1, 
+                 val_loader_mol2, 
+                 val_loader_mol1_bert, 
+                 val_loader_mol2_bert, 
+                 option):
         running_loss = 0.
         predictions = torch.tensor([]).to(self.device)
         labels = torch.tensor([]).to(self.device)
         
         with torch.no_grad():
-            for ((a, batch_label), b, c) in zip(val_loader_text, val_loader_mol1, val_loader_mol2):
+            for ((a, batch_label), b, c, d, e) in zip(val_loader_text, 
+                                                val_loader_mol1, 
+                                                val_loader_mol2,
+                                                val_loader_mol1_bert, 
+                                                val_loader_mol2_bert):
                 text = a.clone().detach().to(self.device)
                 mol1 = b.to(self.device)
                 mol2 = c.to(self.device)
+                mol1_bert = d.to(self.device)
+                mol2_bert = e.to(self.device)
+
                 batch_label = batch_label.clone().detach().to(self.device)
 
-                out = self.model(text, mol1, mol2)
+                out = self.model(text, mol1, mol2, mol1_bert, mol2_bert)
 
                 batch_label_for_loss = self.convert_label_to_2d(batch_label)
                 loss = self.criterion(out, batch_label_for_loss)
@@ -176,13 +202,24 @@ class Trainer:
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
         
-    def train(self, train_loader_text, train_loader_mol1, train_loader_mol2,
-                    val_loader_text, val_loader_mol1, val_loader_mol2, num_epochs):
+    def train(self, train_loader_text, train_loader_mol1, train_loader_mol2, train_loader_mol1_bert, train_loader_mol2_bert,
+                    val_loader_text, val_loader_mol1, val_loader_mol2, val_loader_mol1_bert, val_loader_mol2_bert, num_epochs):
         for epoch in tqdm(range(num_epochs), desc='Training...'):
-            running_loss = self.train_one_epoch(train_loader_text, train_loader_mol1, train_loader_mol2)
+            print(f"Epoch {epoch + 1} training...")
+            running_loss = self.train_one_epoch(train_loader_text, 
+                                                train_loader_mol1, 
+                                                train_loader_mol2,
+                                                train_loader_mol1_bert, 
+                                                train_loader_mol2_bert)
+            
             self.train_loss.append(running_loss)
 
-            self.validate(val_loader_text, val_loader_mol1, val_loader_mol2, 'val')
+            self.validate(val_loader_text, 
+                          val_loader_mol1, 
+                          val_loader_mol2, 
+                          val_loader_mol1_bert, 
+                          val_loader_mol2_bert,
+                          'val')
             
             if self.log == True:
                 self.log_wandb()

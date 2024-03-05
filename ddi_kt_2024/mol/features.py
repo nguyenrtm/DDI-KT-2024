@@ -62,3 +62,12 @@ def smi_to_pyg(smi):
                 edge_attr=edge_attr,
                 mol=mol,
                 smiles=smi)
+
+def smi_to_bert(smi, embedding_dict, embedding_size):
+    if smi == 'None':
+      return torch.zeros([1, embedding_size])
+
+    if smi in embedding_dict.keys():
+        return torch.tensor(embedding_dict[smi]).unsqueeze(dim=0)
+    else:
+        return torch.zeros([1, embedding_size])
