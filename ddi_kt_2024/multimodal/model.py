@@ -87,8 +87,6 @@ class MultimodalModel(torch.nn.Module):
                         hidden_channels=hidden_channels,
                         dropout_rate=dropout_rate, 
                         device=device).to(device)
-        
-        self.smiles_embedding = SMILESEmbedding(device=device)
 
         self.modal = modal
         
