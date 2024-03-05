@@ -3,6 +3,7 @@ import torch.nn
 
 from ddi_kt_2024.text.model.text_model import TextModel, BertModel
 from ddi_kt_2024.mol.gnn import GNN
+from ddi_kt_2024.mol.smiles_bert import SMILESEmbedding
 
 class MultimodalModel(torch.nn.Module):
     def __init__(self, 
@@ -87,21 +88,28 @@ class MultimodalModel(torch.nn.Module):
                         hidden_channels=hidden_channels,
                         dropout_rate=dropout_rate, 
                         device=device).to(device)
+        
+        self.smiles_embedding = SMILESEmbedding(device=device)
 
         self.modal = modal
-        if self.modal == 'multimodal':
+        
+        if self.modal == '0':
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
+                                                out_features=target_class,
+                                                bias=False)
+        elif self.modal == '1':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
                                                 out_features=target_class,
                                                 bias=False)
-        elif self.modal == 'text_only':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
+        elif self.modal == '2':
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*self.smiles_embedding.embedding_size, 
                                                 out_features=target_class,
                                                 bias=False)
 
         self.softmax = torch.nn.Softmax(dim=1)
 
     def forward(self, text_x, mol_x1, mol_x2):
-        if self.modal == 'text_only':
+        if self.modal == '0':
             x = self.text_model(text_x)
 
             # Classifier
@@ -109,12 +117,26 @@ class MultimodalModel(torch.nn.Module):
             x = self.softmax(x)
 
             return x
-        elif self.modal == 'multimodal':
+        elif self.modal == '1':
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
+        elif self.modal == '2':
+            text_x = self.text_model(text_x)
+            mol_x1 = self.gnn1(mol_x1)
+            mol_x2 = self.gnn2(mol_x2)
+            mol_x1_smiles = self.smiles_embedding(mol_x1)
+            mol_x2_smiles = self.smiles_embedding(mol_x2)
+
+            x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_smiles, mol_x2_smiles), dim=1)
 
             # Classifier
             x = self.dense_to_tag(x)
