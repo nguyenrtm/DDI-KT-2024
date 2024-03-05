@@ -99,11 +99,11 @@ class MultimodalModel(torch.nn.Module):
                                                 out_features=target_class,
                                                 bias=False)
         elif self.modal == '2':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*self.smiles_embedding.embedding_size, 
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*600, 
                                                 out_features=target_class,
                                                 bias=False)
         elif self.modal == '3':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*self.smiles_embedding.embedding_size, 
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*600, 
                                                 out_features=target_class,
                                                 bias=False)
 
