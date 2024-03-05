@@ -102,6 +102,10 @@ class MultimodalModel(torch.nn.Module):
                                                 out_features=target_class,
                                                 bias=False)
         elif self.modal == '2':
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*self.smiles_embedding.embedding_size, 
+                                                out_features=target_class,
+                                                bias=False)
+        elif self.modal == '3':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*self.smiles_embedding.embedding_size, 
                                                 out_features=target_class,
                                                 bias=False)
@@ -130,6 +134,18 @@ class MultimodalModel(torch.nn.Module):
 
             return x
         elif self.modal == '2':
+            text_x = self.text_model(text_x)
+            mol_x1_smiles = self.smiles_embedding(mol_x1)
+            mol_x2_smiles = self.smiles_embedding(mol_x2)
+
+            x = torch.cat((text_x, mol_x1_smiles, mol_x2_smiles), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
+        elif self.modal == '3':
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
