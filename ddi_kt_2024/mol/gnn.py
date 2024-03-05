@@ -25,10 +25,10 @@ class GNN(torch.nn.Module):
         self.boolean_encoder = nn.Embedding(num_embeddings=3, embedding_dim=bool_embedding_dim, padding_idx=2)
 
         self.conv1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
-                               hidden_channels,
+                               hidden_channels*4,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
-        self.conv2 = GATv2Conv(hidden_channels, 
+        self.conv2 = GATv2Conv(hidden_channels*4, 
                                hidden_channels*2,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
@@ -37,7 +37,7 @@ class GNN(torch.nn.Module):
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         
         self.conv4 = GATv2Conv(hidden_channels, 
-                               hidden_channels / 2,
+                               hidden_channels,
                                edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
 
     def forward(self, mol):
