@@ -30,6 +30,7 @@ class MultimodalModel(torch.nn.Module):
                  hidden_channels: int = 256,
                  text_model: str = 'bert',
                  modal: str = 'multimodal',
+                 gnn_option: str = 'GATV2CONV',
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
         self.device = device
@@ -81,11 +82,13 @@ class MultimodalModel(torch.nn.Module):
         self.gnn1 = GNN(num_node_features=num_node_features,
                        hidden_channels=hidden_channels,
                        dropout_rate=dropout_rate, 
+                       gnn_option=gnn_option,
                        device=device).to(device)
         
         self.gnn2 = GNN(num_node_features=num_node_features,
                         hidden_channels=hidden_channels,
                         dropout_rate=dropout_rate, 
+                        gnn_option=gnn_option,
                         device=device).to(device)
 
         self.modal = modal

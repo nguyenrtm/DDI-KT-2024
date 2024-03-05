@@ -40,6 +40,7 @@ class Trainer:
                  weight_decay: float = 1e-4,
                  text_model: str = 'bert',
                  modal: str = 'multimodal',
+                 gnn_option: str = 'GATVCONV2',
                  log: bool = True,
                  device: str = 'cpu'
                  ):
@@ -69,6 +70,7 @@ class Trainer:
                                     hidden_channels=hidden_channels,
                                     text_model=text_model,
                                     modal=modal,
+                                    gnn_option=gnn_option,
                                     device=device).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
