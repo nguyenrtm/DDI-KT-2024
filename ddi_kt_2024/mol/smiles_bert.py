@@ -19,6 +19,6 @@ class SMILESEmbedding(torch.nn.Module):
         smiles = mol.smiles
 
         if smiles in self.embedding_dict:
-            return self.embedding_dict[smiles].to(self.device)
+            return torch.tensor(self.embedding_dict[smiles]).unsqueeze(dim=0).to(self.device)
         else:
             return torch.zeros([1, self.embedding_size]).to(self.device)
