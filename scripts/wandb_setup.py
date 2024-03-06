@@ -6,7 +6,7 @@ from ddi_kt_2024 import logging_config
 from ddi_kt_2024.utils import DictAccessor
 
 def wandb_setup(model_config: dict):
-    config = dotenv_values("../.env")
+    config = dotenv_values(".env")
     logging.info(f"Config receieved:\n{config}")
     wandb_available = False
     if 'WANDB_KEY' in list(config.keys()):
