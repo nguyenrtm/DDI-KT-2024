@@ -121,6 +121,20 @@ def lookup(element, dct):
         idx = 0
     return idx
 
+def rm_no_smiles(x, y):
+    """
+    Remove samples with no smiles mapping in mol dataset
+    """
+    x_new, y_new = list(), list()
+    idx_list = list()
+    for i in range(len(x)):
+        if x[i][0] != 'None' and x[i][1] != None: 
+            x_new.append(x[i])
+            y_new.append(y[i])
+            idx_list.append(i)
+            
+    return x_new, y_new, idx_list
+
 def load_pkl(path):
     with open(path, 'rb') as file:
         return pkl.load(file)
