@@ -41,6 +41,9 @@ class Trainer:
                  text_model: str = 'bert',
                  modal: str = 'multimodal',
                  gnn_option: str = 'GATVCONV2',
+                 num_layers_gnn: str = 3,
+                 readout_option: str = 'global_max_pool',
+                 activation_function: str = 'relu',
                  log: bool = True,
                  device: str = 'cpu'
                  ):

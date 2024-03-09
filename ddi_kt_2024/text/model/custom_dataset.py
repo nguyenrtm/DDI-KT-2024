@@ -48,6 +48,16 @@ class CustomDataset(Dataset):
 
         self.data = to_return
 
+    def rm_no_smiles(self, list_index):
+        new_x = list()
+        new_y = list()
+        for idx in list_index:
+            new_x.append(self.data[idx])
+            new_y.append(self.labels[idx])
+
+        self.data = new_x
+        self.labels = new_y
+
     def __len__(self):
         return len(self.data)
 

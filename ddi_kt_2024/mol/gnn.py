@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATv2Conv, GCNConv
 from torch_geometric.nn.models import AttentiveFP
-from torch_geometric.nn import global_mean_pool
+from torch_geometric.nn import global_mean_pool, global_max_pool, SAGPooling, ASAPooling
 
 class GNN(torch.nn.Module):
     def __init__(self, 
@@ -14,7 +14,10 @@ class GNN(torch.nn.Module):
                  num_edge_features: int = 4,
                  hidden_channels: int = 512, 
                  dropout_rate: float = 0.2,
+                 num_layers_gnn: int = 3,
                  gnn_option: str = 'GATV2CONV',
+                 readout_option: str = 'global_max_pool',
+                 activation_function: str = 'relu',
                  device: str = 'cpu'):
         
         super(GNN, self).__init__()
@@ -26,42 +29,49 @@ class GNN(torch.nn.Module):
         self.bond_encoder = nn.Embedding(num_embeddings=22, embedding_dim=bond_embedding_dim, padding_idx=0)
         self.boolean_encoder = nn.Embedding(num_embeddings=3, embedding_dim=bool_embedding_dim, padding_idx=2)
         self.gnn_option = gnn_option
+        self.num_layers_gnn = num_layers_gnn
+        self.readout_option = readout_option
 
         if gnn_option == 'GATV2CONV':
-            self.conv1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
-                                   hidden_channels*4,
-                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
-            self.conv2 = GATv2Conv(hidden_channels*4, 
-                                   hidden_channels*2,
-                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
-            self.conv3 = GATv2Conv(hidden_channels*2, 
-                                   hidden_channels,
-                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
-            self.conv4 = GATv2Conv(hidden_channels, 
-                                   hidden_channels,
-                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
+            self.gnn1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
+                                  hidden_channels,
+                                  edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
+            self.gnn = GATv2Conv(hidden_channels, 
+                                 hidden_channels,
+                                 edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         elif gnn_option == 'GCNCONV':
-            self.conv1 = GCNConv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
-                                hidden_channels*4)
-            self.conv2 = GCNConv(hidden_channels*4, 
-                                hidden_channels*2)
-            self.conv3 = GCNConv(hidden_channels*2, 
+            self.gnn1 = GCNConv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
                                 hidden_channels)
-            self.conv4 = GCNConv(hidden_channels, 
-                                hidden_channels)
+            self.gnn = GCNConv(hidden_channels, 
+                               hidden_channels)
         elif gnn_option == 'ATTENTIVEFP':
-            self.conv1 = AttentiveFP(in_channels=num_node_features-2+atom_embedding_dim+bool_embedding_dim,
-                                     hidden_channels=hidden_channels,
-                                     out_channels=hidden_channels,
-                                     edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2,
-                                     num_layers=4,
-                                     num_timesteps=2,
-                                     dropout=self.dropout)
+            self.gnn = AttentiveFP(in_channels=num_node_features-2+atom_embedding_dim+bool_embedding_dim,
+                                   hidden_channels=hidden_channels,
+                                   out_channels=hidden_channels,
+                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2,
+                                   num_layers=num_layers_gnn,
+                                   num_timesteps=2,
+                                   dropout=self.dropout)
+            
+        if activation_function == 'relu':
+            self.act = F.relu()
+        if activation_function == 'leaky_relu':
+            self.act = F.leaky_relu()
+            
+        if readout_option == 'global_max_pool':
+            self.readout = global_max_pool()
+        elif readout_option == 'global_mean_pool':
+            self.readout = global_mean_pool()
+        elif readout_option == 'sag_pooling':
+            self.readout = SAGPooling(hidden_channels)
+        elif readout_option == 'asa_pooling':
+            self.readout = ASAPooling(hidden_channels, dropout=self.dropout)
 
     def forward(self, mol):
         if mol.mol == None:
             return torch.zeros([1, self.hidden_channels]).to(self.device)
         
+        # Encoding categorical features
         x, edge_index, edge_attr, batch = mol.x, mol.edge_index, mol.edge_attr, mol.batch
 
         atomic_num0 = self.atom_encoder(x[:, 0].int()) # encode atom type
@@ -77,23 +87,20 @@ class GNN(torch.nn.Module):
         # GNN pass
         if self.gnn_option == 'ATTENTIVEFP':
             x = self.conv1(x, edge_index, edge_attr, batch)
-        elif self.gnn_option == 'GATV2CONV':
-            x = F.relu(self.conv1(x, edge_index, edge_attr))
+        elif self.gnn_option == 'GATV2CONV' or self.gnn_option == 'GCNCONV':
+            x = self.act(self.gnn1(x, edge_index, edge_attr))
             x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv2(x, edge_index, edge_attr))
-            x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv3(x, edge_index, edge_attr))
-            x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv4(x, edge_index, edge_attr))
-            x = global_mean_pool(x, batch)
-        elif self.gnn_option == 'GCNCONV':
-            x = F.relu(self.conv1(x, edge_index))
-            x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv2(x, edge_index))
-            x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv3(x, edge_index))
-            x = F.dropout(x, p=self.dropout, training=self.training)
-            x = F.relu(self.conv4(x, edge_index))
-            x = global_mean_pool(x, batch)
-        
+
+            for i in range(self.num_layers_gnn - 2):
+                x = self.act(self.gnn(x, edge_index, edge_attr))
+                x = F.dropout(x, p=self.dropout, training=self.training)
+            
+            x = self.act(self.gnn(x, edge_index, edge_attr))
+
+        # Readout
+        if self.readout_option == 'sag_pooling' or self.readout_option == 'asa_pooling':
+            x = self.readout(x, edge_index, edge_attr, batch)
+        if self.readout_option == 'global_max_pool' or self.readout_option == 'global_mean_pool':
+            x = self.readout(x, batch)
+
         return x
