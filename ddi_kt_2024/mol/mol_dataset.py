@@ -26,6 +26,8 @@ class MolDataset(Dataset):
     
     self.x = new_list
 
+    return add_index
+
 
   def __getitem__(self, idx):
     x = self.x[idx]
