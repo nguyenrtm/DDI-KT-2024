@@ -83,22 +83,22 @@ class MultimodalModel(torch.nn.Module):
                                         classifier=False).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,
-                       hidden_channels=hidden_channels,
-                       dropout_rate=dropout_rate, 
-                       gnn_option=gnn_option,
-                       num_layers_gnn=num_layers_gnn,
-                       readout_option=readout_option,
-                       activation_function=activation_function,
-                       device=device).to(device)
+                        hidden_channels=hidden_channels,
+                        dropout_rate=dropout_rate, 
+                        gnn_option=gnn_option,
+                        num_layers_gnn=num_layers_gnn,
+                        readout_option=readout_option,
+                        activation_function=activation_function,
+                        device=device).to(device)
         
         self.gnn2 = GNN(num_node_features=num_node_features,
-                       hidden_channels=hidden_channels,
-                       dropout_rate=dropout_rate, 
-                       gnn_option=gnn_option,
-                       num_layers_gnn=num_layers_gnn,
-                       readout_option=readout_option,
-                       activation_function=activation_function,
-                       device=device).to(device)
+                        hidden_channels=hidden_channels,
+                        dropout_rate=dropout_rate, 
+                        gnn_option=gnn_option,
+                        num_layers_gnn=num_layers_gnn,
+                        readout_option=readout_option,
+                        activation_function=activation_function,
+                        device=device).to(device)
 
         self.modal = modal
         

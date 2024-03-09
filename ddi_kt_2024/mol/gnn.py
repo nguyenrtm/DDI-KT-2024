@@ -54,14 +54,14 @@ class GNN(torch.nn.Module):
                                    dropout=self.dropout)
             
         if activation_function == 'relu':
-            self.act = F.relu()
+            self.act = F.relu
         if activation_function == 'leaky_relu':
-            self.act = F.leaky_relu()
+            self.act = F.leaky_relu
             
         if readout_option == 'global_max_pool':
-            self.readout = global_max_pool()
+            self.readout = global_max_pool
         elif readout_option == 'global_mean_pool':
-            self.readout = global_mean_pool()
+            self.readout = global_mean_pool
         elif readout_option == 'sag_pooling':
             self.readout = SAGPooling(hidden_channels)
         elif readout_option == 'asa_pooling':
