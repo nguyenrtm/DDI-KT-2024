@@ -7,12 +7,12 @@ from torch_geometric.nn import global_mean_pool, global_max_pool, SAGPooling, AS
 
 class GNN(torch.nn.Module):
     def __init__(self, 
-                 atom_embedding_dim: int = 64,
-                 bond_embedding_dim: int = 16,
+                 atom_embedding_dim: int = 16,
+                 bond_embedding_dim: int = 8,
                  bool_embedding_dim: int = 2,
                  num_node_features: int = 10,
                  num_edge_features: int = 4,
-                 hidden_channels: int = 512, 
+                 hidden_channels: int = 128, 
                  dropout_rate: float = 0.2,
                  num_layers_gnn: int = 3,
                  gnn_option: str = 'GATV2CONV',
