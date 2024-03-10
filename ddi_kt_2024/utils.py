@@ -188,6 +188,32 @@ def save_model(output_path, file_name, config, model, wandb_available=False):
     # Save .pt file
     torch.save(model.state_dict(), str(Path(output_path) / file_name))
     logging.info(f"Model saved into {str(Path(output_path) / file_name)}")
+
+def get_idx(sent, vocab_lookup, tag_lookup, direction_lookup, edge_lookup):
+    '''
+    Get index of features of tokens in sentence
+    '''
+    if sent == None:
+        return None
+    to_return = list()
+    i = 0
+    for dp in sent:
+        word1_idx = lookup(dp[0][0], vocab_lookup)
+        word2_idx = lookup(dp[2][0], vocab_lookup)
+        tag1_idx = lookup(dp[0][1], tag_lookup)
+        tag2_idx = lookup(dp[2][1], tag_lookup)
+        direction_idx = lookup(dp[1][0], direction_lookup)
+        edge_idx = lookup(dp[1][1], edge_lookup)
+        pos1 = dp[0][2]
+        pos2 = dp[2][2]
+        v = torch.tensor([word1_idx, tag1_idx, direction_idx, edge_idx, word2_idx, tag2_idx])
+        v = torch.hstack((v[:2], pos1, v[2:6], pos2))
+        if i == 0:
+            to_return = v.view(1, -1)
+        else:
+            to_return = torch.vstack((to_return, v))
+        i += 1
+    return to_return
     
 def get_idx_dataset(data,
                     vocab_lookup,
