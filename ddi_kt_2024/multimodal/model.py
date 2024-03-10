@@ -118,6 +118,10 @@ class MultimodalModel(torch.nn.Module):
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*600, 
                                                 out_features=target_class,
                                                 bias=False)
+        elif self.modal == 'gnn_only':
+            self.dense_to_tag = torch.nn.Linear(in_features=2*hidden_channels, 
+                                                out_features=target_class,
+                                                bias=False)
 
         self.softmax = torch.nn.Softmax(dim=1)
 
