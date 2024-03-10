@@ -86,7 +86,7 @@ class GNN(torch.nn.Module):
             
         # GNN pass
         if self.gnn_option == 'ATTENTIVEFP':
-            x = self.conv1(x, edge_index, edge_attr, batch)
+            x = self.gnn(x, edge_index, edge_attr, batch)
         elif self.gnn_option == 'GATV2CONV' or self.gnn_option == 'GCNCONV':
             x = self.act(self.gnn1(x, edge_index, edge_attr))
             x = F.dropout(x, p=self.dropout, training=self.training)
