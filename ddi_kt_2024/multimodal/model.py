@@ -175,3 +175,14 @@ class MultimodalModel(torch.nn.Module):
             x = self.softmax(x)
 
             return x
+        elif self.modal == 'gnn_only':
+            mol_x1 = self.gnn1(mol_x1)
+            mol_x2 = self.gnn2(mol_x2)
+
+            x = torch.cat((mol_x1, mol_x2), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
