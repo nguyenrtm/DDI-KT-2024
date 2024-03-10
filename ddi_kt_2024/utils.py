@@ -189,3 +189,12 @@ def save_model(output_path, file_name, config, model, wandb_available=False):
     torch.save(model.state_dict(), str(Path(output_path) / file_name))
     logging.info(f"Model saved into {str(Path(output_path) / file_name)}")
     
+def get_idx_dataset(data,
+                    vocab_lookup,
+                    tag_lookup,
+                    direction_lookup,
+                    edge_lookup):
+    tmp = list()
+    for i in data:
+        tmp.append(get_idx(i, vocab_lookup, tag_lookup, direction_lookup, edge_lookup))
+    return tmp
