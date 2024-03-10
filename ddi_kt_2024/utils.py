@@ -128,7 +128,7 @@ def rm_no_smiles(x, y):
     x_new, y_new = list(), list()
     idx_list = list()
     for i in range(len(x)):
-        if x[i][0] != 'None' and x[i][1] != None: 
+        if x[i][0] != 'None' and x[i][1] != 'None': 
             x_new.append(x[i])
             y_new.append(y[i])
             idx_list.append(i)
