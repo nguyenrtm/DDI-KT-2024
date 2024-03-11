@@ -55,9 +55,14 @@ def run_train(yaml_path):
     elif config.type_embed == 'bert_sentence':
         data_train = torch.load(config.train_custom_dataset)
         data_test = torch.load(config.test_custom_dataset)
+        # breakpoint()
+    elif config.type_embed == "bert_sentence_unpad":
+        data_train = torch.load(config.train_custom_dataset)
+        data_test = torch.load(config.test_custom_dataset)
         data_train.fix_unsqueeze()
         data_test.fix_unsqueeze()
-        # breakpoint()
+        data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+        data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
@@ -94,7 +99,7 @@ def run_train(yaml_path):
             weight_decay=config.weight_decay,
             device=config.device,
             wandb_available=wandb_available)
-    elif config.type_embed == "bert_sentence":
+    elif config.type_embed == "bert_sentence" or config.type_embed == "bert_sentence_unpad":
         model = BertTrainer(
             dropout_rate=config.dropout_rate,
             word_embedding_size=config.word_embedding_size,

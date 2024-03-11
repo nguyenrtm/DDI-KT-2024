@@ -225,7 +225,7 @@ class BertModel(nn.Module):
         x1 = self.conv1(x)
         x2 = self.conv2(x)
         x3 = self.conv3(x)
-
+        breakpoint()
         x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
         x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
         x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]

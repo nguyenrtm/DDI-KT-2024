@@ -4,6 +4,7 @@ wandb/
 # Avoid pushing model and infer result
 /checkpoints
 /results
+/*.pt
 
 # From nbn
 /drugbank
