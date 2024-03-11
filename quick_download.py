@@ -42,7 +42,7 @@ def process(option, bucket_path, local_path):
     if option == "download":
         download_public_file(bucket_name, source_blob_name, local_path)
     if option == "upload":
-        upload_blob(bucket_name, source_file_name, local_path)
+        upload_blob(bucket_name, source_blob_name, local_path)
 
 if __name__=="__main__":
     process()
