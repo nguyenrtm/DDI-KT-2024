@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATv2Conv, GCNConv
 from torch_geometric.nn.models import AttentiveFP
-from torch_geometric.nn import global_mean_pool, global_max_pool, SAGPooling, ASAPooling
+from torch_geometric.nn import global_mean_pool, global_max_pool, global_add_pool
 
 class GNN(torch.nn.Module):
     def __init__(self, 
@@ -49,8 +49,9 @@ class GNN(torch.nn.Module):
                                    hidden_channels=hidden_channels,
                                    out_channels=hidden_channels,
                                    edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2,
-                                   num_layers=num_layers_gnn,
-                                   num_timesteps=2,
+                                   num_layers=3,
+                                   num_timesteps=2
+                                   ,
                                    dropout=self.dropout)
             
         if activation_function == 'relu':
@@ -62,10 +63,8 @@ class GNN(torch.nn.Module):
             self.readout = global_max_pool
         elif readout_option == 'global_mean_pool':
             self.readout = global_mean_pool
-        elif readout_option == 'sag_pooling':
-            self.readout = SAGPooling(hidden_channels)
-        elif readout_option == 'asa_pooling':
-            self.readout = ASAPooling(hidden_channels, dropout=self.dropout)
+        elif readout_option == 'global_add_pool':
+            self.readout = global_add_pool
 
     def forward(self, mol):
         if mol.mol == None:
@@ -83,11 +82,11 @@ class GNN(torch.nn.Module):
 
         x = torch.cat([atomic_num0, x[:, 1:9], atom_is_aromatic0], dim=1)
         edge_attr = torch.cat([bond_type0, edge_attr[:, 1:2], bond_is_conjugated0, bond_is_aromatic0], dim=1)
-            
+
         # GNN pass
         if self.gnn_option == 'ATTENTIVEFP':
             x = self.gnn(x, edge_index, edge_attr, batch)
-        elif self.gnn_option == 'GATV2CONV' or self.gnn_option == 'GCNCONV':
+        elif self.gnn_option == 'GATV2CONV':
             x = self.act(self.gnn1(x, edge_index, edge_attr))
             x = F.dropout(x, p=self.dropout, training=self.training)
 
@@ -96,11 +95,17 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index, edge_attr))
+        elif self.gnn_option == 'GCNCONV':
+            x = self.act(self.gnn1(x, edge_index))
+            x = F.dropout(x, p=self.dropout, training=self.training)
 
-        # Readout
-        if self.readout_option == 'sag_pooling' or self.readout_option == 'asa_pooling':
-            x = self.readout(x, edge_index, edge_attr, batch)
-        if self.readout_option == 'global_max_pool' or self.readout_option == 'global_mean_pool':
+            for i in range(self.num_layers_gnn - 2):
+                x = self.act(self.gnn(x, edge_index))
+                x = F.dropout(x, p=self.dropout, training=self.training)
+            
+            x = self.act(self.gnn(x, edge_index))
+
+            # Readout
             x = self.readout(x, batch)
-
+            
         return x

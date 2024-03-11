@@ -74,6 +74,9 @@ class Trainer:
                                     text_model=text_model,
                                     modal=modal,
                                     gnn_option=gnn_option,
+                                    num_layers_gnn=num_layers_gnn,
+                                    readout_option=readout_option,
+                                    activation_function=activation_function,
                                     device=device).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
