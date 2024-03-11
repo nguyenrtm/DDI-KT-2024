@@ -112,6 +112,14 @@ class BertEmbeddingDataset(CustomDataset):
     def get_text(self):
         self.text = [iter['text'] for iter in self.all_candidates]
 
+    def fix_unsqueeze(self):
+        for data_i in self.data:
+            if len(list(data_i.shape)) == 1:
+                data_i.unsqueeze_(dim=0)
+                data_i.unsqueeze_(dim=0) # Not an error
+            elif len(list(data_i.shape)) == 2:
+                data_i.unsqueeze_(dim=0)
+
     def add_embed_to_data(self, 
     huggingface_model_name = 'dmis-lab/biobert-base-cased-v1.2', 
     all_words_path ='cache/fasttext/nguyennb/all_words.txt', mode = 'mean',
