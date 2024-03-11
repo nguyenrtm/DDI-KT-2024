@@ -95,6 +95,7 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index, edge_attr))
+            x = self.readout(x, batch)
         elif self.gnn_option == 'GCNCONV':
             x = self.act(self.gnn1(x, edge_index))
             x = F.dropout(x, p=self.dropout, training=self.training)
@@ -104,8 +105,6 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index))
-
-            # Readout
             x = self.readout(x, batch)
             
         return x
