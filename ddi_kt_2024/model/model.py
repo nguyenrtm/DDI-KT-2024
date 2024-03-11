@@ -270,3 +270,4 @@ class EmbeddedRecurrentModel(nn.Module):
                 conv3_length: int = 3,
                 target_class: int = 5
                 ):
+        pass
