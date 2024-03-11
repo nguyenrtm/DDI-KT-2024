@@ -132,6 +132,11 @@ class BertEmbeddingDataset(CustomDataset):
             if (i+1) % 100 == 0:
                 logging.info(f"Handled {i+1} / {len(self.data)}")
 
+    def fix_unsqueeze(self):
+        for data_i in self.data:
+            if len(list(data_i.shape)) == 2:
+                data_i = torch.unsqueeze(data_i, dim=0)
+    
     def __getitem__(self,idx):
         sample = self.data[idx]
         label = self.labels[idx]

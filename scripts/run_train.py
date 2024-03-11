@@ -55,6 +55,8 @@ def run_train(yaml_path):
     elif config.type_embed == 'bert_sentence':
         data_train = torch.load(config.train_custom_dataset)
         data_test = torch.load(config.test_custom_dataset)
+        data_train.fix_unsqueeze()
+        data_test.fix_unsqueeze()
         # breakpoint()
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
