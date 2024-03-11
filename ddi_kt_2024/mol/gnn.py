@@ -50,8 +50,7 @@ class GNN(torch.nn.Module):
                                    out_channels=hidden_channels,
                                    edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2,
                                    num_layers=3,
-                                   num_timesteps=2
-                                   ,
+                                   num_timesteps=2,
                                    dropout=self.dropout)
             
         if activation_function == 'relu':
@@ -60,11 +59,11 @@ class GNN(torch.nn.Module):
             self.act = F.leaky_relu
             
         if readout_option == 'global_max_pool':
-            self.readout = global_max_pool
+            self.readout_layer = global_max_pool
         elif readout_option == 'global_mean_pool':
-            self.readout = global_mean_pool
+            self.readout_layer = global_mean_pool
         elif readout_option == 'global_add_pool':
-            self.readout = global_add_pool
+            self.readout_layer = global_add_pool
 
     def forward(self, mol):
         if mol.mol == None:
@@ -95,7 +94,7 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index, edge_attr))
-            x = self.readout(x, batch)
+            x = self.readout_layer(x, batch)
         elif self.gnn_option == 'GCNCONV':
             x = self.act(self.gnn1(x, edge_index))
             x = F.dropout(x, p=self.dropout, training=self.training)
@@ -105,6 +104,6 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index))
-            x = self.readout(x, batch)
+            x = self.readout_layer(x, batch)
             
         return x
