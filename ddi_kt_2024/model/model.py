@@ -235,3 +235,38 @@ class BertModel(nn.Module):
         x = self.softmax(x)
 
         return x
+
+class EmbeddedRecurrentModel(nn.Module):
+    """
+    Explain: This model can work with pre-embedded Dataset.
+    Support type:
+    - LSTM
+    - Bi-LSTM
+    - GRU (gate recurrent unit)
+    Support activation function:
+    - ReLU
+    - LeakyReLU
+    - PReLU
+    - GELU
+    """
+    def __init__(self,
+                dropout_rate: float = 0.5,
+                word_embedding_size: int = 200,
+                tag_number: int = 51,
+                tag_embedding_size: int = 50,
+                position_number: int = 4,
+                position_embedding_size: int = 50,
+                direction_number: int = 3,
+                direction_embedding_size: int = 50,
+                edge_number: int = 46,
+                edge_embedding_size: int = 200,
+                token_embedding_size: int = 500,
+                dep_embedding_size: int = 500,
+                conv1_out_channels: int = 256,
+                conv2_out_channels: int = 256,
+                conv3_out_channels: int = 256,
+                conv1_length: int = 1,
+                conv2_length: int = 2,
+                conv3_length: int = 3,
+                target_class: int = 5
+                ):
