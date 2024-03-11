@@ -1,7 +1,11 @@
 import torch
 from tqdm import tqdm
+from transformers import AutoTokenizer, BertModel
+import numpy as np
 
-from ddi_kt_2024.utils import offset_to_idx
+from ddi_kt_2024.utils import offset_to_idx, get_lookup
+from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
+from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize
 
 class PathProcesser:
     def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction):
@@ -21,7 +25,7 @@ class PathProcesser:
         lst = []
         count_bef = ent_start
         count_in = ent_end - ent_start
-        count_aft = text_length - ent_end
+        count_aft = text_length - ent_end - 1
 
         for i in range(count_bef, 0, -1):
             lst.append(-i)
@@ -81,3 +85,97 @@ class PathProcesser:
             all_mapped_sdp.append(mapped_sdp)
             
         return all_mapped_sdp
+
+class TextPosProcessor(PathProcesser):
+    """
+    The stucture: [bert_embedding, pos_ent, zero_ent, pos_tag]
+    """
+    def __init__(self, lookup_word, lookup_tag, bert_model):
+        """ 
+        Lookup_word and lookup_tag from get_lookup()
+        Bert_model is just name in huggingface
+        """
+        self.spacy_nlp = SpacyNLP()
+        self.tokenizer = AutoTokenizer.from_pretrained(bert_model)
+        self.bert_model = BertModel.from_pretrained(bert_model)
+        self.lookup_word = lookup_word
+        self.lookup_tag = lookup_tag
+
+    def get_word_pos_embed(self, candidate):
+        '''
+        Stack word pos together
+        Procedure: Get tokenize Get sentence embed 
+        '''
+        text = candidate['text']
+        doc = self.spacy_nlp.nlp(text)
+
+        # Get tokenize
+        encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
+        sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
+        result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:] # Remove [CLS] and [SEP]
+
+        # Get pos embedding
+        [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'])
+        [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'])
+
+        word_index = []
+        word_status = map_new_tokenize([i.text for i in doc], sentence_tokenize)
+        # Get word indexes
+        for tok in doc:
+            pos = tok.i
+            tag_key = tok.tag_
+            word_key = tok.text
+            try:
+                word_index.append(self.lookup_tag[tag_key])
+            except: 
+                if word_key not in self.lookup_word.keys():
+                    print(f"Token '{word_key}' is not in vocabulary!")
+                    word_index.append(self.lookup_tag[tag_key])
+        
+        # Let pos_ent, zero_ent and word_index fit with token size
+        offset = 0
+        for status in word_status:
+            if status['min_id'] == status['max_id']:
+                continue
+            values = [
+                pos_ent_1[status['min_id']+offset],
+                zero_ent_1[status['min_id']+offset],
+                pos_ent_2[status['min_id']+offset],
+                zero_ent_2[status['min_id']+offset],
+                word_index[status['min_id']+offset],
+                ]
+            for _ in range(status['max_id'] - status['min_id']):
+                pos_ent_1.insert(status['min_id']+offset, values[0])
+                zero_ent_1.insert(status['min_id']+offset, values[1])
+                pos_ent_2.insert(status['min_id']+offset, values[1])
+                zero_ent_2.insert(status['min_id']+offset, values[1])
+                word_index.insert(status['min_id']+offset, values[1])
+            offset += status['max_id'] - status['min_id']
+
+        # Concat
+        pos_ent_1 = torch.from_numpy(np.array(pos_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+        pos_ent_2 = torch.from_numpy(np.array(pos_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+        zero_ent_1 = torch.from_numpy(np.array(zero_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+        zero_ent_2 = torch.from_numpy(np.array(zero_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+        word_index = torch.from_numpy(np.array(word_index, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+        return torch.cat((result, pos_ent_1, pos_ent_2, zero_ent_1, zero_ent_2, word_index), dim=2)
+
+if __name__=="__main__":
+    # Test
+    spacy_nlp = SpacyNLP()
+    lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
+    tpp = TextPosProcessor(lookup_word, lookup_tag, 'allenai/scibert_scivocab_uncased')
+    candidate = {'label': 'false',
+    'id': 'DDI-DrugBank.d519.s3.p0',
+    'text': 'Laboratory Tests Response to Plenaxis should be monitored by measuring serum total testosterone concentrations just prior to administration on Day 29 and every 8 weeks thereafter.',
+    'e1': {'@id': 'DDI-DrugBank.d519.s3.e0',
+    '@charOffset': '29-36',
+    '@type': 'brand',
+    '@text': 'Plenaxis'},
+    'e2': {'@id': 'DDI-DrugBank.d519.s3.e1',
+    '@charOffset': '83-94',
+    '@type': 'drug',
+    '@text': 'testosterone'}}
+    result = tpp.get_word_pos_embed(candidate)
+    print(f"Result shape: {result.shape}")

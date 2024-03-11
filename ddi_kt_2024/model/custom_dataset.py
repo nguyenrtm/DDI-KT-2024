@@ -144,3 +144,7 @@ class BertEmbeddingDataset(CustomDataset):
         sample = self.data[idx]
         label = self.labels[idx]
         return sample, label
+
+class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
+    """Bert + pos customdataset only"""
+    

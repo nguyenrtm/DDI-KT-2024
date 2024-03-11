@@ -63,6 +63,8 @@ def run_train(yaml_path):
         data_test.fix_unsqueeze()
         data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+        data_train.squeeze()
+        data_test.squeeze()
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
