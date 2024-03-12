@@ -65,10 +65,11 @@ def offset_to_idx(text, offset, nlp):
     end = int(offset.split('-')[1])
     start_idx = -1
     end_idx = -1
+    # breakpoint()
     for i in range(len(doc) - 1):
         if doc[i].idx <= start and doc[i+1].idx > start:
             start_idx = doc[i].i
-        if doc[i].idx < end and doc[i+1].idx > end:
+        if (doc[i].idx <= end and doc[i+1].idx > end):
             end_idx = doc[i].i
     if start_idx == -1:
         start_idx = len(doc) - 1

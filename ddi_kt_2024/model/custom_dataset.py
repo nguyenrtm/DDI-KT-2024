@@ -152,14 +152,17 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         Bert_model is just name in huggingface
         """
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
-        for iter, candidate in enumerate(self.all_candidates):
+        self.temp_labels = []
+        for iter, candidate in enumerate(self.all_candidates[404:408]):
             try:
                 result = tpp.get_word_pos_embed(candidate)
             except Exception as e:
                 print(f"Exception when handle at index {iter}")
-                del self.labels[iter]
                 continue
             self.data.append(result)
+            self.temp_labels.append(self.labels[iter])
             if (iter + 1 )% 100 == 0:
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
+        self.labels = self.temp_labels
+        # breakpoint()
         print("Convert to tensor completed!")

@@ -113,7 +113,6 @@ class TextPosProcessor(PathProcesser):
         # Get pos embedding
         [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'])
         [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'])
-
         # Get sentence embed
         encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
@@ -129,20 +128,19 @@ class TextPosProcessor(PathProcesser):
             word_key = tok.text
 
             # Get tokenize
-            encoding = self.tokenizer.encode(word_key, return_tensors="pt")
+            encoding = self.tokenizer.encode(word_key.lower(), return_tensors="pt")
             word_index.append(self.lookup_tag[tag_key])
-            try:
-                # Add more if 1 token spacy = n token bert
-                for _ in range(int(encoding.shape[1])-3):
-                    pos_ent_1.insert(iter+offset, pos_ent_1[iter+offset])
-                    pos_ent_2.insert(iter+offset, pos_ent_2[iter+offset])
-                    zero_ent_1.insert(iter+offset, zero_ent_1[iter+offset])
-                    zero_ent_2.insert(iter+offset, zero_ent_2[iter+offset])
-                    word_index.append(self.lookup_tag[tag_key])
-            except:
-                breakpoint()
-            offset += int(encoding.shape[1])-3
 
+                # Add more if 1 token spacy = n token bert
+            for _ in range(int(encoding.shape[1])-3):
+                pos_ent_1.insert(iter+offset, pos_ent_1[iter+offset])
+                pos_ent_2.insert(iter+offset, pos_ent_2[iter+offset])
+                zero_ent_1.insert(iter+offset, zero_ent_1[iter+offset])
+                zero_ent_2.insert(iter+offset, zero_ent_2[iter+offset])
+                word_index.append(self.lookup_tag[tag_key])
+
+            offset += int(encoding.shape[1])-3
+        # breakpoint()
         # Concat
         pos_ent_1 = torch.from_numpy(np.array(pos_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         pos_ent_2 = torch.from_numpy(np.array(pos_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
@@ -203,7 +201,7 @@ class TextPosProcessor(PathProcesser):
                 zero_ent_2.insert(status['min_id'], values[3])
                 word_index.insert(status['min_id'], values[4])
             # offset += status['max_id'] - status['min_id']
-        breakpoint()
+
         # Concat
         pos_ent_1 = torch.from_numpy(np.array(pos_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         pos_ent_2 = torch.from_numpy(np.array(pos_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
@@ -219,7 +217,6 @@ if __name__=="__main__":
     lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
     lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
     tpp = TextPosProcessor(lookup_word, lookup_tag, 'allenai/scibert_scivocab_uncased')
-    candidate = {'label': 'false', 'id': 'DDI-DrugBank.d297.s1.p0', 'text': 'Population pharmacokinetic analyses revealed that MTX, NSAIDs, corticosteroids, and TNF blocking agents did not influence abatacept clearance.', 
-'e1': {'@id': 'DDI-DrugBank.d297.s1.e0', '@charOffset': '50-52', '@type': 'drug', '@text': 'MTX'}, 'e2': {'@id': 'DDI-DrugBank.d297.s1.e1', '@charOffset': '55-60', '@type': 'group', '@text': 'NSAIDs'}} 
+    candidate = {'label': 'false', 'id': 'DDI-DrugBank.d244.s0.p22', 'text': 'Before using this medication, tell your doctor or pharmacist of all prescription and nonprescription products you may use, especially of: aminoglycosides (e.g., gentamicin, amikacin), amphotericin B, cyclosporine, non-steroidal anti-inflammatory drugs (e.g., ibuprofen), tacrolimus, vancomycin.', 'e1': {'@id': 'DDI-DrugBank.d244.s0.e3', '@charOffset': '184-197', '@type': 'drug', '@text': 'amphotericin B'}, 'e2': {'@id': 'DDI-DrugBank.d244.s0.e5', '@charOffset': '214-244', '@type': 'group', '@text': 'non-steroidal anti-inflammatory'}}
     result = tpp.get_word_pos_embed(candidate)
     print(f"Result shape: {result.shape}")
