@@ -121,9 +121,9 @@ class TextModel(nn.Module):
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
-        x = x.unsqueeze(1)
-
         if self.model_option == 'cnn':
+            x = x.unsqueeze(1)
+            
             x1 = self.conv1(x)
             x2 = self.conv2(x)
             x3 = self.conv3(x)
@@ -263,9 +263,9 @@ class BertModel(nn.Module):
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
-        x = x.unsqueeze(1)
-
         if self.model_option == 'cnn':
+            x = x.unsqueeze(1)
+            
             x1 = self.conv1(x)
             x2 = self.conv2(x)
             x3 = self.conv3(x)

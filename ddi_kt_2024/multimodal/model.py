@@ -106,9 +106,14 @@ class MultimodalModel(torch.nn.Module):
         self.modal = modal
         
         if self.modal == '0':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
-                                                out_features=target_class,
-                                                bias=False)
+            if text_model_option == 'bilstm':
+                self.dense_to_tag = torch.nn.Linear(in_features=(conv1_out_channels+conv2_out_channels+conv3_out_channels)*2, 
+                                                    out_features=target_class,
+                                                    bias=False)
+            else:
+                self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
+                                                    out_features=target_class,
+                                                    bias=False)
         elif self.modal == '1':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
                                                 out_features=target_class,
