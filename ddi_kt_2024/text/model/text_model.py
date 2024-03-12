@@ -79,14 +79,14 @@ class TextModel(nn.Module):
         elif self.model_option == 'lstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=1,
+                                num_layers=3,
                                 batch_first=True,
                                 bidirectional=False,
                                 dropout=dropout_rate)
         elif self.model_option == 'bilstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=1,
+                                num_layers=3,
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)
