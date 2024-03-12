@@ -34,6 +34,7 @@ class MultimodalModel(torch.nn.Module):
                  num_layers_gnn: str = 3,
                  readout_option: str = 'global_max_pool',
                  activation_function: str = 'relu',
+                 text_model_option: str = 'cnn',
                  device: str = 'cpu'):
         super(MultimodalModel, self).__init__()
         self.device = device
@@ -58,6 +59,7 @@ class MultimodalModel(torch.nn.Module):
                                         conv2_length=conv2_length,
                                         conv3_length=conv3_length,
                                         target_class=target_class,
+                                        model_option=text_model_option,
                                         classifier=False).to(device)
         elif text_model == 'fasttext':
             self.text_model = TextModel(we=we,
@@ -80,6 +82,7 @@ class MultimodalModel(torch.nn.Module):
                                         conv2_length=conv2_length,
                                         conv3_length=conv3_length,
                                         target_class=target_class,
+                                        model_option=text_model_option,
                                         classifier=False).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,

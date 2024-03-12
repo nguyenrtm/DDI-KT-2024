@@ -44,6 +44,7 @@ class Trainer:
                  num_layers_gnn: str = 3,
                  readout_option: str = 'global_max_pool',
                  activation_function: str = 'relu',
+                 text_model_option: str = 'cnn',
                  log: bool = True,
                  device: str = 'cpu'
                  ):
@@ -77,6 +78,7 @@ class Trainer:
                                     num_layers_gnn=num_layers_gnn,
                                     readout_option=readout_option,
                                     activation_function=activation_function,
+                                    text_model_option=text_model_option,
                                     device=device).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
