@@ -23,11 +23,13 @@ class TextModel(nn.Module):
                  conv2_length: int = 2,
                  conv3_length: int = 3,
                  target_class: int = 5,
+                 model_option: str = 'cnn',
                  classifier: bool = False
                  ):
 
         super(TextModel, self).__init__()
         self.classifier = classifier
+        self.model_option = model_option
         self.w2v = nn.Embedding.from_pretrained(torch.tensor(we.vectors))
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -47,32 +49,47 @@ class TextModel(nn.Module):
         
         self.dropout = nn.Dropout(dropout_rate)
         
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv1_out_channels,
-                      kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+        if self.model_option == 'cnn':
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv1_out_channels,
+                        kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
 
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv2_out_channels,
-                      kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+            self.conv2 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv2_out_channels,
+                        kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
 
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv3_out_channels,
-                      kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+            self.conv3 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv3_out_channels,
+                        kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
+        elif self.model_option == 'lstm':
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                num_layers=1,
+                                batch_first=True,
+                                bidirectional=False,
+                                dropout=dropout_rate)
+        elif self.model_option == 'bilstm':
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                num_layers=1,
+                                batch_first=True,
+                                bidirectional=True,
+                                dropout=dropout_rate)
 
         self.relu = nn.ReLU()
         self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
@@ -106,15 +123,19 @@ class TextModel(nn.Module):
 
         x = x.unsqueeze(1)
 
-        x1 = self.conv1(x)
-        x2 = self.conv2(x)
-        x3 = self.conv3(x)
+        if self.model_option == 'cnn':
+            x1 = self.conv1(x)
+            x2 = self.conv2(x)
+            x3 = self.conv3(x)
 
-        x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
-        x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
-        x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
+            x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
+            x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
+            x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
 
-        x = torch.cat((x1, x2, x3), dim=1)
+            x = torch.cat((x1, x2, x3), dim=1)
+        elif self.model_option == 'lstm' or self.model_option == 'bilstm':
+            x, _ = self.lstm(x)
+            x = x[:, -1, :]
 
         # classifier
         if self.classifier == True:
@@ -144,12 +165,14 @@ class BertModel(nn.Module):
                  conv2_length: int = 2,
                  conv3_length: int = 3,
                  target_class: int = 5,
-                 classifier: bool = False
+                 classifier: bool = False,
+                 model_option: str = 'cnn'
                  ):
 
         super(BertModel, self).__init__()
         self.classifier = classifier
         self.word_embedding_size = word_embedding_size
+        self.model_option = model_option
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
         self.edge_embedding = nn.Embedding(edge_number, edge_embedding_size, padding_idx=0)
@@ -168,32 +191,47 @@ class BertModel(nn.Module):
         
         self.dropout = nn.Dropout(dropout_rate)
         
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv1_out_channels,
-                      kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+        if self.model_option == 'cnn':
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv1_out_channels,
+                        kernel_size=(conv1_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
 
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv2_out_channels,
-                      kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+            self.conv2 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv2_out_channels,
+                        kernel_size=(conv2_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
 
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(in_channels=1,
-                      out_channels=conv3_out_channels,
-                      kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
-                      stride=1,
-                      bias=False),
-            nn.ReLU()
-        )
+            self.conv3 = nn.Sequential(
+                nn.Conv2d(in_channels=1,
+                        out_channels=conv3_out_channels,
+                        kernel_size=(conv3_length, token_embedding_size * 2 + dep_embedding_size),
+                        stride=1,
+                        bias=False),
+                nn.ReLU()
+            )
+        elif self.model_option == 'lstm':
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                num_layers=1,
+                                batch_first=True,
+                                bidirectional=False,
+                                dropout=dropout_rate)
+        elif self.model_option == 'bilstm':
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                num_layers=1,
+                                batch_first=True,
+                                bidirectional=True,
+                                dropout=dropout_rate)
 
         self.relu = nn.ReLU()
         self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
@@ -227,15 +265,19 @@ class BertModel(nn.Module):
 
         x = x.unsqueeze(1)
 
-        x1 = self.conv1(x)
-        x2 = self.conv2(x)
-        x3 = self.conv3(x)
+        if self.model_option == 'cnn':
+            x1 = self.conv1(x)
+            x2 = self.conv2(x)
+            x3 = self.conv3(x)
 
-        x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
-        x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
-        x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
+            x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
+            x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
+            x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
 
-        x = torch.cat((x1, x2, x3), dim=1)
+            x = torch.cat((x1, x2, x3), dim=1)
+        elif self.model_option == 'lstm' or self.model_option == 'bilstm':
+            x, _ = self.lstm(x)
+            x = x[:, -1, :]
 
         if self.classifier == True:
             x = self.dense_to_tag(x)
