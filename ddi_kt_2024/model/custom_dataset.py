@@ -156,7 +156,6 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
             try:
                 result = tpp.get_word_pos_embed(candidate)
             except Exception as e:
-                breakpoint()
                 print(f"Exception when handle at index {iter}")
                 del self.labels[iter]
                 continue

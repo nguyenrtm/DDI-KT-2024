@@ -42,10 +42,6 @@ def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sen
     return this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last
 
 def map_new_tokenize(words, sentence_tokenize):
-    '''
-    min_id: Min id of token
-    max_id: Max id of THAT token (not the next token)
-    '''
     new_tokenize_ids = []
     for word in words:
         word = word.lower()
@@ -61,9 +57,6 @@ def map_new_tokenize(words, sentence_tokenize):
                 min_id = token_id
                 max_id = token_id+1
                 while True:
-                    if max_id == len(sentence_tokenize):
-                        break
-                    
                     if sentence_tokenize[max_id][:2] != "##":
                         break
                     else:

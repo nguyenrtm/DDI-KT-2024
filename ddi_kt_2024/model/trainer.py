@@ -131,6 +131,7 @@ class BaseTrainer:
                         "val_f_effect": self.val_f[-1][2],
                         "val_f_mechanism": self.val_f[-1][3],
                         "val_f_int": self.val_f[-1][4],
+                        "max_val_micro_f1": max(self.val_micro_f1)
                     }
                 )
 
@@ -254,6 +255,61 @@ class BertTrainer(BaseTrainer):
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
+        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
+        self.device = device
+        self.train_loss = list()
+        self.train_f = list()
+        self.val_loss = list()
+        self.val_f = list()
+        self.val_micro_f1 = list()
+        self.wandb_available = wandb_available
+
+class BertWithPostionOnlyTrainer(BaseTrainer):
+    def __init__(self,
+            dropout_rate: float = 0.5,
+            word_embedding_size: int = 768,
+            position_number: int = 512,
+            position_embedding_size: int = 128,
+            position_embedding_type: str = "normal",
+            tag_number: int = 51,
+            tag_embedding_size: int = 64,
+            token_embedding_size : int = 256,
+            conv1_out_channels: int = 256,
+            conv2_out_channels: int = 256,
+            conv3_out_channels: int = 256,
+            conv1_length: int = 1,
+            conv2_length: int = 2,
+            conv3_length: int = 3,
+            target_class: int = 5,
+            w_false: float = 21580 / 17759,
+            w_advice: float = 21580 / 826,
+            w_effect: float = 21580 / 1687,
+            w_mechanism: float = 21580 / 1319,
+            w_int: float = 21580 / 189,
+            lr: float = 0.0001,
+            weight_decay: float = 1e-4,
+            device='cpu',
+            wandb_available=False
+            ):
+        self.model = BertWithPostionOnlyModel(
+            dropout_rate,
+            word_embedding_size,
+            position_number,
+            position_embedding_size,
+            position_embedding_type,
+            tag_number,
+            tag_embedding_size,
+            token_embedding_size ,
+            conv1_out_channels,
+            conv2_out_channels,
+            conv3_out_channels,
+            conv1_length,
+            conv2_length,
+            conv3_length,
+            target_class,
+        ).to(device)
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
