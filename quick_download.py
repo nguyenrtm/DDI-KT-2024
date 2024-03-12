@@ -67,5 +67,36 @@ def process(option, bucket_path, local_path, bucket_dest):
     if option == "delete":
         delete_blob(bucket_name, source_blob_name)
 
+def process_api(option, bucket_path, local_path, bucket_dest):
+    """For inside file usage"""
+    bucket_name = bucket_path.split("/")[0]
+    source_blob_name = "/".join(bucket_path.split("/")[1:])
+    if option == "download":
+        if local_path is None:
+            print("Please give the local path")
+            return
+        download_public_file(bucket_name, source_blob_name, local_path)
+    if option == "upload":
+        if local_path is None:
+            print("Please give the local path")
+            return
+        upload_blob(bucket_name, source_blob_name, local_path)
+    if option == "move":
+        if bucket_dest is None:
+            print("Please give the bucket dest")
+            return
+        dest_name = bucket_dest.split("/")[0]
+        dest_blob_name = "/".join(bucket_dest.split("/")[1:])
+        move_blob(bucket_name, source_blob_name, dest_name, dest_blob_name)
+    if option == 'copy':
+        if bucket_dest is None:
+            print("Please give the bucket dest")
+            return
+        dest_name = bucket_dest.split("/")[0]
+        dest_blob_name = "/".join(bucket_dest.split("/")[1:])
+        copy_blob(bucket_name, source_blob_name, dest_name, dest_blob_name)
+    if option == "delete":
+        delete_blob(bucket_name, source_blob_name)
+
 if __name__=="__main__":
     process()
