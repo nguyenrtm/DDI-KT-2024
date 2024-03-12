@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from ddi_kt_2024.embed.other_embed import sinusoidal_positional_embedding
+
 class Model(nn.Module):
     def __init__(self,
                  we,
@@ -273,5 +275,92 @@ class EmbeddedRecurrentModel(nn.Module):
         pass
 
 class BertWithPostionOnlyModel(nn.Module):
-    """Only with bert + position encoding"""
-    pass
+    """
+    Only with bert + position encoding
+    The stucture: [bert_embedding, pos_ent, zero_ent, pos_tag]
+    """
+    def __init__(self,
+                dropout_rate: float = 0.5,
+                word_embedding_size: int = 768,
+                position_number: int = 512,
+                position_embedding_size: int = 128,
+                position_embedding_type: str = "normal",
+                tag_number: int = 51,
+                tag_embedding_size: int = 64,
+                token_embedding_size : int = 256,
+                conv1_out_channels: int = 256,
+                conv2_out_channels: int = 256,
+                conv3_out_channels: int = 256,
+                conv1_length: int = 1,
+                conv2_length: int = 2,
+                conv3_length: int = 3,
+                target_class: int = 5
+                ):
+        self.word_embedding_size = word_embedding_size
+
+        self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
+
+        if position_embedding_type == "normal":
+            self.pos_embedding = nn.Embedding(position_number, position_embedding_size, padding_idx=0)
+        elif position_embedding_type == "sinusoidal":
+            self.pos_embedding = sinusoidal_positional_embedding(4, position_embedding_size)
+        else:
+            raise ValueError("Wrong type pos embed")
+
+        self.dropout = nn.Dropout(dropout_rate)
+
+        self.normalize_tokens = nn.Linear(in_features = word_embedding_size+tag_embedding_size+position_embedding_size,
+            out_features=token_embedding_size,
+            bias=False)
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(in_channels=1,
+                      out_channels=conv1_out_channels,
+                      kernel_size=(conv1_length, token_embedding_size),
+                      stride=1,
+                      bias=False),
+            nn.ReLU()
+        )
+
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(in_channels=1,
+                      out_channels=conv2_out_channels,
+                      kernel_size=(conv2_length, token_embedding_size),
+                      stride=1,
+                      bias=False),
+            nn.ReLU()
+        )
+
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(in_channels=1,
+                      out_channels=conv3_out_channels,
+                      kernel_size=(conv3_length, token_embedding_size),
+                      stride=1,
+                      bias=False),
+            nn.ReLU()
+        )
+        self.dense_to_tag = nn.Linear(in_features = conv1_out_channels + conv2_out_channels + conv3_out_channels,out_features=target_class,
+                        bias=False)
+
+        self.relu = nn.ReLU()
+
+        self.softmax == nn.Softmax(dim=1)
+
+    def forward(self, x):
+        pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
+        tag_embedding = self.tag_embedding(x[:,:,-1])
+        x = torch.cat((x[:self.word_embedding_size], pos_embedding, tag_embedding), dim =2)
+
+        x1 = self.conv1(x)
+        x2 = self.conv2(x)
+        x3 = self.conv3(x)
+
+        x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
+        x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
+        x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
+
+        x = torch.cat((x1, x2, x3), dim=1)
+        x = self.dense_to_tag(x)
+        x = self.softmax(x)
+
+        return x

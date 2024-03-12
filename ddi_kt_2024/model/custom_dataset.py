@@ -5,6 +5,7 @@ import logging
 
 from ddi_kt_2024.model.huggingface_model import get_model
 from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
+from ddi_kt_2024.dependency_parsing.path_processer import TextPosProcessor
 from ddi_kt_2024 import logging_config
 
 class CustomDataset(Dataset):
@@ -52,9 +53,9 @@ class CustomDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-            sample = self.data[idx]
-            label = self.labels[idx]
-            return sample, label
+        sample = self.data[idx]
+        label = self.labels[idx]
+        return sample, label
 
 class BertEmbeddingDataset(CustomDataset):
     """ 
@@ -139,12 +140,18 @@ class BertEmbeddingDataset(CustomDataset):
                 data_i.unsqueeze_(dim=0) # Not an error
             elif len(list(data_i.shape)) == 2:
                 data_i.unsqueeze_(dim=0)
-    
-    def __getitem__(self,idx):
-        sample = self.data[idx]
-        label = self.labels[idx]
-        return sample, label
 
 class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
     """Bert + pos customdataset only"""
-    
+    def __init__(self, candidates, labels):
+        super().__init__(candidates, [], labels)
+
+    def convert_to_tensors(self, lookup_word, lookup_tag, bert_model):
+        """ 
+        Lookup_word and lookup_tag from get_lookup()
+        Bert_model is just name in huggingface
+        """
+        tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        for candidate in self.all_candidates:
+            self.data.append(get_word_pos_embed(candidate))
+
