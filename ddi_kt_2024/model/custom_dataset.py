@@ -153,7 +153,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         """
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
         for iter, candidate in enumerate(self.all_candidates):
-            self.data.append(get_word_pos_embed(candidate))
+            self.data.append(tpp.get_word_pos_embed(candidate))
             if (iter + 1 )% 100 == 0:
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
         print("Convert to tensor completed!")

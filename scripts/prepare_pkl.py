@@ -70,6 +70,8 @@ if prepare_type == "sdp_word_bert_embed_no_pad":
 
 
 elif prepare_type == "word_pos_bert_embed_only_no_pad":
+    y_train = get_labels(all_candidates_train)
+    y_test = get_labels(all_candidates_test)
     data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
     data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
     data_test = BertPosEmbedOnlyDataset(all_candidates_test, y_test)
