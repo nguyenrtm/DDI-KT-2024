@@ -153,7 +153,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         """
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
         self.temp_labels = []
-        for iter, candidate in enumerate(self.all_candidates[404:408]):
+        for iter, candidate in enumerate(self.all_candidates):
             try:
                 result = tpp.get_word_pos_embed(candidate)
             except Exception as e:
