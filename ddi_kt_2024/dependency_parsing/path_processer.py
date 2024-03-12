@@ -133,24 +133,24 @@ class TextPosProcessor(PathProcesser):
                     word_index.append(self.lookup_tag[tag_key])
         
         # Let pos_ent, zero_ent and word_index fit with token size
-        offset = 0
         for status in word_status:
             if status['min_id'] == status['max_id']:
                 continue
+
             values = [
-                pos_ent_1[status['min_id']+offset],
-                zero_ent_1[status['min_id']+offset],
-                pos_ent_2[status['min_id']+offset],
-                zero_ent_2[status['min_id']+offset],
-                word_index[status['min_id']+offset],
+                pos_ent_1[status['min_id']],
+                zero_ent_1[status['min_id']],
+                pos_ent_2[status['min_id']],
+                zero_ent_2[status['min_id']],
+                word_index[status['min_id']],
                 ]
             for _ in range(status['max_id'] - status['min_id']):
-                pos_ent_1.insert(status['min_id']+offset, values[0])
-                zero_ent_1.insert(status['min_id']+offset, values[1])
-                pos_ent_2.insert(status['min_id']+offset, values[1])
-                zero_ent_2.insert(status['min_id']+offset, values[1])
-                word_index.insert(status['min_id']+offset, values[1])
-            offset += status['max_id'] - status['min_id']
+                pos_ent_1.insert(status['min_id'], values[0])
+                zero_ent_1.insert(status['min_id'], values[1])
+                pos_ent_2.insert(status['min_id'], values[2])
+                zero_ent_2.insert(status['min_id'], values[3])
+                word_index.insert(status['min_id'], values[4])
+            # offset += status['max_id'] - status['min_id']
 
         # Concat
         pos_ent_1 = torch.from_numpy(np.array(pos_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
@@ -158,6 +158,7 @@ class TextPosProcessor(PathProcesser):
         zero_ent_1 = torch.from_numpy(np.array(zero_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         zero_ent_2 = torch.from_numpy(np.array(zero_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         word_index = torch.from_numpy(np.array(word_index, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
+
         return torch.cat((result, pos_ent_1, pos_ent_2, zero_ent_1, zero_ent_2, word_index), dim=2)
 
 if __name__=="__main__":
@@ -166,16 +167,7 @@ if __name__=="__main__":
     lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
     lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
     tpp = TextPosProcessor(lookup_word, lookup_tag, 'allenai/scibert_scivocab_uncased')
-    candidate = {'label': 'false',
-    'id': 'DDI-DrugBank.d519.s3.p0',
-    'text': 'Laboratory Tests Response to Plenaxis should be monitored by measuring serum total testosterone concentrations just prior to administration on Day 29 and every 8 weeks thereafter.',
-    'e1': {'@id': 'DDI-DrugBank.d519.s3.e0',
-    '@charOffset': '29-36',
-    '@type': 'brand',
-    '@text': 'Plenaxis'},
-    'e2': {'@id': 'DDI-DrugBank.d519.s3.e1',
-    '@charOffset': '83-94',
-    '@type': 'drug',
-    '@text': 'testosterone'}}
+    candidate = {'label': 'false', 'id': 'DDI-DrugBank.d297.s1.p0', 'text': 'Population pharmacokinetic analyses revealed that MTX, NSAIDs, corticosteroids, and TNF blocking agents did not influence abatacept clearance.', 
+'e1': {'@id': 'DDI-DrugBank.d297.s1.e0', '@charOffset': '50-52', '@type': 'drug', '@text': 'MTX'}, 'e2': {'@id': 'DDI-DrugBank.d297.s1.e1', '@charOffset': '55-60', '@type': 'group', '@text': 'NSAIDs'}} 
     result = tpp.get_word_pos_embed(candidate)
     print(f"Result shape: {result.shape}")

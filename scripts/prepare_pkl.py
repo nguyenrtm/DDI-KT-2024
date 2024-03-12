@@ -20,7 +20,7 @@ from ddi_kt_2024 import logging_config
 from ddi_kt_2024.utils import standardlize_config, get_lookup
 
 # MAKE CHANGES HERE
-prepare_type = "sdp_word_bert_embed_no_pad"
+prepare_type = "word_pos_bert_embed_only_no_pad"
 all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
 all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
 sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
