@@ -146,7 +146,7 @@ def run_train(yaml_path):
             device=config.device,
             wandb_available=wandb_available)
     elif config.type_embed == "bert_pos_unpad" or config.type_embed =="bert_pos_unpad_pkl":
-        model = BertWithPostionOnlyModel(
+        model = BertWithPostionOnlyTrainer(
             dropout_rate=config.dropout_rate,
             word_embedding_size=config.word_embedding_size,
             position_number=config.position_number,
