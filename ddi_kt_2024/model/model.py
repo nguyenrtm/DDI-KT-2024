@@ -351,7 +351,7 @@ class BertWithPostionOnlyModel(nn.Module):
         x = x.float()
         pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
         tag_embedding = self.tag_embedding(x[:,:,-1].long())
-        x = torch.cat((x[:self.word_embedding_size], pos_embedding, tag_embedding), dim =2)
+        x = torch.cat((x[:,:,:self.word_embedding_size], pos_embedding, tag_embedding), dim =2)
         x = x.unsqueeze(1)
 
         x1 = self.conv1(x)
