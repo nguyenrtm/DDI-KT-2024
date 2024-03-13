@@ -363,6 +363,7 @@ class BertWithPostionOnlyModel(nn.Module):
         x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
 
         x = torch.cat((x1, x2, x3), dim=1)
+        print(x.shape)
         x = self.dense_to_tag(x)
         x = self.softmax(x)
         return x
