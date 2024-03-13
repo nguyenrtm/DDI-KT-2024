@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 import wandb
 import numpy as np
 
-from .model import Model, BertModel
+from .model import Model, BertModel, BertWithPostionOnlyModel
 from ddi_kt_2024.utils import save_model
 
 class BaseTrainer:
