@@ -82,5 +82,5 @@ elif prepare_type == "word_pos_bert_embed_only_no_pad":
 torch.save(data_train, './train.pt')
 torch.save(data_test, './test.pt')
 from quick_download import process_api
-process("upload", f"ddi_kt_2024_multimodal_research/no_padding_custom_dataset/{huggingface_model_name.split('/')[-1]}/train.pt", "train.pt")
-process("upload", f"ddi_kt_2024_multimodal_research/no_padding_custom_dataset/{huggingface_model_name.split('/')[-1]}/test.pt", "test.pt")
+process_api("upload", f"ddi_kt_2024_multimodal_research/no_padding_custom_dataset/{huggingface_model_name.split('/')[-1]}/train.pt", "train.pt")
+process_api("upload", f"ddi_kt_2024_multimodal_research/no_padding_custom_dataset/{huggingface_model_name.split('/')[-1]}/test.pt", "test.pt")

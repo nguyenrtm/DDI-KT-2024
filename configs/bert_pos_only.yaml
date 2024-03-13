@@ -40,12 +40,10 @@ tag_embedding_size: 50
 position_number: 4
 position_embedding_size: 50
 position_embedding_type: 'normal'
-direction_number: 3
-direction_embedding_size: 50
-edge_number: 46
-edge_embedding_size: 200
+
+
 token_embedding_size: 500
-dep_embedding_size: 500
+
 conv1_out_channels: 256
 conv2_out_channels: 256
 conv3_out_channels: 256

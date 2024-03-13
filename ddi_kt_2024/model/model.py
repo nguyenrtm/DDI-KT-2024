@@ -301,9 +301,9 @@ class BertWithPostionOnlyModel(nn.Module):
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
 
         if position_embedding_type == "normal":
-            self.pos_embedding = nn.Embedding(position_number, position_embedding_size, padding_idx=0)
+            self.pos_embedding = nn.Linear(position_number, position_embedding_size, bias=False)
         elif position_embedding_type == "sinusoidal":
-            self.pos_embedding = sinusoidal_positional_embedding(4, position_embedding_size)
+            self.pos_embedding = sinusoidal_positional_embedding(position_number, position_embedding_size)
         else:
             raise ValueError("Wrong type pos embed")
 
@@ -362,5 +362,5 @@ class BertWithPostionOnlyModel(nn.Module):
         x = torch.cat((x1, x2, x3), dim=1)
         x = self.dense_to_tag(x)
         x = self.softmax(x)
-
+""
         return x

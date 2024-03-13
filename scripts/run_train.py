@@ -139,7 +139,32 @@ def run_train(yaml_path):
             device=config.device,
             wandb_available=wandb_available)
     elif config.type_embed == "bert_pos_unpad":
-        model = BertWithPostionOnlyModel()
+        model = BertWithPostionOnlyModel(
+            dropout_rate=config.dropout_rate,
+            word_embedding_size=config.word_embedding_size,
+            position_number=config.position_number,
+            position_embedding_size=config.position_embedding_size,
+            position_embedding_type=config.position_embedding_type,
+            tag_number=config.tag_number,
+            tag_embedding_size=config.tag_embedding_size,
+            token_embedding_size=config.token_embedding_size,
+            conv1_out_channels=config.conv1_out_channels,
+            conv2_out_channels=config.conv2_out_channels,
+            conv3_out_channels=config.conv3_out_channels,
+            conv1_length=config.conv1_length,
+            conv2_length=config.conv2_length,
+            conv3_length=config.conv3_length,
+            w_false=config.w_false,
+            w_advice=config.w_advice,
+            w_effect=config.w_effect,
+            w_mechanism=config.w_mechanism,
+            w_int=config.w_int,
+            target_class=5,
+            lr=config.lr,
+            weight_decay=config.weight_decay,
+            device=config.device,
+            wandb_available=wandb_available
+        )
     model.config = config
 
     # Model train

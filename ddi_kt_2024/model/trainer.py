@@ -270,7 +270,7 @@ class BertWithPostionOnlyTrainer(BaseTrainer):
     def __init__(self,
             dropout_rate: float = 0.5,
             word_embedding_size: int = 768,
-            position_number: int = 512,
+            position_number: int = 4,
             position_embedding_size: int = 128,
             position_embedding_type: str = "normal",
             tag_number: int = 51,
