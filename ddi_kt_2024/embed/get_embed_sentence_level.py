@@ -123,22 +123,25 @@ def sdp_map_new_tokenize(text, encoding, tokenizer, data_original, fasttext_word
     min_dis_1 = min(int(torch.min(data_original[:,2])), int(torch.min(data_original[:,-4])))
     max_dis_2 = max(int(torch.max(data_original[:,3])), int(torch.max(data_original[:,-3])))
     min_dis_2 = min(int(torch.min(data_original[:,3])), int(torch.min(data_original[:,-3])))
+    # breakpoint()
     doc_len = len([i.text for i in text])
     for idx, element in enumerate(text):
-        if element.text == entity_1 and idx + max_dis_1 < len(doc_len) and idx + min_dis_1 >=0:
+        if element.text.lower() == entity_1.lower() and idx + max_dis_1 < doc_len and idx + min_dis_1 >=0:
             entity_1_pos = idx
-        break
+            break
 
     for idx, element in enumerate(text):
-        if element.text == entity_2 and idx + max_dis_2 < len(doc_len) and idx + min_dis_2 >=0:
+        if element.text.lower() == entity_2.lower() and idx + max_dis_2 < doc_len and idx + min_dis_2 >=0:
             entity_2_pos = idx
-        break
+            break
     
     # Build the 2 new maps
     tokenize_map_0_ids = []
     tokenize_map_8_ids = []
+    # print(f"Entity: {entity_1_pos} {entity_2_pos}")
 
     for i in range(int(data_original.shape[0])):
+        # print(f"{entity_1_pos+data_original[i,2]} {entity_2_pos+data_original[i, 3]} {entity_2_pos+data_original[i,-3]} {entity_1_pos+data_original[i,-4]}")
         tokenize_map_0_ids.append(spacy_bert_map[entity_1_pos+data_original[i,2]])
         tokenize_map_8_ids.append(spacy_bert_map[entity_2_pos+data_original[i,-3]])
 

@@ -107,39 +107,42 @@ class BertEmbeddingDataset(CustomDataset):
 
             # Map with new tokenize
             tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
-            breakpoint()
+            
             # Declare
-            this_sent_embedded_first = torch.Tensor([])
-            this_sent_embedded_mean = torch.Tensor([])
-            this_sent_embedded_last = torch.Tensor([])
+            bert_embed_first_1 = torch.Tensor([])
+            bert_embed_mean_1 = torch.Tensor([])
+            bert_embed_last_1 = torch.Tensor([])
+            bert_embed_first_2 = torch.Tensor([])
+            bert_embed_mean_2 = torch.Tensor([])
+            bert_embed_last_2 = torch.Tensor([])
 
             for tokenize_status in tokenize_map_0_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
+                bert_embed_first_1, bert_embed_mean_1, bert_embed_last_1 = concat_to_tensor(tokenize_status,
+                result, bert_embed_first_1, bert_embed_mean_1, bert_embed_last_1, embed_size)
 
             for tokenize_status in tokenize_map_8_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
+                bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2 = concat_to_tensor(tokenize_status,
+                result, bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2, embed_size)
 
             if mode == 'first':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_first.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_first_1.reshape(1,second_dim_num,-1), bert_embed_first_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'mean':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_mean.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_mean_1.reshape(1,second_dim_num,-1), bert_embed_mean_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'last':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_last.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_last_1.reshape(1,second_dim_num,-1), bert_embed_last_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
 
             if (i+1) % 100 == 0:
                 logging.info(f"Handled {i+1} / {len(self.data)}")
-            breakpoint()
+            
 
     def fix_unsqueeze(self):
         for data_i in self.data:
@@ -180,7 +183,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         self.labels = self.temp_labels
         self.all_candidates = self.temp_all_candidates # For easy debug
 
-        # breakpoint()
+        # 
         print("Convert to tensor completed!")
 
 if __name__=="__main__":
