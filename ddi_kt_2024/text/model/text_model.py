@@ -24,12 +24,19 @@ class TextModel(nn.Module):
                  conv3_length: int = 3,
                  target_class: int = 5,
                  model_option: str = 'cnn',
-                 classifier: bool = False
+                 classifier: bool = False,
+                 **kwargs
                  ):
 
         super(TextModel, self).__init__()
         self.classifier = classifier
         self.model_option = model_option
+
+        if self.model_option == 'lstm' or self.model_option == 'bilstm':
+            self.lstm_hidden_size = kwargs['lstm_hidden_size']
+            self.lstm_num_layers = kwargs['lstm_num_layers']
+
+
         self.w2v = nn.Embedding.from_pretrained(torch.tensor(we.vectors))
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -78,15 +85,15 @@ class TextModel(nn.Module):
             )
         elif self.model_option == 'lstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
-                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=3,
+                                hidden_size=self.lstm_hidden_size,
+                                num_layers=self.lstm_num_layers,
                                 batch_first=True,
                                 bidirectional=False,
                                 dropout=dropout_rate)
         elif self.model_option == 'bilstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
-                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=3,
+                                hidden_size=self.lstm_hidden_size,
+                                num_layers=self.lstm_num_layers,
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)
@@ -166,13 +173,18 @@ class BertModel(nn.Module):
                  conv3_length: int = 3,
                  target_class: int = 5,
                  classifier: bool = False,
-                 model_option: str = 'cnn'
+                 model_option: str = 'cnn',
+                 **kwargs
                  ):
-
         super(BertModel, self).__init__()
         self.classifier = classifier
         self.word_embedding_size = word_embedding_size
         self.model_option = model_option
+
+        if self.model_option == 'lstm' or self.model_option == 'bilstm':
+            self.lstm_hidden_size = kwargs['lstm_hidden_size']
+            self.lstm_num_layers = kwargs['lstm_num_layers']
+
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
         self.edge_embedding = nn.Embedding(edge_number, edge_embedding_size, padding_idx=0)
@@ -220,15 +232,15 @@ class BertModel(nn.Module):
             )
         elif self.model_option == 'lstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
-                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=1,
+                                hidden_size=self.lstm_hidden_size,
+                                num_layers=self.lstm_num_layers,
                                 batch_first=True,
                                 bidirectional=False,
                                 dropout=dropout_rate)
         elif self.model_option == 'bilstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
-                                hidden_size=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                num_layers=1,
+                                hidden_size=self.lstm_hidden_size,
+                                num_layers=self.lstm_num_layers,
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)

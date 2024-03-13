@@ -171,7 +171,8 @@ class Trainer(BaseTrainer):
                  lr: float = 0.0001,
                  weight_decay: float = 1e-4,
                  device='cpu',
-                 wandb_available=False):
+                 wandb_available=False,
+                 **kwargs):
         
         self.model = TextModel(we, 
                            dropout_rate,
@@ -192,7 +193,8 @@ class Trainer(BaseTrainer):
                            conv1_length,
                            conv2_length,
                            conv3_length,
-                           target_class).to(device)
+                           target_class,
+                           kwargs).to(device)
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -233,7 +235,8 @@ class BertTrainer(BaseTrainer):
             lr: float = 0.0001,
             weight_decay: float = 1e-4,
             device='cpu',
-            wandb_available=False
+            wandb_available=False,
+            **kwargs
             ):
         self.model = BertModel(dropout_rate,
                            word_embedding_size,
@@ -253,7 +256,8 @@ class BertTrainer(BaseTrainer):
                            conv1_length,
                            conv2_length,
                            conv3_length,
-                           target_class).to(device)
+                           target_class,
+                           kwargs).to(device)
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         self.criterion = nn.CrossEntropyLoss(weight=weight)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
