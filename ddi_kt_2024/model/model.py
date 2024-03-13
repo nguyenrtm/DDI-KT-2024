@@ -347,6 +347,7 @@ class BertWithPostionOnlyModel(nn.Module):
         self.softmax == nn.Softmax(dim=1)
 
     def forward(self, x):
+        x = x.double()
         pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
         tag_embedding = self.tag_embedding(x[:,:,-1])
         x = torch.cat((x[:self.word_embedding_size], pos_embedding, tag_embedding), dim =2)
