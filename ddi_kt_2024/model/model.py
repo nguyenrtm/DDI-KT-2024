@@ -345,7 +345,7 @@ class BertWithPostionOnlyModel(nn.Module):
 
         self.relu = nn.ReLU()
 
-        self.softmax == nn.Softmax(dim=1)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         x = x.double()
