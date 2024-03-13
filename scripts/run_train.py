@@ -72,6 +72,13 @@ def run_train(yaml_path):
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_train.squeeze()
         data_test.squeeze()
+    elif config.type_embed == "bert_pos_unpad_pkl":
+        data_train = load_pkl(config.train_custom_dataset)
+        data_test = load_pkl(config.test_custom_dataset)
+        data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+        data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
+        data_train.squeeze()
+        data_test.squeeze()
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
@@ -138,7 +145,7 @@ def run_train(yaml_path):
             weight_decay=config.weight_decay,
             device=config.device,
             wandb_available=wandb_available)
-    elif config.type_embed == "bert_pos_unpad":
+    elif config.type_embed == "bert_pos_unpad" or config.type_embed =="bert_pos_unpad_pkl":
         model = BertWithPostionOnlyModel(
             dropout_rate=config.dropout_rate,
             word_embedding_size=config.word_embedding_size,
