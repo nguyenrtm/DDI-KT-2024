@@ -146,23 +146,31 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
     def __init__(self, candidates, labels):
         super().__init__(candidates, [], labels)
 
-    def convert_to_tensors(self, lookup_word, lookup_tag, bert_model):
+    def convert_to_tensors(self, lookup_word, lookup_tag, bert_model, type="spacy"):
         """ 
         Lookup_word and lookup_tag from get_lookup()
         Bert_model is just name in huggingface
         """
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        self.data = []
         self.temp_labels = []
+        self.temp_all_candidates = []
         for iter, candidate in enumerate(self.all_candidates):
             try:
-                result = tpp.get_word_pos_embed(candidate)
+                if type=="bert":
+                    result = tpp.get_word_pos_embed_bert_size(candidate)
+                else:
+                    result = tpp.get_word_pos_embed_spacy_size(candidate)
             except Exception as e:
                 print(f"Exception when handle at index {iter}")
                 continue
             self.data.append(result)
+            self.temp_all_candidates.append(self.all_candidates[iter])
             self.temp_labels.append(self.labels[iter])
             if (iter + 1 )% 100 == 0:
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
         self.labels = self.temp_labels
+        self.all_candidates = self.temp_all_candidates # For easy debug
+
         # breakpoint()
         print("Convert to tensor completed!")

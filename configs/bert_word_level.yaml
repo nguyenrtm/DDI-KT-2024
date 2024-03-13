@@ -52,4 +52,5 @@ w_effect: 27792 / 1687
 w_mechanism: 27792 / 1319
 w_int: 27792 / 189
 device: "cuda"
+parallel_training: False
 
