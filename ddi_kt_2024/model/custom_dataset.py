@@ -4,9 +4,12 @@ from torch.utils.data import Dataset
 import logging
 
 from ddi_kt_2024.model.huggingface_model import get_model
-from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
+from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor, sdp_map_new_tokenize
 from ddi_kt_2024.dependency_parsing.path_processer import TextPosProcessor
 from ddi_kt_2024 import logging_config
+from ddi_kt_2024.utils import load_pkl, get_labels
+from ddi_kt_2024.model.word_embedding import WordEmbedding
+from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
 
 class CustomDataset(Dataset):
     def __init__(self, data, labels):
@@ -80,27 +83,31 @@ class BertEmbeddingDataset(CustomDataset):
         -> Loop through self.data -> append function
         """
         tokenizer, model = get_model(huggingface_model_name)
+        self.spacy_nlp = SpacyNLP()
         with open(all_words_path, "r") as f:
             fasttext_word_list = [i.rstrip() for i in f.readlines()]
         fasttext_word_list = [""] + fasttext_word_list
         for i, sample in enumerate(self.data):
+            if torch.all(sample == torch.zeros((1,1,14))):
+                print(f"Old handled exception. Skipping...")
+                continue
             second_dim_num = int(sample.shape[1])
-            data_mapped_0_ids = sample[0,:,0]
-            data_mapped_8_ids = sample[0,:,8]
-
+            # data_mapped_0_ids = sample[0,:,0]
+            # data_mapped_8_ids = sample[0,:,8]
+            text = self.text[i]
+            doc = self.spacy_nlp.nlp(text)
             # Get back all words
-            words_0_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_0_ids]
-            words_8_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_8_ids]
+            # words_0_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_0_ids]
+            # words_8_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_8_ids]
 
             # Get tokenize
-            encoding = tokenizer.encode(self.text[i], return_tensors="pt")
+            encoding = tokenizer.encode(doc.text, return_tensors="pt")
             sentence_tokenize = tokenizer.convert_ids_to_tokens(encoding[0])
             result = model(encoding).last_hidden_state.detach()
 
             # Map with new tokenize
-            tokenize_map_0_ids = map_new_tokenize(words_0_ids, sentence_tokenize)
-            tokenize_map_8_ids = map_new_tokenize(words_8_ids, sentence_tokenize)
-
+            tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
+            breakpoint()
             # Declare
             this_sent_embedded_first = torch.Tensor([])
             this_sent_embedded_mean = torch.Tensor([])
@@ -132,6 +139,7 @@ class BertEmbeddingDataset(CustomDataset):
 
             if (i+1) % 100 == 0:
                 logging.info(f"Handled {i+1} / {len(self.data)}")
+            breakpoint()
 
     def fix_unsqueeze(self):
         for data_i in self.data:
@@ -174,3 +182,20 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
 
         # breakpoint()
         print("Convert to tensor completed!")
+
+if __name__=="__main__":
+    all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+                    vocab_path='cache/fasttext/nguyennb/all_words.txt')
+
+    huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    y_test = get_labels(all_candidates_test)
+    data_test = BertEmbeddingDataset(all_candidates_test, sdp_test_mapped, y_test)
+    data_test.fix_exception()
+    data_test.add_embed_to_data(
+        huggingface_model_name=huggingface_model_name,
+        all_words_path='cache/fasttext/nguyennb/all_words.txt',
+        embed_size=768,
+        mode="mean"
+    )
