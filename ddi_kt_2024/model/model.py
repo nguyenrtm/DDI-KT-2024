@@ -350,8 +350,10 @@ class BertWithPostionOnlyModel(nn.Module):
     def forward(self, x):
         x = x.float()
         pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
+#         print(x[:,:,-1].long().shape)
         tag_embedding = self.tag_embedding(x[:,:,-1].long())
-        x = torch.cat((x[:,:,:self.word_embedding_size], pos_embedding, tag_embedding), dim =2)
+        x = self.normalize_tokens(torch.cat((x[:,:,:self.word_embedding_size], pos_embedding, tag_embedding), dim =2))
+        
         x = x.unsqueeze(1)
 
         x1 = self.conv1(x)
@@ -361,9 +363,8 @@ class BertWithPostionOnlyModel(nn.Module):
         x1 = torch.max(x1.squeeze(dim=3), dim=2)[0]
         x2 = torch.max(x2.squeeze(dim=3), dim=2)[0]
         x3 = torch.max(x3.squeeze(dim=3), dim=2)[0]
-
+        
         x = torch.cat((x1, x2, x3), dim=1)
-        print(x.shape)
         x = self.dense_to_tag(x)
         x = self.softmax(x)
         return x
