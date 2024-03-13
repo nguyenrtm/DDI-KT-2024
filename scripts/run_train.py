@@ -173,7 +173,8 @@ def run_train(yaml_path):
             wandb_available=wandb_available
         )
     model.config = config
-
+    model= torch.nn.DataParallel(model)
+    model.to(config.device)
     # Model train
     model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)
 
