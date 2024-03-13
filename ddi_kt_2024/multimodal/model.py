@@ -35,7 +35,8 @@ class MultimodalModel(torch.nn.Module):
                  readout_option: str = 'global_max_pool',
                  activation_function: str = 'relu',
                  text_model_option: str = 'cnn',
-                 device: str = 'cpu'):
+                 device: str = 'cpu',
+                 **kwargs):
         super(MultimodalModel, self).__init__()
         self.device = device
 
@@ -60,7 +61,8 @@ class MultimodalModel(torch.nn.Module):
                                         conv3_length=conv3_length,
                                         target_class=target_class,
                                         model_option=text_model_option,
-                                        classifier=False).to(device)
+                                        classifier=False,
+                                        **kwargs).to(device)
         elif text_model == 'fasttext':
             self.text_model = TextModel(we=we,
                                         dropout_rate=dropout_rate,
@@ -83,7 +85,8 @@ class MultimodalModel(torch.nn.Module):
                                         conv3_length=conv3_length,
                                         target_class=target_class,
                                         model_option=text_model_option,
-                                        classifier=False).to(device)
+                                        classifier=False,
+                                        **kwargs).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,
                         hidden_channels=hidden_channels,
@@ -107,9 +110,13 @@ class MultimodalModel(torch.nn.Module):
         
         if self.modal == '0':
             if text_model_option == 'bilstm':
-                self.dense_to_tag = torch.nn.Linear(in_features=(conv1_out_channels+conv2_out_channels+conv3_out_channels)*2, 
+                self.dense_to_tag = torch.nn.Linear(in_features=kwargs['lstm_hidden_size']*2, 
                                                     out_features=target_class,
                                                     bias=False)
+            elif text_model_option == 'lstm':
+                self.dense_to_tag = torch.nn.Linear(in_features=kwargs['lstm_hidden_size'], 
+                                                    out_features=target_class,
+                                                    bias=False)       
             else:
                 self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
                                                     out_features=target_class,

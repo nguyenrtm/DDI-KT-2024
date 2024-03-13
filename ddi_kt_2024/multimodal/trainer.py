@@ -46,7 +46,8 @@ class Trainer:
                  activation_function: str = 'relu',
                  text_model_option: str = 'cnn',
                  log: bool = True,
-                 device: str = 'cpu'
+                 device: str = 'cpu',
+                 **kwargs
                  ):
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         
@@ -79,7 +80,8 @@ class Trainer:
                                     readout_option=readout_option,
                                     activation_function=activation_function,
                                     text_model_option=text_model_option,
-                                    device=device).to(device)
+                                    device=device,
+                                    **kwargs).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight)

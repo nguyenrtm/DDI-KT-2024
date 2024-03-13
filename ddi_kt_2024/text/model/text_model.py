@@ -83,6 +83,9 @@ class TextModel(nn.Module):
                         bias=False),
                 nn.ReLU()
             )
+            self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                      out_features=target_class,
+                                      bias=False)
         elif self.model_option == 'lstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
@@ -90,6 +93,9 @@ class TextModel(nn.Module):
                                 batch_first=True,
                                 bidirectional=False,
                                 dropout=dropout_rate)
+            self.dense_to_tag = nn.Linear(in_features=self.lstm_hidden_size,
+                                        out_features=target_class,
+                                        bias=False)
         elif self.model_option == 'bilstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
@@ -97,11 +103,11 @@ class TextModel(nn.Module):
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)
+            self.dense_to_tag = nn.Linear(in_features=self.lstm_hidden_size*2,
+                                        out_features=target_class,
+                                        bias=False)
 
         self.relu = nn.ReLU()
-        self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                      out_features=target_class,
-                                      bias=False)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
@@ -230,6 +236,9 @@ class BertModel(nn.Module):
                         bias=False),
                 nn.ReLU()
             )
+            self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
+                                          out_features=target_class,
+                                          bias=False)
         elif self.model_option == 'lstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
@@ -237,6 +246,9 @@ class BertModel(nn.Module):
                                 batch_first=True,
                                 bidirectional=False,
                                 dropout=dropout_rate)
+            self.dense_to_tag = nn.Linear(in_features=self.lstm_hidden_size,
+                                          out_features=target_class,
+                                          bias=False)
         elif self.model_option == 'bilstm':
             self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
@@ -244,11 +256,10 @@ class BertModel(nn.Module):
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)
-
+            self.dense_to_tag = nn.Linear(in_features=2048,
+                                          out_features=target_class,
+                                          bias=False)
         self.relu = nn.ReLU()
-        self.dense_to_tag = nn.Linear(in_features=conv1_out_channels + conv2_out_channels + conv3_out_channels,
-                                      out_features=target_class,
-                                      bias=False)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
@@ -290,6 +301,8 @@ class BertModel(nn.Module):
         elif self.model_option == 'lstm' or self.model_option == 'bilstm':
             x, _ = self.lstm(x)
             x = x[:, -1, :]
+        
+        print(x.shape)
 
         if self.classifier == True:
             x = self.dense_to_tag(x)
