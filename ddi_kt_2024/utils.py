@@ -55,14 +55,16 @@ def id_find(lst, id):
         if element['@id'] == id:
             return element
 
-def offset_to_idx(text, offset, nlp):
+def offset_to_idx(text, offset, nlp, use_spacy=False, entity=None):
     '''
     Given offset of token in text, return its index in text.
+    Add check by spacy so we dont struggle with wtf token
     '''
     doc = nlp(text)
     offset = offset.split(';')[0]
     start = int(offset.split('-')[0])
     end = int(offset.split('-')[1])
+
     start_idx = -1
     end_idx = -1
     # breakpoint()
@@ -74,6 +76,10 @@ def offset_to_idx(text, offset, nlp):
     if start_idx == -1:
         start_idx = len(doc) - 1
         end_idx = len(doc) - 1
+        
+    if start_idx != -1 and end_idx == -1:
+        end_idx = start_idx
+
     assert start_idx != -1, end_idx != -1
     return start_idx, end_idx
 

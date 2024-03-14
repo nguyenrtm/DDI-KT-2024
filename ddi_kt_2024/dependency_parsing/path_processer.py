@@ -37,10 +37,11 @@ class PathProcesser:
             lst.append(i)
         return lst
     
-    def build_position_embedding(self, text, offset):
+    def build_position_embedding(self, text, offset, entity=None):
         doc = self.spacy_nlp.nlp(text)
         text_length = len(doc)
-        start_idx, end_idx = offset_to_idx(text, offset, self.spacy_nlp.nlp)
+        start_idx, end_idx = offset_to_idx(text, offset, self.spacy_nlp.nlp, True, entity)
+        print(f"{start_idx}, {end_idx}")
         pos_ent = self.get_position_embedding_given_ent(start_idx, end_idx, text_length)
         zero_ent = [0] * text_length
         for i in range(start_idx, end_idx + 1):
@@ -111,8 +112,8 @@ class TextPosProcessor(PathProcesser):
         doc = self.spacy_nlp.nlp(text)
 
         # Get pos embedding
-        [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'])
-        [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'])
+        [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'], candidate['e1']['@text'])
+        [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e1']['@text'])
         # Get sentence embed
         encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
@@ -160,8 +161,8 @@ class TextPosProcessor(PathProcesser):
         doc = self.spacy_nlp.nlp(text)
 
         # Get pos embedding
-        [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'])
-        [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'])
+        [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'], candidate['e1']['@text'])
+        [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e2']['@text'])
         # Get sentence embed
         encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
@@ -169,7 +170,7 @@ class TextPosProcessor(PathProcesser):
         word_index = []
         result = []
         # word_status = map_new_tokenize([i.text for i in doc], sentence_tokenize)
-        
+        breakpoint()
         # Get word indexes
         offset = 0
         for iter, tok in enumerate(doc):
@@ -219,7 +220,7 @@ class TextPosProcessor(PathProcesser):
 
         word_index = []
         word_status = map_new_tokenize([i.text for i in doc], sentence_tokenize)
-        
+
         # Get word indexes
         for tok in doc:
             pos = tok.i
@@ -266,16 +267,16 @@ if __name__=="__main__":
     lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
     lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
     tpp = TextPosProcessor(lookup_word, lookup_tag, 'allenai/scibert_scivocab_uncased')
-    candidate = {'label': 'effect',
- 'id': 'DDI-DrugBank.d416.s0.p0',
- 'text': 'Renal clearance measurements of PAH cannot be made with any significant accuracy in patients receiving sulfonamides, procaine, or thiazolesulfone.',
- 'e1': {'@id': 'DDI-DrugBank.d416.s0.e0',
-  '@charOffset': '32-34',
-  '@type': 'drug',
-  '@text': 'PAH'},
- 'e2': {'@id': 'DDI-DrugBank.d416.s0.e1',
-  '@charOffset': '103-114',
+    candidate = {'label': 'false',
+ 'id': 'DDI-DrugBank.d64.s79.p0',
+ 'text': 'salicylates;sulfinpyrazone;',
+ 'e1': {'@id': 'DDI-DrugBank.d64.s79.e0',
+  '@charOffset': '0-10',
   '@type': 'group',
-  '@text': 'sulfonamides'}}
+  '@text': 'salicylates'},
+ 'e2': {'@id': 'DDI-DrugBank.d64.s79.e1',
+  '@charOffset': '12-25',
+  '@type': 'drug',
+  '@text': 'sulfinpyrazone'}}
     result = tpp.get_word_pos_embed_spacy_size(candidate)
     print(f"Result shape: {result.shape}")

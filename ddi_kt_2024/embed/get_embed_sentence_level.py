@@ -86,6 +86,12 @@ def map_new_tokenize(words, encoding, tokenizer):
     def _check(word, encoding,tokenizer,start_idx_to_check):
         result = None
         flag = False
+        if word.strip() == "":
+            result = {
+                "min_id": 0,
+                "max_id": 0
+            }
+            return result, True, start_idx_to_check
         word_encoding = tokenizer.encode(word, return_tensors="pt")[:,1:-1]
         for index in range(start_idx_to_check, int(encoding.shape[1]) - int(word_encoding.shape[1]) +1):
             if torch.all(word_encoding == encoding[:, index: index+int(word_encoding.shape[1])]):
@@ -97,7 +103,6 @@ def map_new_tokenize(words, encoding, tokenizer):
                 start_idx_to_check = index + int(word_encoding.shape[1]) - 1
                 break
         return result, flag, start_idx_to_check
-
     result_list = []
     start_idx_to_check = 0
     duplicate = 0
@@ -114,6 +119,7 @@ def map_new_tokenize(words, encoding, tokenizer):
                     encoding[0,result_list[-1]['max_id'] +1] = tokenizer.encode(sentence_tokenize[result_list[-1]['max_id'] +1][2:], return_tensors="pt")[0,1:-1]
                     
             continue
+        
         word_result, flag, start_idx_to_check = _check(word, encoding, tokenizer, start_idx_to_check)
         if flag:
             result_list.append(word_result)
