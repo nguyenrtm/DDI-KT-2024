@@ -187,6 +187,11 @@ class TextPosProcessor(PathProcesser):
 
         # Concat
         result = torch.cat(result, dim=1)
+
+        # Remove NaN if any
+        nan_mask = torch.isnan(result)
+        result[nan_mask]=0.0
+
         pos_ent_1 = torch.from_numpy(np.array(pos_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         pos_ent_2 = torch.from_numpy(np.array(pos_ent_2, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
         zero_ent_1 = torch.from_numpy(np.array(zero_ent_1, dtype=np.float64)).unsqueeze_(dim=1).unsqueeze_(dim=0)
