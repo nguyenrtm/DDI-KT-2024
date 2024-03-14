@@ -41,7 +41,7 @@ class PathProcesser:
         doc = self.spacy_nlp.nlp(text)
         text_length = len(doc)
         start_idx, end_idx = offset_to_idx(text, offset, self.spacy_nlp.nlp, True, entity)
-        print(f"{start_idx}, {end_idx}")
+
         pos_ent = self.get_position_embedding_given_ent(start_idx, end_idx, text_length)
         zero_ent = [0] * text_length
         for i in range(start_idx, end_idx + 1):
