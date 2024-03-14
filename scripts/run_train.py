@@ -176,8 +176,7 @@ def run_train(yaml_path):
     
     # Experiment
     if config.parallel_training:
-        model= torch.nn.DataParallel(model)
-        model.to(config.device)
+        model.enable_parallel()
         
     # Model train
     model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)

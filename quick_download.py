@@ -49,7 +49,7 @@ def process(option, bucket_path, local_path, bucket_dest):
         if local_path is None:
             print("Please give the local path")
             return
-        upload_blob(bucket_name, source_blob_name, local_path)
+        upload_blob(bucket_name, local_path, source_blob_name)
     if option == "move":
         if bucket_dest is None:
             print("Please give the bucket dest")

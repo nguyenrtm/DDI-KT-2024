@@ -141,7 +141,11 @@ class BaseTrainer:
         if self.wandb_available:
             wandb.finish()
 
-
+    def enable_parallel(self):
+        self.model= torch.nn.DataParallel(self.model)
+        if self.config is not None:
+            self.model.to(self.config.device)
+        
 class Trainer(BaseTrainer):
     def __init__(self,
                  we,

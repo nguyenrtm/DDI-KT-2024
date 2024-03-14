@@ -97,11 +97,7 @@ def map_new_tokenize(words, encoding, tokenizer):
                 start_idx_to_check = index + int(word_encoding.shape[1]) - 1
                 break
         if not flag:
-            logging.error("Can't find the right index in bert embed. Result will return to 0, 0")
-            result_list.append({
-                "min_id": 0,
-                "max_id": 0
-            })
+            raise ValueError("Can't find the right index in bert embed.")
     return result_list
 
 def sdp_map_new_tokenize(text, encoding, tokenizer, data_original, fasttext_word_list):

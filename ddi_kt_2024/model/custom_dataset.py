@@ -90,6 +90,10 @@ class BertEmbeddingDataset(CustomDataset):
         for i, sample in enumerate(self.data):
             if torch.all(sample == torch.zeros((1,1,14))):
                 print(f"Old handled exception. Skipping...")
+                new_shape = list(sample.shape)
+                new_shape[-1] = 768*2
+                new_tensor = torch.zeros(new_shape)
+                self.data[i] = torch.cat((sample, new_tensor),dim =-1)
                 continue
             second_dim_num = int(sample.shape[1])
             # data_mapped_0_ids = sample[0,:,0]
@@ -106,8 +110,15 @@ class BertEmbeddingDataset(CustomDataset):
             result = model(encoding).last_hidden_state.detach()
 
             # Map with new tokenize
-            tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
-            
+            try:
+                tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
+            except ValueError as e:
+                print(f"Receiving exception at {i}. Process will continue...")
+                new_shape = list(sample.shape)
+                new_shape[-1] = 768*2
+                new_tensor = torch.zeros(new_shape)
+                self.data[i] = torch.cat((sample, new_tensor),dim =-1)
+                continue
             # Declare
             bert_embed_first_1 = torch.Tensor([])
             bert_embed_mean_1 = torch.Tensor([])
