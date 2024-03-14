@@ -261,6 +261,16 @@ if __name__=="__main__":
     lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
     lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
     tpp = TextPosProcessor(lookup_word, lookup_tag, 'allenai/scibert_scivocab_uncased')
-    candidate = {'label': 'false', 'id': 'DDI-DrugBank.d244.s0.p22', 'text': 'Before using this medication, tell your doctor or pharmacist of all prescription and nonprescription products you may use, especially of: aminoglycosides (e.g., gentamicin, amikacin), amphotericin B, cyclosporine, non-steroidal anti-inflammatory drugs (e.g., ibuprofen), tacrolimus, vancomycin.', 'e1': {'@id': 'DDI-DrugBank.d244.s0.e3', '@charOffset': '184-197', '@type': 'drug', '@text': 'amphotericin B'}, 'e2': {'@id': 'DDI-DrugBank.d244.s0.e5', '@charOffset': '214-244', '@type': 'group', '@text': 'non-steroidal anti-inflammatory'}}
+    candidate = {'label': 'effect',
+ 'id': 'DDI-DrugBank.d416.s0.p0',
+ 'text': 'Renal clearance measurements of PAH cannot be made with any significant accuracy in patients receiving sulfonamides, procaine, or thiazolesulfone.',
+ 'e1': {'@id': 'DDI-DrugBank.d416.s0.e0',
+  '@charOffset': '32-34',
+  '@type': 'drug',
+  '@text': 'PAH'},
+ 'e2': {'@id': 'DDI-DrugBank.d416.s0.e1',
+  '@charOffset': '103-114',
+  '@type': 'group',
+  '@text': 'sulfonamides'}}
     result = tpp.get_word_pos_embed_spacy_size(candidate)
     print(f"Result shape: {result.shape}")

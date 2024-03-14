@@ -87,7 +87,8 @@ class BertEmbeddingDataset(CustomDataset):
         with open(all_words_path, "r") as f:
             fasttext_word_list = [i.rstrip() for i in f.readlines()]
         fasttext_word_list = [""] + fasttext_word_list
-        for i, sample in enumerate(self.data):
+        for i, sample in enumerate(self.data[291:326]):
+            i+=291
             if torch.all(sample == torch.zeros((1,1,14))):
                 print(f"Old handled exception. Skipping...")
                 new_shape = list(sample.shape)
@@ -112,8 +113,9 @@ class BertEmbeddingDataset(CustomDataset):
             # Map with new tokenize
             try:
                 tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
-            except ValueError as e:
+            except Exception as e:
                 print(f"Receiving exception at {i}. Process will continue...")
+                breakpoint()
                 new_shape = list(sample.shape)
                 new_shape[-1] = 768*2
                 new_tensor = torch.zeros(new_shape)
@@ -134,7 +136,6 @@ class BertEmbeddingDataset(CustomDataset):
             for tokenize_status in tokenize_map_8_ids:
                 bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2 = concat_to_tensor(tokenize_status,
                 result, bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2, embed_size)
-
             if mode == 'first':
                 self.data[i] = torch.cat(
                     (self.data[i], bert_embed_first_1.reshape(1,second_dim_num,-1), bert_embed_first_2.reshape(1,second_dim_num,-1)),
@@ -198,6 +199,21 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         print("Convert to tensor completed!")
 
 if __name__=="__main__":
+    # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
+    # sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # data_train = BertEmbeddingDataset(all_candidates_train, sdp_train_mapped, y_train)
+    # data_train.fix_exception()
+    # data_train.add_embed_to_data(
+    #     huggingface_model_name=huggingface_model_name,
+    #     all_words_path='cache/fasttext/nguyennb/all_words.txt',
+    #     embed_size=768,
+    #     mode="mean"
+    # )
     all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
     sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
     we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',

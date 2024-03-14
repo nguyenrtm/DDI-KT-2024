@@ -81,23 +81,58 @@ def map_new_tokenize(words, encoding, tokenizer):
     """
     words: list of word
     encoding: sentence embed
+    NOT SUPPORT MULTIPLE SENTENCE
     """
-    result_list = []
-    start_idx_to_check = 0
-    for word in words:
+    def _check(word, encoding,tokenizer,start_idx_to_check):
+        result = None
         flag = False
         word_encoding = tokenizer.encode(word, return_tensors="pt")[:,1:-1]
         for index in range(start_idx_to_check, int(encoding.shape[1]) - int(word_encoding.shape[1]) +1):
             if torch.all(word_encoding == encoding[:, index: index+int(word_encoding.shape[1])]):
-                result_list.append({
+                result = {
                     "min_id": index,
                     "max_id": index + int(word_encoding.shape[1]) - 1
-                })
+                }
                 flag = True
                 start_idx_to_check = index + int(word_encoding.shape[1]) - 1
                 break
-        if not flag:
-            raise ValueError("Can't find the right index in bert embed.")
+        return result, flag, start_idx_to_check
+
+    result_list = []
+    start_idx_to_check = 0
+    duplicate = 0
+    sentence_tokenize = tokenizer.convert_ids_to_tokens(encoding[0])
+    for word_idx, word in enumerate(words):
+        # print(f"idx: {word_idx} {start_idx_to_check}")
+        if duplicate >= 1:
+            result_list.append(result_list[-1])
+            duplicate -=1
+
+            # Check if next token some how separated
+            if duplicate == 0:
+                if word_idx +1 < len(words) and "##" in sentence_tokenize[result_list[-1]['max_id'] +1]:
+                    encoding[0,result_list[-1]['max_id'] +1] = tokenizer.encode(sentence_tokenize[result_list[-1]['max_id'] +1][2:], return_tensors="pt")[0,1:-1]
+                    
+            continue
+        word_result, flag, start_idx_to_check = _check(word, encoding, tokenizer, start_idx_to_check)
+        if flag:
+            result_list.append(word_result)
+            start_idx_to_check = start_idx_to_check
+            if word_idx +1 < len(words) and "##" in sentence_tokenize[result_list[-1]['max_id'] +1]:
+                    encoding[0,result_list[-1]['max_id'] +1] = tokenizer.encode(sentence_tokenize[result_list[-1]['max_id'] +1][2:], return_tensors="pt")[0,1:-1]
+        else:
+            while True:
+                # Happen when spacy smaller than bert (rare but still exist)
+                duplicate +=1
+                word = "".join([w for w in words[word_idx: word_idx+duplicate]])
+                word_result, flag, start_idx_to_check = _check(word, encoding, tokenizer, start_idx_to_check)
+                if flag:
+                    result_list.append(word_result)
+                    start_idx_to_check = start_idx_to_check
+                    break
+                if word_idx + duplicate > len(words):
+                    raise ValueError("WTF")
+            
     return result_list
 
 def sdp_map_new_tokenize(text, encoding, tokenizer, data_original, fasttext_word_list):
