@@ -67,7 +67,7 @@ def process(option, bucket_path, local_path, bucket_dest):
     if option == "delete":
         delete_blob(bucket_name, source_blob_name)
 
-def process_api(option, bucket_path, local_path, bucket_dest):
+def process_api(option, bucket_path=None, local_path=None, bucket_dest=None):
     """For inside file usage"""
     bucket_name = bucket_path.split("/")[0]
     source_blob_name = "/".join(bucket_path.split("/")[1:])
