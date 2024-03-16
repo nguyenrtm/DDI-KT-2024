@@ -134,10 +134,13 @@ class PathProcesser:
 
         return torch.cat(mapped_sdp)
     
-    def create_mapping_all(self, all_candidates, all_sdp):
+    def create_mapping_all(self, all_candidates, all_sdp, option='bert'):
         all_mapped_sdp = list()
         for i in tqdm(range(len(all_candidates))):
-            mapped_sdp = self.create_mapping(all_candidates[i], all_sdp[i]).unsqueeze(dim=0)
+            if option == 'normal':
+                mapped_sdp = self.create_mapping(all_candidates[i], all_sdp[i]).unsqueeze(dim=0)
+            elif option == 'bert':
+                mapped_sdp = self.create_mapping_with_bert(all_candidates[i], all_sdp[i]).unsqueeze(dim=0)
             all_mapped_sdp.append(mapped_sdp)
             
         return all_mapped_sdp
