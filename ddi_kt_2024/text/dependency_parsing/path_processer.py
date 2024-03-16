@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, BertModel
 from ddi_kt_2024.utils import offset_to_idx, idx_to_offset
 
 class PathProcesser:
-    def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction, bert_model_path, device):
+    def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction, bert_model_path):
         self.spacy_nlp = spacy_nlp
         self.lookup_word = lookup_word
         self.lookup_dep = lookup_dep
@@ -13,8 +13,6 @@ class PathProcesser:
         self.lookup_direction = lookup_direction
         self.tokenizer = AutoTokenizer.from_pretrained(bert_model_path)
         self.bert_model = BertModel.from_pretrained(bert_model_path)
-        self.device = device
-        self.bert_model.to(self.device)
         
     def get_position_embedding_given_ent(self, 
                                          ent_start: int, 
@@ -114,12 +112,12 @@ class PathProcesser:
         offset_mapping = output['offset_mapping']
         encoding = self.tokenizer.encode(text, return_tensors="pt")
         temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:]
-        sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]       
+        sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
         
         for edge in sdp:
             word1_idx = edge[0]
             word2_idx = edge[2]
-
+            
             # Get BERT embedding
             word1_offset = idx_to_offset(text, word1_idx, self.spacy_nlp.nlp)
             word2_offset = idx_to_offset(text, word2_idx, self.spacy_nlp.nlp)
@@ -143,14 +141,3 @@ class PathProcesser:
             all_mapped_sdp.append(mapped_sdp)
             
         return all_mapped_sdp
-    
-if __name__ == '__main__':
-    from ddi_kt_2024.text.preprocess.spacy_nlp import SpacyNLP
-    from ddi_kt_2024.utils import get_lookup, load_pkl
-
-    pp = PathProcesser(spacy_nlp=SpacyNLP().nlp,
-                       lookup_word=get_lookup("cache\\fasttext\\nguyennb\\all_words.txt"),
-                       lookup_dep=get_lookup("cache\\fasttext\\nguyennb\\all_dep.txt"),
-                       lookup_tag=get_lookup("cache\\fasttext\\nguyennb\\all_pos.txt"),
-                       lookup_direction=get_lookup("cache\\fasttext\\nguyennb\\all_direction.txt"))
-    all_cand = load_pkl("cache\\pkl\\v1\\candidates.test.pkl")
