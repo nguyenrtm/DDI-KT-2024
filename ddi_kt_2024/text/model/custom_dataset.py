@@ -4,7 +4,6 @@ from torch.utils.data import Dataset
 import logging
 
 from ddi_kt_2024.text.model.huggingface_model import get_model
-from ddi_kt_2024.text.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
 from ddi_kt_2024 import logging_config
 
 class CustomDataset(Dataset):
@@ -97,92 +96,3 @@ class CustomDataset(Dataset):
             sample = self.data[idx]
             label = self.labels[idx]
             return sample, label
-
-class BertEmbeddingDataset(CustomDataset):
-    """ 
-    In this class, text will be consider to overlap 
-    the old fasttext embedding
-    """
-    def __init__(self, all_candidates, data, labels):
-        self.all_candidates = all_candidates
-        self.data = data
-        self.labels = labels
-        self.get_text()
-
-    def get_text(self):
-        self.text = [iter['text'] for iter in self.all_candidates]
-
-    def fix_unsqueeze(self):
-        for data_i in self.data:
-            if len(list(data_i.shape)) == 1:
-                data_i.unsqueeze_(dim=0)
-                data_i.unsqueeze_(dim=0) # Not an error
-            elif len(list(data_i.shape)) == 2:
-                data_i.unsqueeze_(dim=0)
-
-    def add_embed_to_data(self, 
-    huggingface_model_name = 'dmis-lab/biobert-base-cased-v1.2', 
-    all_words_path ='cache/fasttext/nguyennb/all_words.txt', mode = 'mean',
-    embed_size=768):
-        """ 
-        Add embed BERT to data:
-        -> Loop through self.data -> append function
-        """
-        tokenizer, model = get_model(huggingface_model_name)
-        with open(all_words_path, "r") as f:
-            fasttext_word_list = [i.rstrip() for i in f.readlines()]
-        fasttext_word_list = [""] + fasttext_word_list
-        for i, sample in enumerate(self.data):
-            second_dim_num = int(sample.shape[1])
-            data_mapped_0_ids = sample[0,:,0]
-            data_mapped_8_ids = sample[0,:,8]
-
-            # Get back all words
-            words_0_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_0_ids]
-            words_8_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_8_ids]
-
-            # Get tokenize
-            encoding = tokenizer.encode(self.text[i], return_tensors="pt")
-            sentence_tokenize = tokenizer.convert_ids_to_tokens(encoding[0])
-            result = model(encoding).last_hidden_state.detach()
-
-            # Map with new tokenize
-            tokenize_map_0_ids = map_new_tokenize(words_0_ids, sentence_tokenize)
-            tokenize_map_8_ids = map_new_tokenize(words_8_ids, sentence_tokenize)
-
-            # Declare
-            this_sent_embedded_first = torch.Tensor([])
-            this_sent_embedded_mean = torch.Tensor([])
-            this_sent_embedded_last = torch.Tensor([])
-
-            for tokenize_status in tokenize_map_0_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
-
-            for tokenize_status in tokenize_map_8_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
-
-            if mode == 'first':
-                self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_first.reshape(1,second_dim_num,-1)),
-                    dim=2
-                )
-            elif mode == 'mean':
-                self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_mean.reshape(1,second_dim_num,-1)),
-                    dim=2
-                )
-            elif mode == 'last':
-                self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_last.reshape(1,second_dim_num,-1)),
-                    dim=2
-                )
-
-            if (i+1) % 100 == 0:
-                logging.info(f"Handled {i+1} / {len(self.data)}")
-
-    def __getitem__(self,idx):
-        sample = self.data[idx]
-        label = self.labels[idx]
-        return sample, label

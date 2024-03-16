@@ -301,8 +301,6 @@ class BertModel(nn.Module):
         elif self.model_option == 'lstm' or self.model_option == 'bilstm':
             x, _ = self.lstm(x)
             x = x[:, -1, :]
-        
-        print(x.shape)
 
         if self.classifier == True:
             x = self.dense_to_tag(x)
