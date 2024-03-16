@@ -90,6 +90,7 @@ class PathProcesser:
                     else: 
                         return(pos_list[0], pos_list[-1])
                 return (pos_list[0], pos_list[-1])
+        return (len(offset_mapping[0][1:-1]) - 1, len(offset_mapping[0][1:-1]) - 1)
         
     def create_mapping_with_bert(self, candidate, sdp):
         text = candidate['text']
@@ -117,6 +118,9 @@ class PathProcesser:
         temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:]
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
         
+#         for i in range(len(sentence_tokenize)):
+#             print(f"{i}: {sentence_tokenize[i]}")
+        
         for edge in sdp:
             word1_idx = edge[0]
             word2_idx = edge[2]
@@ -124,6 +128,7 @@ class PathProcesser:
             # Get BERT embedding
             word1_offset = idx_to_offset(text, word1_idx, self.spacy_nlp.nlp)
             word2_offset = idx_to_offset(text, word2_idx, self.spacy_nlp.nlp)
+        
             word1_bert_pos = self.return_bert_position(word1_offset[0], word1_offset[1], offset_mapping)
             word2_bert_pos = self.return_bert_position(word2_offset[0], word2_offset[1], offset_mapping)
 
