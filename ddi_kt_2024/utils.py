@@ -76,6 +76,13 @@ def offset_to_idx(text, offset, nlp):
     assert start_idx != -1, end_idx != -1
     return start_idx, end_idx
 
+def idx_to_offset(text, idx, nlp):
+    '''
+    Given index of token in text, return its offset in text.
+    '''
+    doc = nlp(text)
+    return doc[idx].idx, doc[idx].idx + len(doc[idx].text)
+
 def get_labels(all_candidates):
     label_list = list()
     for candidate in all_candidates:
