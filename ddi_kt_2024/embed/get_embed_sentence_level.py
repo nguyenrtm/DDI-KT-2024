@@ -9,7 +9,7 @@ from transformers import AutoTokenizer, BertModel
 import torch
 
 from ddi_kt_2024 import logging_config
-from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
+# from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
 from ddi_kt_2024.utils import dump_pkl, load_pkl, get_labels
 
 def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size=768):
