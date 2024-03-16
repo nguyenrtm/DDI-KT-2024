@@ -103,7 +103,6 @@ class PathProcesser:
                                    self.lookup_tag[tag_key]])
             except: 
                 if word_key not in self.lookup_word.keys():
-                    print(f"Token '{word_key}' is not in vocabulary!")
                     word_index.append([12367, self.lookup_tag[tag_key]])
 
         position_embedding_ent1 = self.build_position_embedding(text, candidate['e1']['@charOffset'])
