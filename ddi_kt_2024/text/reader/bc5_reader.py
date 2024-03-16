@@ -331,3 +331,21 @@ def process_bc5(path):
     a, e, r, p = intra_sentence_data_creator.get_data(abstract, entity, relation, spacy_features)
     df = intra_sentence_data_creator.convert_to_df(a, p)
     return df
+
+def convert_bc5_to_dict(df):
+    dict_list = list()
+    for i in range(len(df)):
+        dct = {'label': df.iloc[i]['label'],
+               'id': df.iloc[i]['sent_id'],
+               'text': df.iloc[i]['text'],
+               'e1': {"@id": df.iloc[i]['ent1_id'],
+                     '@charOffset': '-'.join([str(df.iloc[i]['ent1_start']), str(df.iloc[i]['ent1_end'])]),
+                     '@type': 'Chemical',
+                     '@text': df.iloc[i]['ent1_name']},
+               'e2': {"@id": df.iloc[i]['ent2_id'],
+                     '@charOffset': '-'.join([str(df.iloc[i]['ent2_start']), str(df.iloc[i]['ent2_end'])]),
+                     '@type': 'Disease',
+                     '@text': df.iloc[i]['ent2_name']}}
+        dict_list.append(dct)
+        
+    return dict_list
