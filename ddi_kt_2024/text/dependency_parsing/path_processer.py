@@ -85,7 +85,10 @@ class PathProcesser:
                 j = i - 1
                 while right_offset >= offset_mapping[0][1:-1][j][1]:
                     pos_list.append(j)
-                    j += 1
+                    if j + 1 < len(offset_mapping[0][1:-1]):
+                        j += 1
+                    else: 
+                        return(pos_list[0], pos_list[-1])
                 return (pos_list[0], pos_list[-1])
         
     def create_mapping_with_bert(self, candidate, sdp):
