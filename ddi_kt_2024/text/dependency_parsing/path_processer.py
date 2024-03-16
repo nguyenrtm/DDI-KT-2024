@@ -92,10 +92,9 @@ class PathProcesser:
                 return (pos_list[0], pos_list[-1])
         return (len(offset_mapping[0][1:-1]) - 1, len(offset_mapping[0][1:-1]) - 1)
         
-    def create_mapping_with_bert(self, candidate, sdp):
+    def create_mapping_with_bert(self, candidate, sdp, text, offset_mapping, temp_result):
         if sdp == []:
             return torch.zeros([1, 1550]).to(self.device)
-        text = candidate['text']
         doc = self.spacy_nlp.nlp(text)
         word_index = list()
         mapped_sdp = list()
@@ -113,15 +112,12 @@ class PathProcesser:
 
         position_embedding_ent1 = self.build_position_embedding(text, candidate['e1']['@charOffset'])
         position_embedding_ent2 = self.build_position_embedding(text, candidate['e2']['@charOffset'])
-
-        output = self.tokenizer([text], return_offsets_mapping=True)
-        offset_mapping = output['offset_mapping']
-        encoding = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
-        temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:]
-        sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
         
-        # for i in range(len(sentence_tokenize)):
-        #     print(f"{i}: {sentence_tokenize[i]}")
+#         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
+#         for i in range(len(sentence_tokenize)):
+#             print(f"{i}: {sentence_tokenize[i]}")
+            
+#         print(sdp)
         
         for edge in sdp:
             word1_idx = edge[0]
@@ -136,7 +132,7 @@ class PathProcesser:
 
             word1_bert_embedding = torch.mean(temp_result[:, word1_bert_pos[0]:word1_bert_pos[1]+1, :], dim=1)
             word2_bert_embedding = torch.mean(temp_result[:, word2_bert_pos[0]:word2_bert_pos[1]+1, :], dim=1)
-            # print(word1_bert_pos, word2_bert_pos)
+#             print(word1_bert_pos, word2_bert_pos)
 
             word1_keys = torch.tensor(word_index[word1_idx] + [position_embedding_ent1[0][word1_idx], position_embedding_ent2[0][word1_idx], position_embedding_ent1[1][word1_idx], position_embedding_ent2[1][word1_idx]]).unsqueeze(dim=0).to(self.device)
             word2_keys = torch.tensor(word_index[word2_idx] + [position_embedding_ent1[0][word2_idx], position_embedding_ent2[0][word2_idx], position_embedding_ent1[1][word2_idx], position_embedding_ent2[1][word2_idx]]).unsqueeze(dim=0).to(self.device)
@@ -151,7 +147,13 @@ class PathProcesser:
             if option == 'normal':
                 mapped_sdp = self.create_mapping(all_candidates[i], all_sdp[i]).unsqueeze(dim=0)
             elif option == 'bert':
-                mapped_sdp = self.create_mapping_with_bert(all_candidates[i], all_sdp[i]).unsqueeze(dim=0)
+                if i == 0 or all_candidates[i]['text'] != all_candidates[i-1]['text']:
+                    text = all_candidates[i]['text']
+                    output = self.tokenizer([text], return_offsets_mapping=True)
+                    encoding = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
+                    temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:]
+                
+                mapped_sdp = self.create_mapping_with_bert(all_candidates[i], all_sdp[i], text, output['offset_mapping'], temp_result).unsqueeze(dim=0)
             all_mapped_sdp.append(mapped_sdp)
             
         return all_mapped_sdp
