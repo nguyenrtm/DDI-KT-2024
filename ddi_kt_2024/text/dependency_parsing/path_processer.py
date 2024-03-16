@@ -14,6 +14,7 @@ class PathProcesser:
         self.tokenizer = AutoTokenizer.from_pretrained(bert_model_path)
         self.bert_model = BertModel.from_pretrained(bert_model_path)
         self.bert_model.to(device)
+        self.device = device
         
     def get_position_embedding_given_ent(self, 
                                          ent_start: int, 
@@ -111,7 +112,7 @@ class PathProcesser:
 
         output = self.tokenizer([text], return_offsets_mapping=True)
         offset_mapping = output['offset_mapping']
-        encoding = self.tokenizer.encode(text, return_tensors="pt")
+        encoding = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
         temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:]
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
         
@@ -128,9 +129,9 @@ class PathProcesser:
             word1_bert_embedding = torch.mean(temp_result[:, word1_bert_pos[0]:word1_bert_pos[1]+1, :], dim=1)
             word2_bert_embedding = torch.mean(temp_result[:, word2_bert_pos[0]:word2_bert_pos[1]+1, :], dim=1)
 
-            word1_keys = torch.tensor(word_index[word1_idx] + [position_embedding_ent1[0][word1_idx], position_embedding_ent2[0][word1_idx], position_embedding_ent1[1][word1_idx], position_embedding_ent2[1][word1_idx]]).unsqueeze(dim=0)
-            word2_keys = torch.tensor(word_index[word2_idx] + [position_embedding_ent1[0][word2_idx], position_embedding_ent2[0][word2_idx], position_embedding_ent1[1][word2_idx], position_embedding_ent2[1][word2_idx]]).unsqueeze(dim=0)
-            edge_keys = torch.tensor([self.lookup_direction[edge[1][0]], self.lookup_dep[edge[1][1]]]).unsqueeze(dim=0)
+            word1_keys = torch.tensor(word_index[word1_idx] + [position_embedding_ent1[0][word1_idx], position_embedding_ent2[0][word1_idx], position_embedding_ent1[1][word1_idx], position_embedding_ent2[1][word1_idx]]).unsqueeze(dim=0).to(self.device)
+            word2_keys = torch.tensor(word_index[word2_idx] + [position_embedding_ent1[0][word2_idx], position_embedding_ent2[0][word2_idx], position_embedding_ent1[1][word2_idx], position_embedding_ent2[1][word2_idx]]).unsqueeze(dim=0).to(self.device)
+            edge_keys = torch.tensor([self.lookup_direction[edge[1][0]], self.lookup_dep[edge[1][1]]]).unsqueeze(dim=0).to(self.device)
             mapped_sdp.append(torch.cat((word1_keys, edge_keys, word2_keys, word1_bert_embedding, word2_bert_embedding), dim=1))
 
         return torch.cat(mapped_sdp)
