@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, BertModel
 from ddi_kt_2024.utils import offset_to_idx, idx_to_offset
 
 class PathProcesser:
-    def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction, bert_model_path):
+    def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction, bert_model_path, device='cpu'):
         self.spacy_nlp = spacy_nlp
         self.lookup_word = lookup_word
         self.lookup_dep = lookup_dep
@@ -13,6 +13,7 @@ class PathProcesser:
         self.lookup_direction = lookup_direction
         self.tokenizer = AutoTokenizer.from_pretrained(bert_model_path)
         self.bert_model = BertModel.from_pretrained(bert_model_path)
+        self.bert_model.to(device)
         
     def get_position_embedding_given_ent(self, 
                                          ent_start: int, 
