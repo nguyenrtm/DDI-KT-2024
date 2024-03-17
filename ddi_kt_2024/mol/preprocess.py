@@ -14,12 +14,12 @@ def find_drug_smiles(mapped_smiles_id, mapped_smiles_name, drug_name):
             return smiles[1]
     return 'None'
 
-def candidate_smiles(all_candidates, mapped_smiles):
+def candidate_smiles(all_candidates, mapped_smiles_id, mapped_smiles_name):
     x = list()
     y = list()
     for c in all_candidates:
         e1 = c['e1']['@text']
-        smiles1 = find_drug_smiles(mapped_smiles, e1)
+        smiles1 = find_drug_smiles(mapped_smiles_id, mapped_smiles_name, e1)
         label = c['label']
         if label == '0':
             label = 0
