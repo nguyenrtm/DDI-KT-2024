@@ -36,3 +36,27 @@ class SpacyNLP:
         for tok in doc:
             tok.is_sent_start = False
         return doc
+    
+    def wordTokenizer(self, text):
+        doc = self.nlp(text)
+        return [(token.text, token.idx, token.i) for token in doc]
+
+    def sentTokenizer(self, sent):
+        doc = self.nlp(sent)
+        return [sent.text for sent in doc.sents]
+    
+    def tag(self, text):
+        doc = self.nlp(text)
+        return [token.tag_ for token in doc]
+
+    def POS(self, text):
+        doc = self.nlp(text)
+        return [token.pos_ for token in doc]
+
+    def dependencyTagger(self, text):
+        doc = self.nlp(text)
+        return [token.dep_ for token in doc]
+
+    def IOBTagger(self, text):
+        doc = self.nlp(text)
+        return [token.ent_iob_ for token in doc]
