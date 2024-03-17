@@ -157,3 +157,24 @@ class PathProcesser:
             all_mapped_sdp.append(mapped_sdp)
             
         return all_mapped_sdp
+    
+
+if __name__ == "__main__":
+    from ddi_kt_2024.text.preprocess.spacy_nlp import SpacyNLP
+    from ddi_kt_2024.utils import get_lookup, load_pkl, offset_to_idx
+    from ddi_kt_2024.text.dependency_parsing.path_processer import PathProcesser
+    train_mapped = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/train.mapped.sdp.pkl')
+    train_cand = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/candidates.train.pkl')
+    sdp_train = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/sdp.train.pkl')
+    test_mapped = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/test.mapped.sdp.pkl')
+    test_cand = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/candidates.test.pkl')
+    sdp_test = load_pkl('/kaggle/working/DDI-KT-2024/cache/pkl/v1/sdp.test.pkl')
+    pp = PathProcesser(spacy_nlp=SpacyNLP(),
+                        lookup_word=get_lookup("cache/fasttext/nguyennb/all_words.txt"),
+                        lookup_dep=get_lookup("cache/fasttext/nguyennb/all_dep.txt"),
+                        lookup_tag=get_lookup("cache/fasttext/nguyennb/all_pos.txt"),
+                        lookup_direction=get_lookup("cache/fasttext/nguyennb/all_direction.txt"),
+                        bert_model_path='allenai/scibert_scivocab_uncased',
+                        device='cuda')
+    all_mapped_test = pp.create_mapping_all(test_cand, sdp_test)
+    all_mapped_train = pp.create_mapping_all(train_cand, sdp_train)
