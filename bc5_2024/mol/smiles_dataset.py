@@ -1,8 +1,8 @@
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from ddi_kt_2024.mol.features import smi_to_bert
+from bc5_2024.mol.features import smi_to_bert
 
-from ddi_kt_2024.utils import load_pkl
+from bc5_2024.utils import load_pkl
 
 class SmilesDataset(Dataset):
   def __init__(self, x, 

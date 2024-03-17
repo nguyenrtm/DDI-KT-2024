@@ -5,8 +5,8 @@ import logging
 import torch
 import numpy as np
 
-import ddi_kt_2024.logging_config
-from ddi_kt_2024.text.reader.yaml_reader import save_yaml_config
+import bc5_2024.logging_config
+from bc5_2024.text.reader.yaml_reader import save_yaml_config
 
 class DictAccessor:
     def __init__(self, data):

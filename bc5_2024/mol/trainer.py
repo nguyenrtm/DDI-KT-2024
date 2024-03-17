@@ -5,7 +5,7 @@ from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
 
-from src.mol.gnn import GNN
+from bc5_2024.mol.gnn import GNN
 
 class Trainer:
     def __init__(self,

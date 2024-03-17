@@ -3,8 +3,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 import logging
 
-from ddi_kt_2024.text.model.huggingface_model import get_model
-from ddi_kt_2024 import logging_config
+from bc5_2024.text.model.huggingface_model import get_model
+from bc5_2024 import logging_config
 
 class CustomDataset(Dataset):
     def __init__(self, data, labels):

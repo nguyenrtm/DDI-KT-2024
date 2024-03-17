@@ -1,6 +1,6 @@
 import torch
 
-from ddi_kt_2024.utils import get_trimmed_w2v_vectors, load_vocab
+from bc5_2024.utils import get_trimmed_w2v_vectors, load_vocab
 
 class WordEmbedding:
     def __init__(self, 

@@ -1,11 +1,11 @@
 import torch
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
-from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
 
-from ddi_kt_2024.multimodal.model import MultimodalModel
+from bc5_2024.multimodal.model import MultimodalModel
+from bc5_2024.eval import evaluate_bc5
 
 class Trainer:
     def __init__(self,

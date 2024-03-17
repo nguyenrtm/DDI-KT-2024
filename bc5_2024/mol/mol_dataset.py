@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from ddi_kt_2024.mol.features import smi_to_pyg
+from bc5_2024.mol.features import smi_to_pyg
 from torch_geometric.loader import DataLoader
 
 class MolDataset(Dataset):

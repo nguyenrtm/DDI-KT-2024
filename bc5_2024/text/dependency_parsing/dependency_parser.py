@@ -2,7 +2,7 @@ import networkx as nx
 import spacy
 from tqdm import tqdm
 
-from ddi_kt_2024.utils import offset_to_idx
+from bc5_2024.utils import offset_to_idx
 
 class DependencyParser:
     def __init__(self, nlp):

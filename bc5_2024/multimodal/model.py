@@ -1,8 +1,8 @@
 import torch
 import torch.nn
 
-from ddi_kt_2024.text.model.text_model import TextModel, BertModel
-from ddi_kt_2024.mol.gnn import GNN
+from bc5_2024.text.model.text_model import TextModel, BertModel
+from bc5_2024.mol.gnn import GNN
 
 class MultimodalModel(torch.nn.Module):
     def __init__(self, 

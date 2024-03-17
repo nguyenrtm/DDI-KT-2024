@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, BertModel
 
-from ddi_kt_2024.utils import offset_to_idx, idx_to_offset
+from bc5_2024.utils import offset_to_idx, idx_to_offset
 
 class PathProcesser:
     def __init__(self, spacy_nlp, lookup_word, lookup_dep, lookup_tag, lookup_direction, bert_model_path, device='cpu'):
