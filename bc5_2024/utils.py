@@ -83,16 +83,10 @@ def idx_to_offset(text, idx, nlp):
 def get_labels(all_candidates):
     label_list = list()
     for candidate in all_candidates:
-        if candidate['label'] == 'false':
+        if candidate['label'] == 0:
             label_list.append(torch.tensor([0]))
-        elif candidate['label'] == 'advise':
+        elif candidate['label'] == 1:
             label_list.append(torch.tensor([1]))
-        elif candidate['label'] == 'effect':
-            label_list.append(torch.tensor([2]))
-        elif candidate['label'] == 'mechanism':
-            label_list.append(torch.tensor([3]))
-        elif candidate['label'] == 'int':
-            label_list.append(torch.tensor([4]))
     return label_list
 
 def get_decode_a_label(result):

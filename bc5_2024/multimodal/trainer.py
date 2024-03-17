@@ -10,6 +10,7 @@ from bc5_2024.eval.bc5 import evaluate_bc5
 class Trainer:
     def __init__(self,
                  we,
+                 test_cand,
                  dropout_rate: float = 0.5,
                  word_embedding_size: int = 200,
                  tag_number: int = 51,
@@ -79,6 +80,7 @@ class Trainer:
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.device = device
+        self.test_cand = test_cand
         self.train_loss = list()
         self.val_loss = list()
         self.p = list()
@@ -119,7 +121,6 @@ class Trainer:
         for ((a, batch_label), b, c) in zip(train_loader_text, 
                                             train_loader_mol1, 
                                             train_loader_mol1_bert):
-            
             text = a.clone().detach().to(self.device)
             mol1 = b.to(self.device)
             mol1_bert = c.to(self.device)
@@ -128,7 +129,7 @@ class Trainer:
             batch_label = self.convert_label_to_2d(batch_label)
             
             i += 1
-
+            
             out = self.model(text, mol1, mol1_bert)
             self.optimizer.zero_grad()
             loss = self.criterion(out, batch_label)
@@ -143,7 +144,7 @@ class Trainer:
     def validate(self, 
                  val_loader_text, 
                  val_loader_mol1, 
-                 val_loader_mol1_bert,  
+                 val_loader_mol1_bert,
                  option):
         running_loss = 0.
         predictions = torch.tensor([]).to(self.device)
@@ -175,19 +176,13 @@ class Trainer:
         for i in range(len(labels)):
             if labels[i].cpu() == 1:
                 true_pred.append(i)
-                
-        cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1])
 
         if self.log == True:
             wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
                             y_true=labels.cpu().numpy(), preds=predictions.cpu().numpy(),
                             class_names=['0', '1'])})
         
-        if option == 'train':
-            self.train_loss.append(running_loss)
-        elif option == 'val':
-            self.confusion_matrix.append(cm)
-            self.val_loss.append(running_loss)
+        self.eval_bc5(predictions.cpu().numpy(), self.test_cand)
         
     def train(self, train_loader_text, train_loader_mol1, train_loader_mol1_bert,
                     val_loader_text, val_loader_mol1, val_loader_mol1_bert, num_epochs):
@@ -196,7 +191,6 @@ class Trainer:
             running_loss = self.train_one_epoch(train_loader_text, 
                                                 train_loader_mol1, 
                                                 train_loader_mol1_bert)
-            
             self.train_loss.append(running_loss)
 
             self.validate(val_loader_text, 
@@ -230,7 +224,7 @@ class Trainer:
                 elif len(cand[i]['e1']['@id'].split('|')) > 1:
                     tmp = cand[i]['e1']['@id'].split('|')
                     for ent in tmp:
-                        idx = cand[i]['sent_id'].split('_')[0]
+                        idx = cand[i]['id'].split('_')[0]
                         if idx in dct.keys():
                             if f"{ent}_{cand[i]['e2']['@id']}" not in dct[idx]:
                                 dct[idx].append(f"{ent}_{cand[i]['e2']['@id']}")
@@ -239,14 +233,14 @@ class Trainer:
                 elif len(cand[i]['e2']['@id'].split('|')) > 1:
                     tmp = cand[i]['e2']['@id'].split('|')
                     for ent in tmp:
-                        idx = cand[i]['sent_id'].split('_')[0]
+                        idx = cand[i]['id'].split('_')[0]
                         if idx in dct.keys():
                             if f"{cand[i]['e1']['@id']}_{ent}" not in dct[idx]:
                                 dct[idx].append(f"{cand[i]['e1']['@id']}_{ent}")
                         else:
                             dct[idx] = [f"{cand[i]['e1']['@id']}_{ent}"]
                 else:
-                    idx = cand[i]['sent_id'].split('_')[0]
+                    idx = cand[i]['id'].split('_')[0]
                     if idx in dct.keys():
                         if f"{cand[i]['e1']['@id']}_{cand[i]['e2']['@id']}" not in dct[idx]:
                             dct[idx].append(f"{cand[i]['e1']['@id']}_{cand[i]['e2']['@id']}")
