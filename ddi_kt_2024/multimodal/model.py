@@ -108,7 +108,7 @@ class MultimodalModel(torch.nn.Module):
 
         self.modal = modal
         
-        if self.modal == '0':
+        if self.modal == '0' or self.modal == '1_early_fusion':
             if text_model_option == 'bilstm':
                 self.dense_to_tag = torch.nn.Linear(in_features=kwargs['lstm_hidden_size']*2, 
                                                     out_features=target_class,
@@ -199,6 +199,18 @@ class MultimodalModel(torch.nn.Module):
             mol_x2 = self.gnn2(mol_x2)
 
             x = torch.cat((mol_x1, mol_x2), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
+        elif self.modal == '1_early_fusion':
+            mol_x1 = self.gnn1(mol_x1)
+            mol_x2 = self.gnn2(mol_x2)
+            
+            text_x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
+            x = self.text_model(text_x)
 
             # Classifier
             x = self.dense_to_tag(x)
