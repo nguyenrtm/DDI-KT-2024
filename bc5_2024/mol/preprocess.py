@@ -4,33 +4,28 @@ def mapped_smiles_reader(file_path):
     all_drugs = [x.split('|') for x in all_drugs]
     return all_drugs
 
-def find_drug_smiles(mapped_smiles, drug_name):
+def find_drug_smiles(mapped_smiles_id, mapped_smiles_name, drug_name):
     drug_name = drug_name.lower()
-    for smiles in mapped_smiles:
+    for smiles in mapped_smiles_name:
         if drug_name == smiles[1]:
             return smiles[2]
+    for smiles in mapped_smiles_id:
+        if drug_name == smiles[0]:
+            return smiles[1]
     return 'None'
 
-def candidate_smiles(all_candidates, mapped_smiles):
+def candidate_smiles(all_candidates, mapped_smiles_id, mapped_smiles_name):
     x = list()
     y = list()
     for c in all_candidates:
         e1 = c['e1']['@text']
-        e2 = c['e2']['@text']
-        smiles1 = find_drug_smiles(mapped_smiles, e1)
-        smiles2 = find_drug_smiles(mapped_smiles, e2)
+        smiles1 = find_drug_smiles(mapped_smiles_id, mapped_smiles_name, e1)
         label = c['label']
-        if label == 'false':
+        if label == '0':
             label = 0
-        elif label == 'advise':
+        elif label == '1':
             label = 1
-        elif label == 'effect':
-            label = 2
-        elif label == 'mechanism':
-            label = 3
-        elif label == 'int':
-            label = 4
-        x.append([smiles1, smiles2])
+        x.append([smiles1])
         y.append(label)
     
     return x, y
