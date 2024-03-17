@@ -5,7 +5,7 @@ import numpy as np
 import wandb
 
 from bc5_2024.multimodal.model import MultimodalModel
-from bc5_2024.eval import evaluate_bc5
+from bc5_2024.eval.bc5 import evaluate_bc5
 
 class Trainer:
     def __init__(self,
