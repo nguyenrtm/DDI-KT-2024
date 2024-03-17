@@ -183,6 +183,11 @@ class Trainer:
                             class_names=['0', '1'])})
         
         self.eval_bc5(predictions.cpu().numpy(), self.test_cand)
+
+        if option == 'train':
+            self.train_loss.append(running_loss)
+        elif option == 'val':
+            self.val_loss.append(running_loss)
         
     def train(self, train_loader_text, train_loader_mol1, train_loader_mol1_bert,
                     val_loader_text, val_loader_mol1, val_loader_mol1_bert, num_epochs):
