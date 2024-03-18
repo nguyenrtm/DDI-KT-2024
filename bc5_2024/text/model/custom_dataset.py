@@ -32,6 +32,13 @@ class CustomDataset(Dataset):
         for i in range(len(self.data)):
             self.data[i] = self.data[i].squeeze()
 
+    def average_position_embedding(self, col_pos=[2, 3, 10, 11]):
+        for i in range(len(self.data)):
+            length = self.data[i].shape[1]
+            for j in col_pos:
+                self.data[i][:, :, j] = self.data[i][:, :, j] / length
+            
+
     def batch_padding(self, batch_size, min_batch_size=3, dataset='ddi'):
         if dataset == 'ddi':
             current = 0
