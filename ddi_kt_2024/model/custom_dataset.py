@@ -12,6 +12,9 @@ from ddi_kt_2024.utils import load_pkl, get_labels, get_lookup
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
 
+torch.multiprocessing.set_sharing_strategy('file_system')
+torch.multiprocessing.set_start_method('spawn')
+
 class CustomDataset(Dataset):
     def __init__(self, data, labels):
         self.data = data
