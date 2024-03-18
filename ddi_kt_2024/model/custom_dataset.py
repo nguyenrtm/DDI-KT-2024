@@ -194,7 +194,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         #         print(f"Handled {iter+1}/{len(self.all_candidates)}")
         num_workers = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(num_workers)
-        results = pool.map(process_candidate, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
+        results = pool.map(self._process, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
         pool.close()
         pool.join()
         for result in results:
