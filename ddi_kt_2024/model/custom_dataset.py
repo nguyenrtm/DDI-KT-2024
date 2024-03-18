@@ -13,11 +13,6 @@ from ddi_kt_2024.model.word_embedding import WordEmbedding
 from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
 
 torch.multiprocessing.set_sharing_strategy('file_system')
-try:
-   multiprocessing.set_start_method('spawn', force=True)
-   print("spawned")
-except RuntimeError:
-   pass
 
 class CustomDataset(Dataset):
     def __init__(self, data, labels):
@@ -180,6 +175,11 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         Lookup_word and lookup_tag from get_lookup()
         Bert_model is just name in huggingface
         """
+        try:
+            multiprocessing.set_start_method('spawn', force=True)
+            print("spawned")
+        except RuntimeError:
+            pass
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
         self.data = []
         self.temp_labels = []
