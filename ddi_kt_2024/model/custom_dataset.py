@@ -175,6 +175,37 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         Lookup_word and lookup_tag from get_lookup()
         Bert_model is just name in huggingface
         """
+        tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        self.data = []
+        self.temp_labels = []
+        self.temp_all_candidates = []
+        for iter, candidate in enumerate(self.all_candidates):
+            try:
+                if type=="bert":
+                    result = tpp.get_word_pos_embed_bert_size(candidate)
+                else:
+                    result = tpp.get_word_pos_embed_spacy_size(candidate)
+            except Exception as e:
+                print(f"Receive an exception when handle at index {iter}")
+                continue
+            self.data.append(result)
+            self.temp_all_candidates.append(self.all_candidates[iter])
+            self.temp_labels.append(self.labels[iter])
+            if (iter + 1 )% 100 == 0:
+                print(f"Handled {iter+1}/{len(self.all_candidates)}")
+
+        self.labels = self.temp_labels
+        self.all_candidates = self.temp_all_candidates # For easy debug
+
+        # 
+        print("Convert to tensor completed!")
+        
+    def convert_to_tensors_multi_processing(self, lookup_word, lookup_tag, bert_model, type="spacy"):
+        """ 
+        BROKEN. FIXING.
+        Lookup_word and lookup_tag from get_lookup()
+        Bert_model is just name in huggingface
+        """
         # try:
         #     multiprocessing.set_start_method('spawn', force=True)
         #     print("spawned")
