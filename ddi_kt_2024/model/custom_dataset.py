@@ -193,10 +193,9 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         #     if (iter + 1 )% 100 == 0:
         #         print(f"Handled {iter+1}/{len(self.all_candidates)}")
         num_workers = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(num_workers)
-        results = pool.map(self._process, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
-        pool.close()
-        pool.join()
+        with multiprocessing.Pool(num_workers) as pool:
+            results = pool.map(self._process, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
+     
         for result in results:
             if result is not None:
                 index, data = result
