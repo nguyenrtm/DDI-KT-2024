@@ -176,7 +176,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         self.data = []
         self.temp_labels = []
         self.temp_all_candidates = []
-        for iter, candidate in enumerate(self.all_candidates[1186:1192]):
+        for iter, candidate in enumerate(self.all_candidates):
             try:
                 if type=="bert":
                     result = tpp.get_word_pos_embed_bert_size(candidate)
