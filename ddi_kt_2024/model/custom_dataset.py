@@ -203,8 +203,8 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
                 self.data.append(data)
                 self.temp_all_candidates.append(self.all_candidates[index])
                 self.temp_labels.append(self.labels[index])
-                if (index + 1) % 100 == 0:
-                    print(f"Handled {index + 1}/{len(self.all_candidates)}")
+                # if (index + 1) % 100 == 0:
+                #     print(f"Handled {index + 1}/{len(self.all_candidates)}")
 
         self.labels = self.temp_labels
         self.all_candidates = self.temp_all_candidates # For easy debug
@@ -222,7 +222,8 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         except Exception as e:
             print(f"Receive an exception when handle at index {index}")
             return index, None
-        
+        if (index + 1) % 100 == 0:
+            print(f"Handled {index + 1}/{len(self.all_candidates)}")
         return index, result
 
 if __name__=="__main__":
