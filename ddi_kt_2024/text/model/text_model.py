@@ -187,6 +187,7 @@ class BertModel(nn.Module):
         self.classifier = classifier
         self.word_embedding_size = word_embedding_size
         self.model_option = model_option
+        self.with_fusion = with_fusion
 
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
@@ -194,6 +195,8 @@ class BertModel(nn.Module):
 
         if self.with_fusion == True:
             self.graph_embedding_size = kwargs['graph_embedding_size']
+        else: 
+            self.graph_embedding_size = 0
 
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -213,16 +216,11 @@ class BertModel(nn.Module):
         
         self.dropout = nn.Dropout(dropout_rate)
 
-        if with_fusion == False:
-            kernel_size = token_embedding_size * 2 + dep_embedding_size
-        elif with_fusion == True:
-            kernel_size = token_embedding_size * 2 + dep_embedding_size + self.graph_embedding_size
-        
         if self.model_option == 'cnn':
             self.conv1 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv1_out_channels,
-                        kernel_size=(conv1_length, kernel_size),
+                        kernel_size=(conv1_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -231,7 +229,7 @@ class BertModel(nn.Module):
             self.conv2 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv2_out_channels,
-                        kernel_size=(conv2_length, kernel_size),
+                        kernel_size=(conv2_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -240,7 +238,7 @@ class BertModel(nn.Module):
             self.conv3 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv3_out_channels,
-                        kernel_size=(conv3_length, kernel_size),
+                        kernel_size=(conv3_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -249,7 +247,7 @@ class BertModel(nn.Module):
                                           out_features=target_class,
                                           bias=False)
         elif self.model_option == 'lstm':
-            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2+dep_embedding_size+self.graph_embedding_size*2,
                                 hidden_size=self.lstm_hidden_size,
                                 num_layers=self.lstm_num_layers,
                                 batch_first=True,
@@ -259,13 +257,13 @@ class BertModel(nn.Module):
                                           out_features=target_class,
                                           bias=False)
         elif self.model_option == 'bilstm':
-            self.lstm = nn.LSTM(input_size=token_embedding_size * 2 + dep_embedding_size,
+            self.lstm = nn.LSTM(input_size=token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2,
                                 hidden_size=self.lstm_hidden_size,
                                 num_layers=self.lstm_num_layers,
                                 batch_first=True,
                                 bidirectional=True,
                                 dropout=dropout_rate)
-            self.dense_to_tag = nn.Linear(in_features=2048,
+            self.dense_to_tag = nn.Linear(in_features=self.lstm_hidden_size,
                                           out_features=target_class,
                                           bias=False)
         self.relu = nn.ReLU()
@@ -280,20 +278,25 @@ class BertModel(nn.Module):
         direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6].int())))
         edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7].int())))
 
-        word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:]
+        word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:14+self.word_embedding_size*2]
         tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9].int())))
         position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
         position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
-
+        
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()
+        
         dep = torch.cat((direction_embedding, edge_embedding), dim=2).float()
-
+        
         tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
         tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
         dep = self.dropout(self.relu(self.normalize_dep(dep)))
-
-        x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
+        
+        if self.with_fusion == True:
+            graph = x[:, :, -2*self.graph_embedding_size:]
+            x = torch.cat((tokens_ent1, dep, tokens_ent2, graph), dim=2)
+        elif self.with_fusion == False:
+            x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)
