@@ -9,7 +9,7 @@ preprocess: "None"
 features: "fasttext, tag, position"
 
 # Lookup
-type_embed: 'bert_sentence_unpad'
+type_embed: 'bert_pos_unpad'
 lookup_word: 'cache/fasttext/nguyennb/all_words.txt'
 lookup_tag: 'cache/fasttext/nguyennb/all_pos.txt'
 lookup_dep: 'cache/fasttext/nguyennb/all_dep.txt'

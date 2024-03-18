@@ -182,3 +182,6 @@ def save_model(output_path, file_name, config, model, wandb_available=False):
     torch.save(model.state_dict(), str(Path(output_path) / file_name))
     logging.info(f"Model saved into {str(Path(output_path) / file_name)}")
     
+def idx_to_offset(text, idx, nlp):
+    doc = nlp(text)
+    return (doc[idx].idx, doc[idx].idx + len(doc[idx].text))
