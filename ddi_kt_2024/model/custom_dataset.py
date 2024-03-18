@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 import logging
+import multiprocessing
 
 from ddi_kt_2024.model.huggingface_model import get_model
 from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor, sdp_map_new_tokenize
@@ -176,26 +177,53 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         self.data = []
         self.temp_labels = []
         self.temp_all_candidates = []
-        for iter, candidate in enumerate(self.all_candidates):
-            try:
-                if type=="bert":
-                    result = tpp.get_word_pos_embed_bert_size(candidate)
-                else:
-                    result = tpp.get_word_pos_embed_spacy_size(candidate)
-            except Exception as e:
-                print(f"Receive an exception when handle at index {iter}")
-                continue
-            self.data.append(result)
-            self.temp_all_candidates.append(self.all_candidates[iter])
-            self.temp_labels.append(self.labels[iter])
-            if (iter + 1 )% 100 == 0:
-                print(f"Handled {iter+1}/{len(self.all_candidates)}")
+        # for iter, candidate in enumerate(self.all_candidates):
+        #     try:
+        #         if type=="bert":
+        #             result = tpp.get_word_pos_embed_bert_size(candidate)
+        #         else:
+        #             result = tpp.get_word_pos_embed_spacy_size(candidate)
+        #     except Exception as e:
+        #         print(f"Receive an exception when handle at index {iter}")
+        #         result = None
+        #         continue
+        #     self.data.append(result)
+        #     self.temp_all_candidates.append(self.all_candidates[iter])
+        #     self.temp_labels.append(self.labels[iter])
+        #     if (iter + 1 )% 100 == 0:
+        #         print(f"Handled {iter+1}/{len(self.all_candidates)}")
+        num_workers = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(num_workers)
+        results = pool.map(process_candidate, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
+        pool.close()
+        pool.join()
+        for result in results:
+            if result is not None:
+                index, data = result
+                self.data.append(data)
+                self.temp_all_candidates.append(self.all_candidates[index])
+                self.temp_labels.append(self.labels[index])
+                if (index + 1) % 100 == 0:
+                    print(f"Handled {index + 1}/{len(self.all_candidates)}")
 
         self.labels = self.temp_labels
         self.all_candidates = self.temp_all_candidates # For easy debug
 
         # 
         print("Convert to tensor completed!")
+
+    def _process(self, args):
+        index, candidate, type, tpp = args
+        try:
+            if type == "bert":
+                result = tpp.get_word_pos_embed_bert_size(candidate)
+            else:
+                result = tpp.get_word_pos_embed_spacy_size(candidate)
+        except Exception as e:
+            print(f"Receive an exception when handle at index {index}")
+            return index, None
+        
+        return index, result
 
 if __name__=="__main__":
     prepare_type = "sdp_word_bert_embed_no_pad"

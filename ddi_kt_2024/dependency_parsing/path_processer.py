@@ -216,7 +216,7 @@ class TextPosProcessor(PathProcesser):
             word_key = tok.text
 
             # Get tokenize
-            encoding = self.tokenizer.encode(word_key.lower(), return_tensors="pt")
+            # encoding = self.tokenizer.encode(word_key.lower(), return_tensors="pt")
             word_index.append(self.lookup_tag[tag_key])
 
             # result.append(torch.mean(temp_result[:,iter+offset: iter+offset+int(encoding.shape[1])-2, :], dim=1, keepdim=True))
