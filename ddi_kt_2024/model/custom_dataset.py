@@ -176,7 +176,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         self.data = []
         self.temp_labels = []
         self.temp_all_candidates = []
-        for iter, candidate in enumerate(self.all_candidates):
+        for iter, candidate in enumerate(self.all_candidates[1186:1192]):
             try:
                 if type=="bert":
                     result = tpp.get_word_pos_embed_bert_size(candidate)
@@ -198,21 +198,21 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         print("Convert to tensor completed!")
 
 if __name__=="__main__":
-    # prepare_type = "sdp_word_bert_embed_no_pad"
-    # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
-    # all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
-    # sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
-    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
-    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
-    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
-    # lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
-    # lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
+    prepare_type = "sdp_word_bert_embed_no_pad"
+    all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
+    all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
+    sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+                    vocab_path='cache/fasttext/nguyennb/all_words.txt')
+    lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
 
-    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
-    # y_train = get_labels(all_candidates_train)
-    # y_test = get_labels(all_candidates_test)
-    # data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
-    # data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
+    huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    y_train = get_labels(all_candidates_train)
+    y_test = get_labels(all_candidates_test)
+    data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
+    data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
     # data_test = BertPosEmbedOnlyDataset(all_candidates_test, y_test)
     # data_test.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
     
@@ -232,18 +232,19 @@ if __name__=="__main__":
     #     embed_size=768,
     #     mode="mean"
     # )
-    all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
-    sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
-    we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
-                    vocab_path='cache/fasttext/nguyennb/all_words.txt')
 
-    huggingface_model_name = 'allenai/scibert_scivocab_uncased'
-    y_test = get_labels(all_candidates_test)
-    data_test = BertEmbeddingDataset(all_candidates_test, sdp_test_mapped, y_test)
-    data_test.fix_exception()
-    data_test.add_embed_to_data(
-        huggingface_model_name=huggingface_model_name,
-        all_words_path='cache/fasttext/nguyennb/all_words.txt',
-        embed_size=768,
-        mode="mean"
-    )
+    # all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_test = get_labels(all_candidates_test)
+    # data_test = BertEmbeddingDataset(all_candidates_test, sdp_test_mapped, y_test)
+    # data_test.fix_exception()
+    # data_test.add_embed_to_data(
+    #     huggingface_model_name=huggingface_model_name,
+    #     all_words_path='cache/fasttext/nguyennb/all_words.txt',
+    #     embed_size=768,
+    #     mode="mean"
+    # )
