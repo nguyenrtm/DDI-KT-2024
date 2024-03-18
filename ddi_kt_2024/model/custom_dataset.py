@@ -228,8 +228,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         except Exception as e:
             print(f"Receive an exception when handle at index {index}")
             return index, None
-        if (index + 1) % 100 == 0:
-            print(f"Handled {index + 1}/{len(self.all_candidates)}")
+        print(index)
         return index, result
 
 if __name__=="__main__":
