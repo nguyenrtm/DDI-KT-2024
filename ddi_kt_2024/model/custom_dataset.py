@@ -14,7 +14,7 @@ from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 try:
-   mp.set_start_method('spawn', force=True)
+   multiprocessing.set_start_method('spawn', force=True)
    print("spawned")
 except RuntimeError:
    pass
