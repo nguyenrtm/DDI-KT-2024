@@ -175,11 +175,11 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         Lookup_word and lookup_tag from get_lookup()
         Bert_model is just name in huggingface
         """
-        try:
-            multiprocessing.set_start_method('spawn', force=True)
-            print("spawned")
-        except RuntimeError:
-            pass
+        # try:
+        #     multiprocessing.set_start_method('spawn', force=True)
+        #     print("spawned")
+        # except RuntimeError:
+        #     pass
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
         self.data = []
         self.temp_labels = []
