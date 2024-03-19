@@ -24,11 +24,11 @@ fasttext_path: 'cache/fasttext/nguyennb/fastText_ddi.npz'
 vocab_path: 'cache/fasttext/nguyennb/all_words.txt'
 
 # Saved customdataset
-train_custom_dataset: 'train.pt'
-test_custom_dataset: 'test.pt'
+train_custom_dataset: 'D:\ResearchMultimodal\DDI-KT-2024\bc5_scibert_scivocab_uncased_train.pt'
+test_custom_dataset: 'D:\ResearchMultimodal\DDI-KT-2024\bc5_scibert_scivocab_uncased_test.pt'
 
 # Train configs
-min_batch_size: 3
+min_batch_size: 9
 batch_size: 64
 weight_decay: 0.001
 lr: 0.0001
@@ -49,9 +49,9 @@ dep_embedding_size: 500
 conv1_out_channels: 256
 conv2_out_channels: 256
 conv3_out_channels: 256
-conv1_length: 1
-conv2_length: 2
-conv3_length: 3
+conv1_length: 3
+conv2_length: 6
+conv3_length: 9
 w_false: 27792 / 23771
 w_advice: 27792 / 826
 w_effect: 27792 / 1687

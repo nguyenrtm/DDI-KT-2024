@@ -1,4 +1,5 @@
 import random
+import time
 
 import torch
 from tqdm import tqdm
@@ -144,17 +145,22 @@ class TextPosProcessor(PathProcesser):
         Stack word pos together
         Procedure: Get tokenize Get sentence embed 
         '''
+        
         text = candidate['text']
         doc = self.spacy_nlp.nlp(text)
+
+
 
         # Get pos embedding
         [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'], candidate['e1']['@text'])
         [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e1']['@text'])
+  
         # Get sentence embed
         encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
         result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:] # Remove [CLS] and [SEP]
         word_index = []
+
         # word_status = map_new_tokenize([i.text for i in doc], sentence_tokenize)
         
         # Get word indexes
@@ -193,24 +199,33 @@ class TextPosProcessor(PathProcesser):
         Stack word pos together
         Procedure: Get tokenize Get sentence embed 
         '''
+
         text = candidate['text']
         doc = self.spacy_nlp.nlp(text)
 
         # Get pos embedding
         [pos_ent_1, zero_ent_1] = self.build_position_embedding(text, candidate['e1']['@charOffset'], candidate['e1']['@text'])
         [pos_ent_2, zero_ent_2] = self.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e2']['@text'])
+
         # Get sentence embed
         encoding = self.tokenizer.encode(doc.text, return_tensors="pt")
+
+
         sentence_tokenize = self.tokenizer.convert_ids_to_tokens(encoding[0])[1:-1]
+
+
         offset_sentence_tokenize = self.tokenizer([text], return_offsets_mapping=True)
 
+        
         temp_result = self.bert_model(encoding).last_hidden_state.detach()[:,1:-1,:] # Remove [CLS] and [SEP]
         word_index = []
         result = []
+
         # word_status = map_new_tokenize([i.text for i in doc], sentence_tokenize)
         # Get word indexes
         # offset = 0
         for iter, tok in enumerate(doc):
+        
             pos = tok.i
             tag_key = tok.tag_
             word_key = tok.text
@@ -221,7 +236,7 @@ class TextPosProcessor(PathProcesser):
 
             # result.append(torch.mean(temp_result[:,iter+offset: iter+offset+int(encoding.shape[1])-2, :], dim=1, keepdim=True))
             word_offset = idx_to_offset(text, iter, self.spacy_nlp.nlp)
-        
+         
             word_bert_pos = self.return_bert_position(word_offset[0], word_offset[1], offset_sentence_tokenize['offset_mapping'])
 
             word_bert_embedding = torch.mean(temp_result[:, word_bert_pos[0]:word_bert_pos[1]+1, :], dim=1, keepdim=True)
