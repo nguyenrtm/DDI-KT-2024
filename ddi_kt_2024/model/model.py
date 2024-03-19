@@ -298,7 +298,8 @@ class BertWithPostionOnlyModel(nn.Module):
                 ):
         super(BertWithPostionOnlyModel, self).__init__()
         self.word_embedding_size = word_embedding_size
-
+        self.position_embedding_size = position_embedding_size
+        self.device ="cuda"
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
 
         if position_embedding_type == "normal":
