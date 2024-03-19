@@ -284,7 +284,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
                 if zero_ent[ele_idx] == 1:
                     min_idx = ele_idx
                     break
-            for ele_dix in range(len(zero_ent)-1, -1, -1):
+            for ele_idx in range(len(zero_ent)-1, -1, -1):
                 if zero_ent[ele_idx] == 1:
                     max_idx = ele_idx
                     break
@@ -299,21 +299,21 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
 
 if __name__=="__main__":
-    prepare_type = "sdp_word_bert_embed_no_pad"
-    all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
-    all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
-    sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
-    sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
-    we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
-                    vocab_path='cache/fasttext/nguyennb/all_words.txt')
-    lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
-    lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
+    # prepare_type = "sdp_word_bert_embed_no_pad"
+    # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
+    # all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    # sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
+    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+    # lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    # lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
 
-    huggingface_model_name = 'allenai/scibert_scivocab_uncased'
-    y_train = get_labels(all_candidates_train)
-    y_test = get_labels(all_candidates_test)
-    data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
-    data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # y_test = get_labels(all_candidates_test)
+    # data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
+    # data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
     # data_test = BertPosEmbedOnlyDataset(all_candidates_test, y_test)
     # data_test.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
     
@@ -349,3 +349,15 @@ if __name__=="__main__":
     #     embed_size=768,
     #     mode="mean"
     # )
+
+    # prepare_type = "sdp_word_bert_embed_no_pad"
+    # all_candidates_train = load_pkl('cache/pkl/bc5/candidates.train.pkl')
+    lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    lookup_tag = get_lookup("cache/fasttext/bc5/all_pos.txt")
+
+    bert_model = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # # y_test = get_labels(all_candidates_test)
+    # data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
+    data_train = torch.load("bc5_scibert_scivocab_uncased_train.pt")
+    data_train.truncate_to_extend_from_entities(lookup_word, lookup_tag, bert_model, extend_amount=1)
