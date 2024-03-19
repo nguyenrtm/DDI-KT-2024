@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from ddi_kt_2024.text.model.self_attention import SelfAttention
+from bc5_2024.text.model.self_attention import SelfAttention
 
 class TextModel(nn.Module):
     def __init__(self,
