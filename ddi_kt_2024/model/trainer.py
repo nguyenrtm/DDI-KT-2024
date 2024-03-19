@@ -199,8 +199,8 @@ class Trainer(BaseTrainer):
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
-        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
-        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        # weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
@@ -260,8 +260,8 @@ class BertTrainer(BaseTrainer):
                            conv2_length,
                            conv3_length,
                            target_class).to(device)
-        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
-        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        # weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
@@ -315,8 +315,8 @@ class BertWithPostionOnlyTrainer(BaseTrainer):
             conv3_length,
             target_class,
         ).to(device)
-        weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
-        self.criterion = nn.CrossEntropyLoss(weight=weight)
+        # weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
+        self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.device = device
         self.train_loss = list()
