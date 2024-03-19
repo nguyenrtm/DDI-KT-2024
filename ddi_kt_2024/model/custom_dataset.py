@@ -270,6 +270,7 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         for iter, candidate in enumerate(self.all_candidates):
             # Locate two entities location
             text = candidate['text']
+            self.spacy_nlp = SpacyNLP()
             doc = self.spacy_nlp.nlp(text)
 
             # Get pos embedding
