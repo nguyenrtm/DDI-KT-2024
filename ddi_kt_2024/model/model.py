@@ -304,7 +304,7 @@ class BertWithPostionOnlyModel(nn.Module):
         if position_embedding_type == "normal":
             self.pos_embedding = nn.Linear(position_number, position_embedding_size, bias=False)
         elif position_embedding_type == "sinusoidal":
-            self.pos_embedding = sinusoidal_positional_embedding(position_number, position_embedding_size)
+            self.pos_embedding = sinusoidal_positional_encoding
         else:
             raise ValueError("Wrong type pos embed")
 
@@ -346,6 +346,18 @@ class BertWithPostionOnlyModel(nn.Module):
         self.relu = nn.ReLU()
 
         self.softmax = nn.Softmax(dim=1)
+
+    def sinusoidal_positional_encoding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        position = position.unsqueeze(dim=2)
+        angle_rads = torch.arange(d_model) // 2 * torch.pi / torch.pow(10000, 2 * (torch.arange(d_model) // 2) / d_model)
+        angle_rads = angle_rads.to(self.device)
+        angle_rads = angle_rads.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, angle_rads.shape[0]))
+        angle_rads = torch.bmm(position, angle_rads)
+        pos_encoding = torch.zeros((angle_rads.shape[0], angle_rads.shape[1], angle_rads.shape[2])).to(self.device)
+        pos_encoding[:, :, 0::2] = torch.sin(angle_rads[:, :, 0::2])
+        pos_encoding[:, :, 1::2] = torch.cos(angle_rads[:, :, 1::2])
+        return pos_encoding
 
     def forward(self, x):
         x = x.float()
