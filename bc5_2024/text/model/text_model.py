@@ -230,7 +230,6 @@ class BertModel(nn.Module):
                  target_class: int = 5,
                  classifier: bool = False,
                  model_option: str = 'cnn',
-                 with_fusion: bool = False,
                  position_embedding_type: str = 'linear',
                  device: str = 'cpu',
                  **kwargs
@@ -239,12 +238,12 @@ class BertModel(nn.Module):
         self.classifier = classifier
         self.word_embedding_size = word_embedding_size
         self.model_option = model_option
-        self.with_fusion = with_fusion
         self.position_embedding_size = position_embedding_size
         self.position_embedding_type = position_embedding_type
         self.device = device
+
         if 'attention_option' in kwargs.keys():
-            self.attention_option = kwargs['attention']
+            self.attention_option = kwargs['attention_option']
         else:
             self.attention_option = False
 
@@ -322,10 +321,9 @@ class BertModel(nn.Module):
                                           bias=False)
             
         self.self_attention=nn.MultiheadAttention(embed_dim=token_embedding_size*2+dep_embedding_size, 
-                                                  num_heads=4, 
-                                                  dropout=dropout_rate,
-                                                  batch_first=True)
-        
+                                            num_heads=4, 
+                                            dropout=dropout_rate,
+                                            batch_first=True)
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
@@ -400,7 +398,7 @@ class BertModel(nn.Module):
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
         if self.attention_option == True:
-            x, attn_output_weights = self.self_attention(query=x, key=x, value=x)
+            x, attention_weights_output = self.self_attention(x, x, x)
 
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)

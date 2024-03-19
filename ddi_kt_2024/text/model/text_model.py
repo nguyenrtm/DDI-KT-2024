@@ -243,15 +243,13 @@ class BertModel(nn.Module):
         self.device = device
 
         if 'attention_option' in kwargs.keys():
-            self.attention_option = kwargs['attention']
+            self.attention_option = kwargs['attention_option']
         else:
             self.attention_option = False
 
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
             self.lstm_num_layers = kwargs['lstm_num_layers']
-
-        self.position_embedding_type = position_embedding_type
 
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
