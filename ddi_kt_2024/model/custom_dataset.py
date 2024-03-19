@@ -279,12 +279,13 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
             [_, zero_ent_2] = tpp.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e2']['@text'])
             min_idx = 0
             max_idx = len(zero_ent_1) - 1
-            for ele_idx in range(len(zero_ent_1)):
-                if zero_ent_1[ele_idx] == 1:
+            zero_ent = [ zero_ent_1[z_idx] + zero_ent_2[z_idx] for z_idx in range(len(zero_ent_1))]
+            for ele_idx in range(len(zero_ent)):
+                if zero_ent[ele_idx] == 1:
                     min_idx = ele_idx
                     break
-            for ele_dix in range(len(zero_ent_2)-1, -1, -1):
-                if zero_ent_2[ele_idx] == 1:
+            for ele_dix in range(len(zero_ent)-1, -1, -1):
+                if zero_ent[ele_idx] == 1:
                     max_idx = ele_idx
                     break
             
