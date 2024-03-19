@@ -35,6 +35,7 @@ class MultimodalModel(torch.nn.Module):
                  readout_option: str = 'global_max_pool',
                  activation_function: str = 'relu',
                  text_model_option: str = 'cnn',
+                 position_embedding_type: str = 'linear',
                  device: str = 'cpu',
                  **kwargs):
         super(MultimodalModel, self).__init__()
@@ -61,6 +62,7 @@ class MultimodalModel(torch.nn.Module):
                                         conv3_length=conv3_length,
                                         target_class=target_class,
                                         model_option=text_model_option,
+                                        position_embedding_type=position_embedding_type,
                                         classifier=False,
                                         **kwargs).to(device)
         elif text_model == 'fasttext':
@@ -85,6 +87,7 @@ class MultimodalModel(torch.nn.Module):
                                         conv3_length=conv3_length,
                                         target_class=target_class,
                                         model_option=text_model_option,
+                                        position_embedding_type=position_embedding_type,
                                         classifier=False,
                                         **kwargs).to(device)
 

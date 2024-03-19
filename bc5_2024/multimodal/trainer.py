@@ -42,6 +42,7 @@ class Trainer:
                  activation_function: str = 'relu',
                  text_model_option: str = 'cnn',
                  log: bool = True,
+                 position_embedding_type: str = 'linear',
                  device: str = 'cpu',
                  **kwargs
                  ):
@@ -75,6 +76,7 @@ class Trainer:
                                     activation_function=activation_function,
                                     text_model_option=text_model_option,
                                     device=device,
+                                    position_embedding_type=position_embedding_type,
                                     **kwargs).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
