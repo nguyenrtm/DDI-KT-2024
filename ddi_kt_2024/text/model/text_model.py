@@ -318,7 +318,7 @@ class BertModel(nn.Module):
                                           bias=False)
             
         self.self_attention=nn.MultiheadAttention(embed_dim=token_embedding_size*2+dep_embedding_size, 
-                                            num_heads=8, 
+                                            num_heads=4, 
                                             dropout=dropout_rate,
                                             batch_first=True)
         self.relu = nn.ReLU()
