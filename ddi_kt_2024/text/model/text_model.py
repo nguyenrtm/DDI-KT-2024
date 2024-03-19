@@ -251,6 +251,8 @@ class BertModel(nn.Module):
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
             self.lstm_num_layers = kwargs['lstm_num_layers']
 
+        self.position_embedding_type = position_embedding_type
+
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
         self.edge_embedding = nn.Embedding(edge_number, edge_embedding_size, padding_idx=0)
