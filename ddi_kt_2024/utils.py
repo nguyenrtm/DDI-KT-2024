@@ -98,6 +98,12 @@ def get_labels(all_candidates):
             label_list.append(torch.tensor([4]))
     return label_list
 
+def get_processed_labels(all_candidates):
+    label_list = list()
+    for candidate in all_candidates:
+        label_list.append(torch.tensor([candidate['label']]))
+    return label_list
+    
 def get_decode_a_label(result):
     if int(result[0])==0:
         return 'false'
