@@ -154,7 +154,7 @@ class MultimodalModel(torch.nn.Module):
                 self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
                                                     out_features=target_class,
                                                     bias=False)
-        elif self.modal == '1':
+        elif self.modal[0] == '1':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
                                                 out_features=target_class,
                                                 bias=False)
@@ -212,6 +212,18 @@ class MultimodalModel(torch.nn.Module):
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
+
+            x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
+
+            # Classifier
+            x = self.dense_to_tag(x)
+            x = self.softmax(x)
+
+            return x
+        elif self.modal == '1.2':
+            text_x = self.text_model(text_x)
+            mol_x1 = self.gnn1(mol_x1)
+            mol_x2 = self.gnn1(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
