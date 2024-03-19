@@ -22,7 +22,7 @@ all_candidates_test = load_pkl('cache/pkl/bc5/candidates.test.pkl')
 lookup_word = get_lookup("cache/fasttext/bc5/all_words.txt")
 lookup_tag = get_lookup("cache/fasttext/bc5/all_pos.txt")
 
-huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+huggingface_model_name = 'dmis-lab/biobert-base-cased-v1.2'
 y_train = get_processed_labels(all_candidates_train)
 y_test = get_processed_labels(all_candidates_test)
 data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
