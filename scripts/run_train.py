@@ -72,7 +72,7 @@ def run_train(yaml_path):
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_train.squeeze()
         data_test.squeeze()
-        breakpoint()
+        # breakpoint()
     elif config.type_embed == "bert_pos_unpad_pkl":
         data_train = load_pkl(config.train_custom_dataset)
         data_test = load_pkl(config.test_custom_dataset)

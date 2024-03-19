@@ -134,7 +134,7 @@ class BaseTrainer:
                         "max_val_micro_f1": max(self.val_micro_f1)
                     }
                 )
-            breakpoint()
+            # breakpoint()
 
             # Save model
             if self.val_micro_f1[-1] == max(self.val_micro_f1):
