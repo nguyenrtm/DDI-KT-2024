@@ -273,7 +273,7 @@ class BertModel(nn.Module):
             self.conv1 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv1_out_channels,
-                        kernel_size=(conv1_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
+                        kernel_size=(conv1_length, token_embedding_size*2+dep_embedding_size),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -282,7 +282,7 @@ class BertModel(nn.Module):
             self.conv2 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv2_out_channels,
-                        kernel_size=(conv2_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
+                        kernel_size=(conv2_length, token_embedding_size*2+dep_embedding_size),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -291,7 +291,7 @@ class BertModel(nn.Module):
             self.conv3 = nn.Sequential(
                 nn.Conv2d(in_channels=1,
                         out_channels=conv3_out_channels,
-                        kernel_size=(conv3_length, token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2),
+                        kernel_size=(conv3_length, token_embedding_size*2+dep_embedding_size),
                         stride=1,
                         bias=False),
                 nn.ReLU()
@@ -300,7 +300,7 @@ class BertModel(nn.Module):
                                           out_features=target_class,
                                           bias=False)
         elif self.model_option == 'lstm':
-            self.lstm = nn.LSTM(input_size=token_embedding_size * 2+dep_embedding_size+self.graph_embedding_size*2,
+            self.lstm = nn.LSTM(input_size=token_embedding_size * 2+dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
                                 num_layers=self.lstm_num_layers,
                                 batch_first=True,
@@ -310,7 +310,7 @@ class BertModel(nn.Module):
                                           out_features=target_class,
                                           bias=False)
         elif self.model_option == 'bilstm':
-            self.lstm = nn.LSTM(input_size=token_embedding_size*2+dep_embedding_size+self.graph_embedding_size*2,
+            self.lstm = nn.LSTM(input_size=token_embedding_size*2+dep_embedding_size,
                                 hidden_size=self.lstm_hidden_size,
                                 num_layers=self.lstm_num_layers,
                                 batch_first=True,
@@ -391,6 +391,8 @@ class BertModel(nn.Module):
         tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
         tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
         dep = self.dropout(self.relu(self.normalize_dep(dep)))
+        
+        x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
     
         x = self.self_attention(x)
 
