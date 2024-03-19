@@ -304,7 +304,7 @@ class BertWithPostionOnlyModel(nn.Module):
         if position_embedding_type == "normal":
             self.pos_embedding = nn.Linear(position_number, position_embedding_size, bias=False)
         elif position_embedding_type == "sinusoidal":
-            self.pos_embedding = sinusoidal_positional_encoding
+            self.pos_embedding = self.sinusoidal_positional_encoding
         else:
             raise ValueError("Wrong type pos embed")
 
