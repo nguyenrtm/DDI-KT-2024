@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from ddi_kt_2024.text.model.self_attention import SelfAttention
+
 class TextModel(nn.Module):
     def __init__(self,
                  we,
@@ -112,6 +114,7 @@ class TextModel(nn.Module):
                                         out_features=target_class,
                                         bias=False)
 
+        self.self_attention = SelfAttention(input_dim=token_embedding_size * 2 + dep_embedding_size)
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
@@ -184,6 +187,8 @@ class TextModel(nn.Module):
 
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
+        x = self.self_attention(x)
+
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)
             
@@ -230,7 +235,6 @@ class BertModel(nn.Module):
                  target_class: int = 5,
                  classifier: bool = False,
                  model_option: str = 'cnn',
-                 with_fusion: bool = False,
                  position_embedding_type: str = 'linear',
                  device: str = 'cpu',
                  **kwargs
@@ -239,7 +243,6 @@ class BertModel(nn.Module):
         self.classifier = classifier
         self.word_embedding_size = word_embedding_size
         self.model_option = model_option
-        self.with_fusion = with_fusion
         self.position_embedding_size = position_embedding_size
         self.position_embedding_type = position_embedding_type
         self.device = device
@@ -247,11 +250,6 @@ class BertModel(nn.Module):
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
             self.lstm_num_layers = kwargs['lstm_num_layers']
-
-        if self.with_fusion == True:
-            self.graph_embedding_size = kwargs['graph_embedding_size']
-        else: 
-            self.graph_embedding_size = 0
 
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
         self.direction_embedding = nn.Embedding(direction_number, direction_embedding_size, padding_idx=0)
@@ -321,6 +319,8 @@ class BertModel(nn.Module):
             self.dense_to_tag = nn.Linear(in_features=self.lstm_hidden_size,
                                           out_features=target_class,
                                           bias=False)
+            
+        self.self_attention = SelfAttention(input_dim=token_embedding_size * 2 + dep_embedding_size)
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
@@ -391,12 +391,8 @@ class BertModel(nn.Module):
         tokens_ent1 = self.dropout(self.relu(self.normalize_tokens(tokens_ent1)))
         tokens_ent2 = self.dropout(self.relu(self.normalize_tokens(tokens_ent2)))
         dep = self.dropout(self.relu(self.normalize_dep(dep)))
-        
-        if self.with_fusion == True:
-            graph = x[:, :, -2*self.graph_embedding_size:]
-            x = torch.cat((tokens_ent1, dep, tokens_ent2, graph), dim=2)
-        elif self.with_fusion == False:
-            x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
+    
+        x = self.self_attention(x)
 
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)
