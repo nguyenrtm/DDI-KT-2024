@@ -24,13 +24,18 @@ class TextModel(nn.Module):
                  conv3_length: int = 3,
                  target_class: int = 5,
                  model_option: str = 'cnn',
+                 position_embedding_type: str = 'linear',
                  classifier: bool = False,
+                 device: str = 'cpu',
                  **kwargs
                  ):
 
         super(TextModel, self).__init__()
         self.classifier = classifier
         self.model_option = model_option
+        self.position_embedding_size = position_embedding_size
+        self.position_embedding_type = position_embedding_type
+        self.device = device
 
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
@@ -110,19 +115,64 @@ class TextModel(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
+    def rotary_positional_embedding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        position = position.unsqueeze(dim=2)
+        freqs = torch.exp(torch.linspace(0., -1., int(d_model // 2)) * torch.log(torch.tensor(10000.))).to(self.device)
+        freqs = freqs.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, freqs.shape[0]))
+        angles = position * freqs
+        rotary_matrix = torch.stack([torch.sin(angles), torch.cos(angles)], axis=-1).to(self.device)
+        return rotary_matrix.reshape((position.shape[0], position.shape[1], d_model))
+
+    def sinusoidal_positional_encoding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        position = position.unsqueeze(dim=2)
+        angle_rads = torch.arange(d_model) // 2 * torch.pi / torch.pow(10000, 2 * (torch.arange(d_model) // 2) / d_model)
+        angle_rads = angle_rads.to(self.device)
+        angle_rads = angle_rads.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, angle_rads.shape[0]))
+        angle_rads = torch.bmm(position, angle_rads)
+        pos_encoding = torch.zeros((angle_rads.shape[0], angle_rads.shape[1], angle_rads.shape[2])).to(self.device)
+        pos_encoding[:, :, 0::2] = torch.sin(angle_rads[:, :, 0::2])
+        pos_encoding[:, :, 1::2] = torch.cos(angle_rads[:, :, 1::2])
+        return pos_encoding
+
     def forward(self, x):
         word_embedding_ent1 = self.w2v(x[:, :, 0])
         tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1].int())))
-        position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
-        position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
+
+        if self.position_embedding_type == 'rotary':
+            position_embedding_ent1 = x[:, :, 2:6].float()
+            pos1 = self.rotary_positional_embedding(position_embedding_ent1[:, :, 0])
+            pos2 = self.rotary_positional_embedding(position_embedding_ent1[:, :, 1])
+            position_embedding_ent1 = torch.cat((pos1, pos2, position_embedding_ent1[:, :, 2:]), dim=2)            
+        elif self.position_embedding_type == 'sinusoidal':
+            position_embedding_ent1 = x[:, :, 2:6].float()
+            pos1 = self.sinusoidal_positional_encoding(position_embedding_ent1[:, :, 0])
+            pos2 = self.sinusoidal_positional_encoding(position_embedding_ent1[:, :, 1])
+            position_embedding_ent1 = torch.cat((pos1, pos2, position_embedding_ent1[:, :, 2:]), dim=2)
+        elif self.position_embedding_type == 'linear':
+            position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
+            position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
         direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6].int())))
         edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7].int())))
 
         word_embedding_ent2 = self.w2v(x[:, :, 8])
         tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9].int())))
-        position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
-        position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
+
+        if self.position_embedding_type == 'rotary':
+            position_embedding_ent2 = x[:, :, 10:14].float()
+            pos3 = self.rotary_positional_embedding(position_embedding_ent2[:, :, 0])
+            pos4 = self.rotary_positional_embedding(position_embedding_ent2[:, :, 1])
+            position_embedding_ent2 = torch.cat((pos3, pos4, position_embedding_ent2[:, :, 2:]), dim=2)    
+        elif self.position_embedding_type == 'sinusoidal':
+            position_embedding_ent2 = x[:, :, 10:14].float()
+            pos3 = self.sinusoidal_positional_encoding(position_embedding_ent2[:, :, 0])
+            pos4 = self.sinusoidal_positional_encoding(position_embedding_ent2[:, :, 1])
+            position_embedding_ent2 = torch.cat((pos3, pos4, position_embedding_ent2[:, :, 2:]), dim=2) 
+        elif self.position_embedding_type == 'linear':
+            position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
+            position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
 
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()
@@ -181,6 +231,8 @@ class BertModel(nn.Module):
                  classifier: bool = False,
                  model_option: str = 'cnn',
                  with_fusion: bool = False,
+                 position_embedding_type: str = 'linear',
+                 device: str = 'cpu',
                  **kwargs
                  ):
         super(BertModel, self).__init__()
@@ -188,6 +240,9 @@ class BertModel(nn.Module):
         self.word_embedding_size = word_embedding_size
         self.model_option = model_option
         self.with_fusion = with_fusion
+        self.position_embedding_size = position_embedding_size
+        self.position_embedding_type = position_embedding_type
+        self.device = device
 
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
@@ -269,19 +324,64 @@ class BertModel(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
+    def rotary_positional_embedding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        position = position.unsqueeze(dim=2)
+        freqs = torch.exp(torch.linspace(0., -1., int(d_model // 2)) * torch.log(torch.tensor(10000.))).to(self.device)
+        freqs = freqs.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, freqs.shape[0]))
+        angles = position * freqs
+        rotary_matrix = torch.stack([torch.sin(angles), torch.cos(angles)], axis=-1).to(self.device)
+        return rotary_matrix.reshape((position.shape[0], position.shape[1], d_model))
+
+    def sinusoidal_positional_encoding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        position = position.unsqueeze(dim=2)
+        angle_rads = torch.arange(d_model) // 2 * torch.pi / torch.pow(10000, 2 * (torch.arange(d_model) // 2) / d_model)
+        angle_rads = angle_rads.to(self.device)
+        angle_rads = angle_rads.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, angle_rads.shape[0]))
+        angle_rads = torch.bmm(position, angle_rads)
+        pos_encoding = torch.zeros((angle_rads.shape[0], angle_rads.shape[1], angle_rads.shape[2])).to(self.device)
+        pos_encoding[:, :, 0::2] = torch.sin(angle_rads[:, :, 0::2])
+        pos_encoding[:, :, 1::2] = torch.cos(angle_rads[:, :, 1::2])
+        return pos_encoding
+
     def forward(self, x):
         word_embedding_ent1 = x[:, :, 14:14+self.word_embedding_size]
         tag_embedding_ent1 = self.dropout(self.relu(self.tag_embedding(x[:, :, 1].int())))
-        position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
-        position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
+
+        if self.position_embedding_type == 'rotary':
+            position_embedding_ent1 = x[:, :, 2:6].float()
+            pos1 = self.rotary_positional_embedding(position_embedding_ent1[:, :, 0])
+            pos2 = self.rotary_positional_embedding(position_embedding_ent1[:, :, 1])
+            position_embedding_ent1 = torch.cat((pos1, pos2, position_embedding_ent1[:, :, 2:]), dim=2)            
+        elif self.position_embedding_type == 'sinusoidal':
+            position_embedding_ent1 = x[:, :, 2:6].float()
+            pos1 = self.sinusoidal_positional_encoding(position_embedding_ent1[:, :, 0])
+            pos2 = self.sinusoidal_positional_encoding(position_embedding_ent1[:, :, 1])
+            position_embedding_ent1 = torch.cat((pos1, pos2, position_embedding_ent1[:, :, 2:]), dim=2)
+        elif self.position_embedding_type == 'linear':
+            position_embedding_ent1 = self.normalize_position(x[:, :, 2:6].float())
+            position_embedding_ent1 = self.dropout(self.relu(position_embedding_ent1))
 
         direction_embedding = self.dropout(self.relu(self.direction_embedding(x[:, :, 6].int())))
         edge_embedding = self.dropout(self.relu(self.edge_embedding(x[:, :, 7].int())))
 
         word_embedding_ent2 = x[:, :, 14+self.word_embedding_size:14+self.word_embedding_size*2]
         tag_embedding_ent2 = self.dropout(self.relu(self.tag_embedding(x[:, :, 9].int())))
-        position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
-        position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
+
+        if self.position_embedding_type == 'rotary':
+            position_embedding_ent2 = x[:, :, 10:14].float()
+            pos3 = self.rotary_positional_embedding(position_embedding_ent2[:, :, 0])
+            pos4 = self.rotary_positional_embedding(position_embedding_ent2[:, :, 1])
+            position_embedding_ent2 = torch.cat((pos3, pos4, position_embedding_ent2[:, :, 2:]), dim=2)    
+        elif self.position_embedding_type == 'sinusoidal':
+            position_embedding_ent2 = x[:, :, 10:14].float()
+            pos3 = self.sinusoidal_positional_encoding(position_embedding_ent2[:, :, 0])
+            pos4 = self.sinusoidal_positional_encoding(position_embedding_ent2[:, :, 1])
+            position_embedding_ent2 = torch.cat((pos3, pos4, position_embedding_ent2[:, :, 2:]), dim=2) 
+        elif self.position_embedding_type == 'linear':
+            position_embedding_ent2 = self.normalize_position(x[:, :, 10:14].float())
+            position_embedding_ent2 = self.dropout(self.relu(position_embedding_ent2))
         
         tokens_ent1 = torch.cat((word_embedding_ent1, tag_embedding_ent1, position_embedding_ent1), dim=2).float()
         tokens_ent2 = torch.cat((word_embedding_ent2, tag_embedding_ent2, position_embedding_ent2), dim=2).float()

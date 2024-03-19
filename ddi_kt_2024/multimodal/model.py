@@ -36,6 +36,7 @@ class MultimodalModel(torch.nn.Module):
                  text_model_option: str = 'cnn',
                  activation_function: str = 'relu',
                  device: str = 'cpu',
+                 position_embedding_type: str = 'linear',
                  **kwargs):
         super(MultimodalModel, self).__init__()
         self.device = device
@@ -64,6 +65,8 @@ class MultimodalModel(torch.nn.Module):
                                             model_option=text_model_option,
                                             classifier=False,
                                             with_fusion=True,
+                                            position_embedding_type=position_embedding_type,
+                                            device=device,
                                             **kwargs).to(device)
             else:
                 self.text_model = BertModel(dropout_rate=dropout_rate,
@@ -88,6 +91,8 @@ class MultimodalModel(torch.nn.Module):
                                             model_option=text_model_option,
                                             classifier=False,
                                             with_fusion=False,
+                                            position_embedding_type=position_embedding_type,
+                                            device=device,
                                             **kwargs).to(device)
         elif text_model == 'fasttext':
             self.text_model = TextModel(we=we,
@@ -112,6 +117,8 @@ class MultimodalModel(torch.nn.Module):
                                         target_class=target_class,
                                         model_option=text_model_option,
                                         classifier=False,
+                                        position_embedding_type=position_embedding_type,
+                                        device=device,
                                         **kwargs).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,

@@ -47,12 +47,13 @@ class Trainer:
                  text_model_option: str = 'cnn',
                  log: bool = True,
                  device: str = 'cpu',
+                 position_embedding_type: str = 'linear',
                  **kwargs
                  ):
         weight = torch.tensor([w_false, w_advice, w_effect, w_mechanism, w_int]).to(device)
         
         self.model = MultimodalModel(we=we,
-                                    dropout_rate=dropout_rate,
+                                     dropout_rate=dropout_rate,
                                     word_embedding_size=word_embedding_size,
                                     tag_number=tag_number,
                                     tag_embedding_size=tag_embedding_size,
@@ -81,6 +82,7 @@ class Trainer:
                                     activation_function=activation_function,
                                     text_model_option=text_model_option,
                                     device=device,
+                                    position_embedding_type=position_embedding_type,
                                     **kwargs).to(device)
                                      
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
