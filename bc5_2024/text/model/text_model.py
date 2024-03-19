@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from bc5_2024.text.model.self_attention import SelfAttention
 
 class TextModel(nn.Module):
     def __init__(self,
@@ -318,7 +317,11 @@ class BertModel(nn.Module):
                                           out_features=target_class,
                                           bias=False)
             
-        self.self_attention=SelfAttention(input_dim=token_embedding_size * 2 + dep_embedding_size)
+        self.self_attention=nn.MultiheadAttention(embed_dim=token_embedding_size*2+dep_embedding_size, 
+                                                  num_heads=1, 
+                                                  dropout=dropout_rate,
+                                                  batch_first=True)
+        
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
@@ -392,7 +395,7 @@ class BertModel(nn.Module):
         
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
 
-        x = self.self_attention(x)
+        x, attn_output_weights = self.self_attention(query=x, key=x, value=x)
 
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)
