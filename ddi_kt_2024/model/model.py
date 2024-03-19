@@ -350,7 +350,7 @@ class BertWithPostionOnlyModel(nn.Module):
 
     def sinusoidal_positional_encoding(self, position):
         d_model = int((self.position_embedding_size - 1) / 2)
-        position = position.unsqueeze(dim=2)
+        # position = position.unsqueeze(dim=2)
         angle_rads = torch.arange(d_model) // 2 * torch.pi / torch.pow(10000, 2 * (torch.arange(d_model) // 2) / d_model)
         angle_rads = angle_rads.to(self.device)
         angle_rads = angle_rads.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, angle_rads.shape[0]))
