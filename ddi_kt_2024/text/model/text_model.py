@@ -242,6 +242,11 @@ class BertModel(nn.Module):
         self.position_embedding_type = position_embedding_type
         self.device = device
 
+        if 'attention_option' in kwargs.keys():
+            self.attention_option = kwargs['attention']
+        else:
+            self.attention_option = False
+
         if self.model_option == 'lstm' or self.model_option == 'bilstm':
             self.lstm_hidden_size = kwargs['lstm_hidden_size']
             self.lstm_num_layers = kwargs['lstm_num_layers']
@@ -393,8 +398,9 @@ class BertModel(nn.Module):
         dep = self.dropout(self.relu(self.normalize_dep(dep)))
         
         x = torch.cat((tokens_ent1, dep, tokens_ent2), dim=2)
-    
-        x, attention_weights_output = self.self_attention(x, x, x)
+
+        if self.attention_option == True:
+            x, attention_weights_output = self.self_attention(x, x, x)
 
         if self.model_option == 'cnn':
             x = x.unsqueeze(1)
