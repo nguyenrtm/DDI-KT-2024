@@ -473,8 +473,6 @@ class BC5_Trainer(BaseTrainer):
                 true_pred.append(i)
                 
         cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
-        _micro_f1 = self.micro_f1(cm)
-
         
         self.eval_bc5(predictions.cpu().numpy(), self.test_cand)
 
