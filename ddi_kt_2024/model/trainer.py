@@ -9,6 +9,7 @@ import numpy as np
 
 from .model import Model, BertModel, BertWithPostionOnlyModel
 from ddi_kt_2024.utils import save_model
+from ddi_kt_2024.bc5_eval.bc5 import evaluate_bc5
 
 class BaseTrainer:
     def __init__(self):
