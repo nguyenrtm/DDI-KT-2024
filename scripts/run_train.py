@@ -16,7 +16,7 @@ from ddi_kt_2024.utils import (
 )
 from ddi_kt_2024.reader.yaml_reader import get_yaml_config
 from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
-from ddi_kt_2024.model.trainer import Trainer, BertTrainer, BertWithPostionOnlyTrainer
+from ddi_kt_2024.model.trainer import Trainer, BertTrainer, BertWithPostionOnlyTrainer, BC5_Trainer
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup
 from ddi_kt_2024 import logging_config
