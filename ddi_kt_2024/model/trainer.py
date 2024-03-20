@@ -427,8 +427,7 @@ class BC5_Trainer(BaseTrainer):
             conv2_length,
             conv3_length,
             target_class,
-            dataset_name = "BC5"
-        )
+            dataset_name = "BC5").to(self.device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.device = device
