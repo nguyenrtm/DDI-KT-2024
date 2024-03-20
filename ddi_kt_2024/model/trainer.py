@@ -411,6 +411,7 @@ class BC5_Trainer(BaseTrainer):
                 log: bool = True,
                 device: str = 'cpu',
                 **kwargs):
+        self.device = device
         self.model = BertWithPostionOnlyModel(
             dropout_rate,
             word_embedding_size,
