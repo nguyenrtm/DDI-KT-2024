@@ -473,17 +473,13 @@ class BC5_Trainer(BaseTrainer):
         cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
         _micro_f1 = self.micro_f1(cm)
 
-        f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
         
         self.eval_bc5(predictions.cpu().numpy(), self.test_cand)
 
         if option == 'train':
             self.train_loss.append(running_loss)
-            self.train_f.append(f)
         elif option == 'val':
             self.val_loss.append(running_loss)
-            self.val_f.append(f)
-            self.val_micro_f1.append(_micro_f1)
 
     def log_wandb(self):
         wandb.log(
