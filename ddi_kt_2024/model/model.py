@@ -294,7 +294,8 @@ class BertWithPostionOnlyModel(nn.Module):
                 conv1_length: int = 1,
                 conv2_length: int = 2,
                 conv3_length: int = 3,
-                target_class: int = 5
+                target_class: int = 5,
+                dataset_name = "DDI"
                 ):
         super(BertWithPostionOnlyModel, self).__init__()
         self.word_embedding_size = word_embedding_size
