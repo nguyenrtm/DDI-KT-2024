@@ -410,8 +410,10 @@ class BC5_Trainer(BaseTrainer):
                 text_model_option: str = 'cnn',
                 log: bool = True,
                 device: str = 'cpu',
+                wandb_available = False,
                 **kwargs):
         self.device = device
+        self.wandb_available = wandb_available
         self.model = BertWithPostionOnlyModel(
             dropout_rate,
             word_embedding_size,
