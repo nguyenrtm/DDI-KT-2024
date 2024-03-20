@@ -3,6 +3,9 @@ Containing script to train
 """
 from pathlib import Path
 import logging
+import sys
+
+sys.path.append(".")
 
 import torch
 import click
