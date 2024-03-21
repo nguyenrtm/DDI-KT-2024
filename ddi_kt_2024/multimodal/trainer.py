@@ -214,7 +214,7 @@ class Trainer:
     def micro_f1(self, cm):
         tp = cm[1][1] + cm[2][2] + cm[3][3] + cm[4][4]
         fp = np.sum(cm[:,1]) + np.sum(cm[:,2]) + np.sum(cm[:,3]) + np.sum(cm[:,4]) - tp
-        fn = np.sum(cm[1,:]) + np.sum(cm[3,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
+        fn = np.sum(cm[1,:]) + np.sum(cm[2,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
         
