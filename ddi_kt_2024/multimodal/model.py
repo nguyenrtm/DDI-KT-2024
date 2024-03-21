@@ -156,10 +156,20 @@ class MultimodalModel(torch.nn.Module):
                 self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels, 
                                                     out_features=target_class,
                                                     bias=False)
+                
+            self.batch_norm_text = torch.nn.BatchNorm1d(num_features=conv1_out_channels+conv2_out_channels+conv3_out_channels)
         elif self.modal[0] == '1':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
+            self.dense_to_tag = torch.nn.Linear(in_features=self.text_modal_size+2*self.graph_modal_size, 
                                                 out_features=target_class,
                                                 bias=False)
+            
+            self.batch_norm_text = torch.nn.BatchNorm1d(num_features=self.text_modal_size)
+            self.batch_norm_g1= torch.nn.BatchNorm1d(num_features=self.graph_modal_size)
+            self.batch_norm_g2= torch.nn.BatchNorm1d(num_features=self.graph_modal_size)
+            
+            self.linear_text = torch.nn.Linear(conv1_out_channels+conv2_out_channels+conv3_out_channels, self.text_modal_size)
+            self.linear_mol1 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
+            self.linear_mol2 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
         elif self.modal == '2':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*600, 
                                                 out_features=target_class,
@@ -204,7 +214,7 @@ class MultimodalModel(torch.nn.Module):
                 mol_x2_smiles = None):
         if self.modal == '0':
             x = self.text_model(text_x)
-            x = torch.nn.BatchNorm1d(x.size(1))(x)
+            x = self.batch_norm_text(x)
 
             # Classifier
             x = self.dense_to_tag(x)
@@ -215,14 +225,14 @@ class MultimodalModel(torch.nn.Module):
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
+            
+            text_x = self.linear_text(text_x)
+            mol_x1 = self.linear_mol1(mol_x1)
+            mol_x2 = self.linear_mol2(mol_x2)
 
-            text_x = torch.nn.Linear(text_x.size(1), self.text_modal_size)(text_x)
-            mol_x1 = torch.nn.Linear(mol_x1.size(1), self.graph_modal_size)(mol_x1)
-            mol_x2 = torch.nn.Linear(mol_x2.size(1), self.graph_modal_size)(mol_x2)
-
-            text_x = torch.nn.BatchNorm1d(text_x.size(1))(text_x)
-            mol_x1 = torch.nn.BatchNorm1d(mol_x1.size(1))(mol_x1)
-            mol_x2 = torch.nn.BatchNorm1d(mol_x2.size(1))(mol_x2)
+            text_x = self.batch_norm_text(text_x)
+            mol_x1 = self.batch_norm_g1(mol_x1)
+            mol_x2 = self.batch_norm_g2(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
@@ -294,3 +304,4 @@ class MultimodalModel(torch.nn.Module):
             x = self.softmax(x)
 
             return x
+        
