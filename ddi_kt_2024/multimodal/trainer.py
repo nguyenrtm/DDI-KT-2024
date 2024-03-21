@@ -90,6 +90,7 @@ class Trainer:
         self.device = device
         self.train_loss = list()
         self.train_f = list()
+        self.train_micro_f1 = list()
         self.val_loss = list()
         self.val_f = list()
         self.val_micro_f1 = list()
@@ -203,6 +204,7 @@ class Trainer:
         if option == 'train':
             self.train_loss.append(running_loss)
             self.train_f.append(f)
+            self.train_micro_f1.append(_micro_f1)
         elif option == 'val':
             self.confusion_matrix.append(cm)
             self.val_loss.append(running_loss)
@@ -217,7 +219,8 @@ class Trainer:
         return micro_f1
         
     def train(self, train_loader_text, train_loader_mol1, train_loader_mol2, train_loader_mol1_bert, train_loader_mol2_bert,
-                    val_loader_text, val_loader_mol1, val_loader_mol2, val_loader_mol1_bert, val_loader_mol2_bert, num_epochs):
+                    val_loader_text, val_loader_mol1, val_loader_mol2, val_loader_mol1_bert, val_loader_mol2_bert, num_epochs,
+                    log_train: bool=False):
         for epoch in tqdm(range(num_epochs), desc='Training...'):
             print(f"Epoch {epoch + 1} training...")
             running_loss = self.train_one_epoch(train_loader_text, 
@@ -234,20 +237,48 @@ class Trainer:
                           val_loader_mol1_bert, 
                           val_loader_mol2_bert,
                           'val')
+        
+            if log_train == True:
+                self.validate(train_loader_text, 
+                              train_loader_mol1, 
+                              train_loader_mol2, 
+                              train_loader_mol1_bert, 
+                              train_loader_mol2_bert,
+                              'train')
             
             if self.log == True:
-                self.log_wandb()
+                self.log_wandb(log_train)
             
-    def log_wandb(self):
-        wandb.log(
-            {
-                "train_loss": self.train_loss[-1],
-                "val_loss": self.val_loss[-1],
-                "val_micro_f1": self.val_micro_f1[-1],
-                "val_f_false": self.val_f[-1][0],
-                "val_f_advise": self.val_f[-1][1],
-                "val_f_effect": self.val_f[-1][2],
-                "val_f_mechanism": self.val_f[-1][3],
-                "val_f_int": self.val_f[-1][4],
-            }
-        )
+    def log_wandb(self, log_train: bool=False):
+        if log_train == False:
+            wandb.log(
+                {
+                    "train_loss": self.train_loss[-1],
+                    "val_loss": self.val_loss[-1],
+                    "val_micro_f1": self.val_micro_f1[-1],
+                    "val_f_false": self.val_f[-1][0],
+                    "val_f_advise": self.val_f[-1][1],
+                    "val_f_effect": self.val_f[-1][2],
+                    "val_f_mechanism": self.val_f[-1][3],
+                    "val_f_int": self.val_f[-1][4],
+                }
+            )
+        elif log_train == True:
+            wandb.log(
+                {
+                    "train_loss": self.train_loss[-1],
+                    "val_loss": self.val_loss[-1],
+                    "val_micro_f1": self.val_micro_f1[-1],
+                    "val_f_false": self.val_f[-1][0],
+                    "val_f_advise": self.val_f[-1][1],
+                    "val_f_effect": self.val_f[-1][2],
+                    "val_f_mechanism": self.val_f[-1][3],
+                    "val_f_int": self.val_f[-1][4],
+                    "train_micro_f1": self.train_micro_f1[-1],
+                    "train_f_false": self.train_f[-1][0],
+                    "train_f_advise": self.train_f[-1][1],
+                    "train_f_effect": self.train_f[-1][2],
+                    "train_f_mechanism": self.train_f[-1][3],
+                    "train_f_int": self.train_f[-1][4],
+                }
+            )
