@@ -204,6 +204,7 @@ class MultimodalModel(torch.nn.Module):
                 mol_x2_smiles = None):
         if self.modal == '0':
             x = self.text_model(text_x)
+            x = torch.nn.BatchNorm1d(x.size(1))(x)
 
             # Classifier
             x = self.dense_to_tag(x)
