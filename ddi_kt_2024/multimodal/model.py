@@ -40,6 +40,8 @@ class MultimodalModel(torch.nn.Module):
                  **kwargs):
         super(MultimodalModel, self).__init__()
         self.device = device
+        self.text_modal_size = kwargs['text_modal_size']
+        self.graph_modal_size = kwargs['graph_modal_size']
 
         if text_model == 'bert':
             if modal == '1_early_fusion':
@@ -212,6 +214,14 @@ class MultimodalModel(torch.nn.Module):
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
+
+            text_x = torch.nn.Linear(text_x.size(1), self.text_modal_size)(text_x)
+            mol_x1 = torch.nn.Linear(mol_x1.size(1), self.graph_modal_size)(mol_x1)
+            mol_x2 = torch.nn.Linear(mol_x2.size(1), self.graph_modal_size)(mol_x2)
+
+            text_x = torch.nn.BatchNorm1d(text_x.size(1))(text_x)
+            mol_x1 = torch.nn.BatchNorm1d(mol_x1.size(1))(mol_x1)
+            mol_x2 = torch.nn.BatchNorm1d(mol_x2.size(1))(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
