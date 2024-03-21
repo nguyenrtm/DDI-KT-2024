@@ -183,6 +183,9 @@ class MultimodalModel(torch.nn.Module):
                                                 out_features=target_class,
                                                 bias=False)
 
+            self.batch_norm_g1= torch.nn.BatchNorm1d(num_features=hidden_channels)
+            self.batch_norm_g2= torch.nn.BatchNorm1d(num_features=hidden_channels)
+            
         self.softmax = torch.nn.Softmax(dim=1)
         
     def custom_concat_fusion(self, text_batch_vector, graph1_batch_vector, graph2_batch_vector):
@@ -284,6 +287,9 @@ class MultimodalModel(torch.nn.Module):
         elif self.modal == 'gnn_only':
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
+
+            mol_x1 = self.batch_norm_g1(mol_x1)
+            mol_x2 = self.batch_norm_g2(mol_x2)
 
             x = torch.cat((mol_x1, mol_x2), dim=1)
 
