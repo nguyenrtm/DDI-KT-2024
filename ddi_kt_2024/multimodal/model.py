@@ -162,7 +162,7 @@ class MultimodalModel(torch.nn.Module):
             elif kwargs['norm'] == 'layer_norm':
                 self.norm_text = torch.nn.LayerNorm(normalized_shape=conv1_out_channels+conv2_out_channels+conv3_out_channels)
         elif self.modal[0] == '1':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels, 
+            self.dense_to_tag = torch.nn.Linear(in_features=self.text_modal_size+2*hidden_channels, 
                                                 out_features=target_class,
                                                 bias=False)
             
