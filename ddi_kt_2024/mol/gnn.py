@@ -33,8 +33,8 @@ class GNN(torch.nn.Module):
         self.gnn_option = gnn_option
         self.num_layers_gnn = num_layers_gnn
         self.readout_option = readout_option
-        self.node_dim = num_node_features-4+atom_embedding_dim+bool_embedding_dim*3
-        self.edge_dim = num_edge_features-4+bond_embedding_dim+bool_embedding_dim*3
+        self.node_dim = atom_normalize_dim+atom_embedding_dim+bool_embedding_dim*3
+        self.edge_dim = bond_normalize_dim+bond_embedding_dim+bool_embedding_dim*3
 
         if gnn_option == 'GATV2CONV':
             self.gnn1 = GATv2Conv(self.node_dim, 
@@ -56,7 +56,6 @@ class GNN(torch.nn.Module):
                                    num_layers=3,
                                    num_timesteps=2,
                                    dropout=self.dropout)
-            
         self.normalize_node = nn.Linear(num_node_features-4, atom_normalize_dim)
         self.normalize_edge = nn.Linear(num_edge_features-4, bond_normalize_dim)
             
