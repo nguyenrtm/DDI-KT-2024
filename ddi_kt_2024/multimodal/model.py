@@ -167,7 +167,7 @@ class MultimodalModel(torch.nn.Module):
                                                 bias=False)
             
             if kwargs['norm'] == 'batch_norm':
-                self.norm_text = torch.nn.BatchNorm1d(num_features=self.text_modal_size)
+                self.norm_text = torch.nn.BatchNorm1d(num_features=conv1_out_channels+conv2_out_channels+conv3_out_channels)
                 self.norm_g1= torch.nn.BatchNorm1d(num_features=hidden_channels)
                 self.norm_g2= torch.nn.BatchNorm1d(num_features=hidden_channels)
             elif kwargs['norm'] == 'layer_norm':
@@ -175,7 +175,7 @@ class MultimodalModel(torch.nn.Module):
                 self.norm_g1= torch.nn.LayerNorm(normalized_shape=hidden_channels)
                 self.norm_g2= torch.nn.LayerNorm(normalized_shape=hidden_channels)
             
-            self.linear_text = torch.nn.Linear(conv1_out_channels+conv2_out_channels+conv3_out_channels, self.text_modal_size)
+            # self.linear_text = torch.nn.Linear(conv1_out_channels+conv2_out_channels+conv3_out_channels, self.text_modal_size)
             # self.linear_mol1 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
             # self.linear_mol2 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
         elif self.modal == '2':
@@ -240,7 +240,7 @@ class MultimodalModel(torch.nn.Module):
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
             
-            text_x = self.linear_text(text_x)
+            # text_x = self.linear_text(text_x)
             # mol_x1 = self.linear_mol1(mol_x1)
             # mol_x2 = self.linear_mol2(mol_x2)
 
