@@ -13,16 +13,33 @@ def get_edge_index(mol):
   return edge_index
 
 def atom_feature(atom):
-  return [atom.GetAtomicNum()]
+  return [atom.GetAtomicNum(),
+          atom.GetDegree(),
+          atom.GetTotalDegree(),
+          atom.GetNumImplicitHs(),
+          atom.GetExplicitValence(),
+          atom.GetImplicitValence(),
+          atom.GetTotalValence(),
+          atom.GetNumRadicalElectrons(),
+          atom.GetFormalCharge(),
+          atom.GetMass(),
+          atom.GetHybridization(),
+          atom.GetIsAromatic(),
+          atom.HasOwningMol(),
+          atom.IsInRing()]
 
 def bond_feature(bond):
-  return [bond.GetBondType()]
+  return [bond.GetBondType(), 
+          bond.GetStereo(),
+          bond.GetIsConjugated(),
+          bond.GetIsAromatic(),
+          bond.IsInRing()]
 
 def smi_to_pyg(smi):
     if smi == 'None':
       return Data(edge_index=torch.LongTensor([(0, 0), (0, 0)]),
-                  x=torch.FloatTensor([[0]]),
-                  edge_attr=torch.FloatTensor([[0], [0]]),
+                  x=torch.FloatTensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2]]),
+                  edge_attr=torch.FloatTensor([[0, 0, 2, 2, 2], [0, 0, 2, 2, 2]]),
                   mol="None",
                   smiles="None")
 
@@ -40,7 +57,7 @@ def smi_to_pyg(smi):
     edge_index = list(zip(*atom_pairs))
     if edge_index == []:
       edge_index = torch.LongTensor([(0, 0), (0, 0)])
-      edge_attr = torch.FloatTensor([[0], [0]])
+      edge_attr = torch.FloatTensor([[0, 0, 2, 2, 2], [0, 0, 2, 2, 2]])
     else:
       edge_index = torch.LongTensor(edge_index)
       edge_attr = torch.FloatTensor(bond_features)
