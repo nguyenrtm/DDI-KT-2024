@@ -283,8 +283,6 @@ class Trainer:
                                                 train_loader_mol2,
                                                 train_loader_mol1_bert, 
                                                 train_loader_mol2_bert)
-            
-            self.train_loss.append(running_loss)
 
             self.validate(val_loader_text, 
                           val_loader_mol1, 
