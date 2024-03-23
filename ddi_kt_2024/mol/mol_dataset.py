@@ -24,9 +24,9 @@ class MolDataset(Dataset):
       new_x = list()
 
       for idx in lst:
-          new_x.append(self.data[idx])
+          new_x.append(self.x[idx])
 
-      return new_x
+      self.x = new_x
 
   def __getitem__(self, idx):
     x = self.x[idx]
