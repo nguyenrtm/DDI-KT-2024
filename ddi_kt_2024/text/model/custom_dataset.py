@@ -19,6 +19,21 @@ class CustomDataset(Dataset):
                 self.data[i] = torch.zeros((1, 1, 14), dtype=int)
             else:
                 i += 1
+
+    def negative_instance_filtering(self, path):
+        with open(path, 'r') as f:
+            lines = f.read().split('\n')[:-1]
+            lst = [int(x.strip()) for x in lines]
+
+        new_x = list()
+        new_y = list()
+
+        for idx in lst:
+            new_x.append(self.data[idx])
+            new_y.append(self.labels[idx])
+
+        self.data = new_x
+        self.labels = new_y
     
     def rm_none(self):
         i = 0
