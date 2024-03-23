@@ -168,16 +168,16 @@ class MultimodalModel(torch.nn.Module):
             
             if kwargs['norm'] == 'batch_norm':
                 self.norm_text = torch.nn.BatchNorm1d(num_features=self.text_modal_size)
-                self.norm_g1= torch.nn.BatchNorm1d(num_features=self.graph_modal_size)
-                self.norm_g2= torch.nn.BatchNorm1d(num_features=self.graph_modal_size)
+                self.norm_g1= torch.nn.BatchNorm1d(num_features=hidden_channels)
+                self.norm_g2= torch.nn.BatchNorm1d(num_features=hidden_channels)
             elif kwargs['norm'] == 'layer_norm':
                 self.norm_text = torch.nn.LayerNorm(normalized_shape=self.text_modal_size)
-                self.norm_g1= torch.nn.LayerNorm(normalized_shape=self.graph_modal_size)
-                self.norm_g2= torch.nn.LayerNorm(normalized_shape=self.graph_modal_size)
+                self.norm_g1= torch.nn.LayerNorm(normalized_shape=hidden_channels)
+                self.norm_g2= torch.nn.LayerNorm(normalized_shape=hidden_channels)
             
             self.linear_text = torch.nn.Linear(conv1_out_channels+conv2_out_channels+conv3_out_channels, self.text_modal_size)
-            self.linear_mol1 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
-            self.linear_mol2 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
+            # self.linear_mol1 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
+            # self.linear_mol2 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
         elif self.modal == '2':
             self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*600, 
                                                 out_features=target_class,
