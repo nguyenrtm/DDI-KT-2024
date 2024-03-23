@@ -32,8 +32,7 @@ class CustomDataset(Dataset):
             new_x.append(self.data[idx])
             new_y.append(self.labels[idx])
 
-        self.data = new_x
-        self.labels = new_y
+        return new_x, new_y
     
     def rm_none(self):
         i = 0

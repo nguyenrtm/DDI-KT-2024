@@ -149,12 +149,30 @@ class Trainer:
         self.train_loss.append(running_loss)
         return running_loss
     
+    def convert_prediction_to_full_prediction(self, 
+                                              prediction, 
+                                              filtered_lst_index,
+                                              full_label):
+        full_predictions = list()
+        full_length = len(prediction) + len(filtered_lst_index)
+        tmp = 0
+        for i in range(full_length):
+            if i in filtered_lst_index:
+                full_predictions.append(full_label[i])
+            else:
+                full_predictions.append(prediction[tmp])
+                tmp += 1
+
+        return full_predictions.np()
+    
     def validate(self, 
                  val_loader_text, 
                  val_loader_mol1, 
                  val_loader_mol2, 
                  val_loader_mol1_bert, 
-                 val_loader_mol2_bert, 
+                 val_loader_mol2_bert,
+                 filtered_lst_index,
+                 full_label,
                  option):
         running_loss = 0.
         predictions = torch.tensor([]).to(self.device)
@@ -190,8 +208,12 @@ class Trainer:
         for i in range(len(labels)):
             if labels[i].cpu() == 1:
                 true_pred.append(i)
+
+        full_predictions = self.convert_prediction_to_full_prediction(predictions.cpu().np(),
+                                                                      filtered_lst_index,
+                                                                      full_label)
                 
-        cm = confusion_matrix(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[0, 1, 2, 3, 4])
+        cm = confusion_matrix(full_label, full_predictions, labels=[0, 1, 2, 3, 4])
         _micro_f1 = self.micro_f1(cm)
 
         if self.log == True:
@@ -218,8 +240,19 @@ class Trainer:
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
         
-    def train(self, train_loader_text, train_loader_mol1, train_loader_mol2, train_loader_mol1_bert, train_loader_mol2_bert,
-                    val_loader_text, val_loader_mol1, val_loader_mol2, val_loader_mol1_bert, val_loader_mol2_bert, num_epochs,
+    def train(self, train_loader_text, 
+                    train_loader_mol1, 
+                    train_loader_mol2, 
+                    train_loader_mol1_bert, 
+                    train_loader_mol2_bert,
+                    val_loader_text, 
+                    val_loader_mol1, 
+                    val_loader_mol2, 
+                    val_loader_mol1_bert, 
+                    val_loader_mol2_bert,
+                    filtered_lst_index,
+                    full_label,
+                    num_epochs,
                     log_train: bool=False):
         for epoch in tqdm(range(num_epochs), desc='Training...'):
             print(f"Epoch {epoch + 1} training...")
@@ -236,15 +269,9 @@ class Trainer:
                           val_loader_mol2, 
                           val_loader_mol1_bert, 
                           val_loader_mol2_bert,
+                          filtered_lst_index,
+                          full_label,
                           'val')
-        
-            if log_train == True:
-                self.validate(train_loader_text, 
-                              train_loader_mol1, 
-                              train_loader_mol2, 
-                              train_loader_mol1_bert, 
-                              train_loader_mol2_bert,
-                              'train')
             
             if self.log == True:
                 self.log_wandb(log_train)
