@@ -235,7 +235,7 @@ class Trainer:
 
         if self.log == True:
             wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
-                            y_true=full_label.cpu().numpy(), preds=full_predictions.cpu().numpy(),
+                            y_true=full_label, preds=full_predictions,
                             class_names=['false', 'advise', 'effect', 'mechanism', 'int']),
                         "train_loss": self.train_loss[-1],
                         "val_loss": self.val_loss[-1],
