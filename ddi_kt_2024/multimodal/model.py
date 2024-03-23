@@ -171,7 +171,7 @@ class MultimodalModel(torch.nn.Module):
                 self.norm_g1= torch.nn.BatchNorm1d(num_features=hidden_channels)
                 self.norm_g2= torch.nn.BatchNorm1d(num_features=hidden_channels)
             elif kwargs['norm'] == 'layer_norm':
-                self.norm_text = torch.nn.LayerNorm(normalized_shape=self.text_modal_size)
+                self.norm_text = torch.nn.LayerNorm(normalized_shape=conv1_out_channels+conv2_out_channels+conv3_out_channels)
                 self.norm_g1= torch.nn.LayerNorm(normalized_shape=hidden_channels)
                 self.norm_g2= torch.nn.LayerNorm(normalized_shape=hidden_channels)
             
