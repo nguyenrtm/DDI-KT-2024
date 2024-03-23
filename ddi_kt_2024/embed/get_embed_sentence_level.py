@@ -41,7 +41,8 @@ def concat_to_tensor(tokenize_status, result, this_sent_embedded_first, this_sen
     )
     return this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last
 
-def map_new_tokenize(words, sentence_tokenize):
+def legacy_map_new_tokenize(words, sentence_tokenize):
+    """broken function"""
     new_tokenize_ids = []
     for word in words:
         word = word.lower()
@@ -75,6 +76,113 @@ def map_new_tokenize(words, sentence_tokenize):
 
         new_tokenize_ids.append(status)
     return new_tokenize_ids
+
+def map_new_tokenize(words, encoding, tokenizer):
+    """
+    words: list of word
+    encoding: sentence embed
+    NOT SUPPORT MULTIPLE SENTENCE
+    """
+    def _check(word, encoding,tokenizer,start_idx_to_check):
+        result = None
+        flag = False
+        if word.strip() == "":
+            result = {
+                "min_id": 0,
+                "max_id": 0
+            }
+            return result, True, start_idx_to_check
+        word_encoding = tokenizer.encode(word, return_tensors="pt")[:,1:-1]
+        for index in range(start_idx_to_check, int(encoding.shape[1]) - int(word_encoding.shape[1]) +1):
+            if torch.all(word_encoding == encoding[:, index: index+int(word_encoding.shape[1])]):
+                result = {
+                    "min_id": index,
+                    "max_id": index + int(word_encoding.shape[1]) - 1
+                }
+                flag = True
+                start_idx_to_check = index + int(word_encoding.shape[1]) - 1
+                break
+        return result, flag, start_idx_to_check
+    result_list = []
+    start_idx_to_check = 0
+    duplicate = 0
+    sentence_tokenize = tokenizer.convert_ids_to_tokens(encoding[0])
+    for word_idx, word in enumerate(words):
+        # print(f"idx: {word_idx} {start_idx_to_check}")
+        if duplicate >= 1:
+            result_list.append(result_list[-1])
+            duplicate -=1
+
+            # Check if next token some how separated
+            if duplicate == 0:
+                if word_idx +1 < len(words) and "##" in sentence_tokenize[result_list[-1]['max_id'] +1]:
+                    encoding[0,result_list[-1]['max_id'] +1] = tokenizer.encode(sentence_tokenize[result_list[-1]['max_id'] +1][2:], return_tensors="pt")[0,1:-1]
+                    
+            continue
+        
+        word_result, flag, start_idx_to_check = _check(word, encoding, tokenizer, start_idx_to_check)
+        if flag:
+            result_list.append(word_result)
+            start_idx_to_check = start_idx_to_check
+            if word_idx +1 < len(words) and "##" in sentence_tokenize[result_list[-1]['max_id'] +1]:
+                    encoding[0,result_list[-1]['max_id'] +1] = tokenizer.encode(sentence_tokenize[result_list[-1]['max_id'] +1][2:], return_tensors="pt")[0,1:-1]
+        else:
+            while True:
+                # Happen when spacy smaller than bert (rare but still exist)
+                duplicate +=1
+                word = "".join([w for w in words[word_idx: word_idx+duplicate]])
+                word_result, flag, start_idx_to_check = _check(word, encoding, tokenizer, start_idx_to_check)
+                if flag:
+                    result_list.append(word_result)
+                    start_idx_to_check = start_idx_to_check
+                    break
+                if word_idx + duplicate > len(words):
+                    raise ValueError("WTF")
+            
+    return result_list
+
+def sdp_map_new_tokenize(text, encoding, tokenizer, data_original, fasttext_word_list):
+    """
+    We need modify some to make sure that right word right embed
+    """
+    # Build the map between spacy <-> bert
+    spacy_bert_map = map_new_tokenize([i.text for i in text], encoding, tokenizer)
+
+    # Locate 2 entities
+
+    entity_1 = fasttext_word_list[data_original[0,0]]
+    entity_2 = fasttext_word_list[data_original[-1,8]]
+    entity_1_pos = -1
+    entity_2_pos = -1
+
+    # Add some contraint to avoid bullshit position
+    max_dis_1 = max(int(torch.max(data_original[:,2])), int(torch.max(data_original[:,-4])))
+    min_dis_1 = min(int(torch.min(data_original[:,2])), int(torch.min(data_original[:,-4])))
+    max_dis_2 = max(int(torch.max(data_original[:,3])), int(torch.max(data_original[:,-3])))
+    min_dis_2 = min(int(torch.min(data_original[:,3])), int(torch.min(data_original[:,-3])))
+    # breakpoint()
+    doc_len = len([i.text for i in text])
+    for idx, element in enumerate(text):
+        if element.text.lower() == entity_1.lower() and idx + max_dis_1 < doc_len and idx + min_dis_1 >=0:
+            entity_1_pos = idx
+            break
+
+    for idx, element in enumerate(text):
+        if element.text.lower() == entity_2.lower() and idx + max_dis_2 < doc_len and idx + min_dis_2 >=0:
+            entity_2_pos = idx
+            break
+    
+    # Build the 2 new maps
+    tokenize_map_0_ids = []
+    tokenize_map_8_ids = []
+    # print(f"Entity: {entity_1_pos} {entity_2_pos}")
+
+    for i in range(int(data_original.shape[0])):
+        # print(f"{entity_1_pos+data_original[i,2]} {entity_2_pos+data_original[i, 3]} {entity_2_pos+data_original[i,-3]} {entity_1_pos+data_original[i,-4]}")
+        tokenize_map_0_ids.append(spacy_bert_map[entity_1_pos+data_original[i,2]])
+        tokenize_map_8_ids.append(spacy_bert_map[entity_2_pos+data_original[i,-3]])
+
+    return tokenize_map_0_ids, tokenize_map_8_ids
 
 def process(model_name, all_candidates, dictionary_path, data_mapped, folder_output):
     """ 
@@ -115,13 +223,13 @@ def process(model_name, all_candidates, dictionary_path, data_mapped, folder_out
             all_sent_embedded_mean = torch.cat((all_sent_embedded_mean, torch.zeros(1,32,HIDDEN_DIM)))
             all_sent_embedded_last = torch.cat((all_sent_embedded_last, torch.zeros(1,32,HIDDEN_DIM)))
             continue
+            
         # Get result
         result = model(encoding).last_hidden_state.detach()
-
         # Map with new tokenize
-        tokenize_map_0_ids = map_new_tokenize(words_0_ids, sentence_tokenize)
-        tokenize_map_8_ids = map_new_tokenize(words_8_ids, sentence_tokenize)
-
+        tokenize_map_0_ids = map_new_tokenize(words_0_ids, encoding, tokenizer)
+        tokenize_map_8_ids = map_new_tokenize(words_8_ids, encoding, tokenizer)
+        
         this_sent_embedded_first = torch.Tensor([])
         this_sent_embedded_mean = torch.Tensor([])
         this_sent_embedded_last = torch.Tensor([])
@@ -148,15 +256,15 @@ def process(model_name, all_candidates, dictionary_path, data_mapped, folder_out
 
 
 if __name__=="__main__":
-    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
-    # y_test = get_labels(load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'))
-    # data_test = CustomDataset(sdp_test_mapped, y_test)
-    # data_test.fix_exception()
+    sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    y_test = get_labels(load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'))
+    data_test = CustomDataset(sdp_test_mapped, y_test)
+    data_test.fix_exception()
     # data_test.batch_padding(batch_size=128, min_batch_size=3)
-    # data_test.squeeze()
-    # process('dmis-lab/biobert-base-cased-v1.2', 
-    #     load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'), 
-    #     'cache/fasttext/nguyennb/all_words.txt', 
-    #     data_test, 
-    #     '.')
+    data_test.squeeze()
+    process('dmis-lab/biobert-base-cased-v1.2', 
+        load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'), 
+        'cache/fasttext/nguyennb/all_words.txt', 
+        data_test, 
+        '.')
     pass

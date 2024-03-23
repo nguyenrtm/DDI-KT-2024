@@ -55,14 +55,16 @@ def id_find(lst, id):
         if element['@id'] == id:
             return element
 
-def offset_to_idx(text, offset, nlp):
+def offset_to_idx(text, offset, nlp, use_spacy=False, entity=None):
     '''
     Given offset of token in text, return its index in text.
+    Add check by spacy so we dont struggle with wtf token
     '''
     doc = nlp(text)
     offset = offset.split(';')[0]
     start = int(offset.split('-')[0])
     end = int(offset.split('-')[1])
+
     start_idx = -1
     end_idx = -1
     # breakpoint()
@@ -74,6 +76,10 @@ def offset_to_idx(text, offset, nlp):
     if start_idx == -1:
         start_idx = len(doc) - 1
         end_idx = len(doc) - 1
+        
+    if start_idx != -1 and end_idx == -1:
+        end_idx = start_idx
+
     assert start_idx != -1, end_idx != -1
     return start_idx, end_idx
 
@@ -92,6 +98,12 @@ def get_labels(all_candidates):
             label_list.append(torch.tensor([4]))
     return label_list
 
+def get_processed_labels(all_candidates):
+    label_list = list()
+    for candidate in all_candidates:
+        label_list.append(torch.tensor([candidate['label']]))
+    return label_list
+    
 def get_decode_a_label(result):
     if int(result[0])==0:
         return 'false'
@@ -176,3 +188,6 @@ def save_model(output_path, file_name, config, model, wandb_available=False):
     torch.save(model.state_dict(), str(Path(output_path) / file_name))
     logging.info(f"Model saved into {str(Path(output_path) / file_name)}")
     
+def idx_to_offset(text, idx, nlp):
+    doc = nlp(text)
+    return (doc[idx].idx, doc[idx].idx + len(doc[idx].text))

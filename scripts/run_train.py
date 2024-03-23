@@ -3,6 +3,9 @@ Containing script to train
 """
 from pathlib import Path
 import logging
+import sys
+
+sys.path.append(".")
 
 import torch
 import click
@@ -16,7 +19,7 @@ from ddi_kt_2024.utils import (
 )
 from ddi_kt_2024.reader.yaml_reader import get_yaml_config
 from ddi_kt_2024.model.custom_dataset import CustomDataset, BertEmbeddingDataset
-from ddi_kt_2024.model.trainer import Trainer, BertTrainer, BertWithPostionOnlyTrainer
+from ddi_kt_2024.model.trainer import Trainer, BertTrainer, BertWithPostionOnlyTrainer, BC5_Trainer
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup
 from ddi_kt_2024 import logging_config
@@ -65,13 +68,14 @@ def run_train(yaml_path):
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_train.squeeze()
         data_test.squeeze()
-    elif config.type_embed == "bert_pos_unpad":
+    elif config.type_embed == "bert_pos_unpad" or config.type_embed == "bc5_bert_pos_unpad":
         data_train = torch.load(config.train_custom_dataset)
         data_test = torch.load(config.test_custom_dataset)
         data_train.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_train.squeeze()
         data_test.squeeze()
+        # breakpoint()
     elif config.type_embed == "bert_pos_unpad_pkl":
         data_train = load_pkl(config.train_custom_dataset)
         data_test = load_pkl(config.test_custom_dataset)
@@ -110,7 +114,7 @@ def run_train(yaml_path):
             w_effect=config.w_effect,
             w_mechanism=config.w_mechanism,
             w_int=config.w_int,
-            target_class=5,
+            target_class=config.target_class,
             lr=config.lr,
             weight_decay=config.weight_decay,
             device=config.device,
@@ -140,7 +144,7 @@ def run_train(yaml_path):
             w_effect=config.w_effect,
             w_mechanism=config.w_mechanism,
             w_int=config.w_int,
-            target_class=5,
+            target_class=config.target_class,
             lr=config.lr,
             weight_decay=config.weight_decay,
             device=config.device,
@@ -166,14 +170,46 @@ def run_train(yaml_path):
             w_effect=config.w_effect,
             w_mechanism=config.w_mechanism,
             w_int=config.w_int,
-            target_class=5,
+            target_class=config.target_class,
+            lr=config.lr,
+            weight_decay=config.weight_decay,
+            device=config.device,
+            wandb_available=wandb_available
+        )
+    elif config.type_embed == "bc5_bert_pos_unpad":
+        model = BC5_Trainer(
+            all_candidates_test,
+            dropout_rate=config.dropout_rate,
+            word_embedding_size=config.word_embedding_size,
+            position_number=config.position_number,
+            position_embedding_size=config.position_embedding_size,
+            position_embedding_type=config.position_embedding_type,
+            tag_number=config.tag_number,
+            tag_embedding_size=config.tag_embedding_size,
+            token_embedding_size=config.token_embedding_size,
+            conv1_out_channels=config.conv1_out_channels,
+            conv2_out_channels=config.conv2_out_channels,
+            conv3_out_channels=config.conv3_out_channels,
+            conv1_length=config.conv1_length,
+            conv2_length=config.conv2_length,
+            conv3_length=config.conv3_length,
+            w_false=config.w_false,
+            w_advice=config.w_advice,
+            w_effect=config.w_effect,
+            w_mechanism=config.w_mechanism,
+            w_int=config.w_int,
+            target_class=config.target_class,
             lr=config.lr,
             weight_decay=config.weight_decay,
             device=config.device,
             wandb_available=wandb_available
         )
     model.config = config
-
+    
+    # Experiment
+    if config.parallel_training:
+        model.enable_parallel()
+        
     # Model train
     model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)
 

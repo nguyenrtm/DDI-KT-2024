@@ -294,17 +294,21 @@ class BertWithPostionOnlyModel(nn.Module):
                 conv1_length: int = 1,
                 conv2_length: int = 2,
                 conv3_length: int = 3,
-                target_class: int = 5
+                target_class: int = 5,
+                dataset_name = "DDI"
                 ):
         super(BertWithPostionOnlyModel, self).__init__()
         self.word_embedding_size = word_embedding_size
-
+        self.position_embedding_size = position_embedding_size
+        self.device ="cuda"
         self.tag_embedding = nn.Embedding(tag_number, tag_embedding_size, padding_idx=0)
-
+        self.position_embedding_type = position_embedding_type
         if position_embedding_type == "normal":
             self.pos_embedding = nn.Linear(position_number, position_embedding_size, bias=False)
         elif position_embedding_type == "sinusoidal":
-            self.pos_embedding = sinusoidal_positional_embedding(position_number, position_embedding_size)
+            self.pos_embedding = self.sinusoidal_positional_encoding
+        elif position_embedding_type == "rotary":
+            self.pos_embedding = self.rotary_positional_embedding
         else:
             raise ValueError("Wrong type pos embed")
 
@@ -347,10 +351,43 @@ class BertWithPostionOnlyModel(nn.Module):
 
         self.softmax = nn.Softmax(dim=1)
 
+    def sinusoidal_positional_encoding(self, position):
+        d_model = int((self.position_embedding_size - 1) / 2)
+        # position = position.unsqueeze(dim=2)
+        angle_rads = torch.arange(d_model) // 2 * torch.pi / torch.pow(10000, 2 * (torch.arange(d_model) // 2) / d_model)
+        angle_rads = angle_rads.to(self.device)
+        angle_rads = angle_rads.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, angle_rads.shape[0]))
+        angle_rads = torch.bmm(position, angle_rads)
+        pos_encoding = torch.zeros((angle_rads.shape[0], angle_rads.shape[1], angle_rads.shape[2])).to(self.device)
+        pos_encoding[:, :, 0::2] = torch.sin(angle_rads[:, :, 0::2])
+        pos_encoding[:, :, 1::2] = torch.cos(angle_rads[:, :, 1::2])
+        return pos_encoding
+
+    # def rotary_positional_embedding(self, position):
+    #     d_model = int((self.position_embedding_size - 1) / 2)
+    #     position = position.unsqueeze(dim=2)
+    #     freqs = torch.exp(torch.linspace(0., -1., int(d_model // 2)) * torch.log(torch.tensor(10000.))).to(self.device)
+    #     freqs = freqs.unsqueeze(dim=0).unsqueeze(dim=0).expand((position.shape[0], 1, freqs.shape[0]))
+    #     angles = position * freqs
+    #     rotary_matrix = torch.stack([torch.sin(angles), torch.cos(angles)], axis=-1).to(self.device)
+    #     return rotary_matrix.reshape((position.shape[0], position.shape[1], d_model))
+
     def forward(self, x):
         x = x.float()
-        pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
-#         print(x[:,:,-1].long().shape)
+
+        if self.position_embedding_type == "normal": # Linear
+            pos_embedding = self.pos_embedding(x[:,:,self.word_embedding_size: self.word_embedding_size+4])
+        elif self.position_embedding_type == "sinusoidal":
+            position_embedding_ent = x[:, :, self.word_embedding_size: self.word_embedding_size+4].float()
+            pos3 = self.sinusoidal_positional_encoding(position_embedding_ent[:, :, 0])
+            pos4 = self.sinusoidal_positional_encoding(position_embedding_ent[:, :, 1])
+            pos_embedding = torch.cat((pos3, pos4, position_embedding_ent[:, :, 2:]), dim=2) 
+        else: # rotary
+            position_embedding_ent = x[:, :, self.word_embedding_size: self.word_embedding_size+4].float()
+            pos3 = self.rotary_positional_embedding(position_embedding_ent[:, :, 0])
+            pos4 = self.rotary_positional_embedding(position_embedding_ent[:, :, 1])
+            pos_embedding = torch.cat((pos3, pos4, position_embedding_ent[:, :, 2:]), dim=2) 
+
         tag_embedding = self.tag_embedding(x[:,:,-1].long())
         x = self.normalize_tokens(torch.cat((x[:,:,:self.word_embedding_size], pos_embedding, tag_embedding), dim =2))
         

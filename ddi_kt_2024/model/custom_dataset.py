@@ -2,11 +2,17 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 import logging
+import multiprocessing
 
 from ddi_kt_2024.model.huggingface_model import get_model
-from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor
+from ddi_kt_2024.embed.get_embed_sentence_level import map_new_tokenize, concat_to_tensor, sdp_map_new_tokenize
 from ddi_kt_2024.dependency_parsing.path_processer import TextPosProcessor
 from ddi_kt_2024 import logging_config
+from ddi_kt_2024.utils import load_pkl, get_labels, get_lookup
+from ddi_kt_2024.model.word_embedding import WordEmbedding
+from ddi_kt_2024.preprocess.spacy_nlp import SpacyNLP
+
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 class CustomDataset(Dataset):
     def __init__(self, data, labels):
@@ -80,58 +86,76 @@ class BertEmbeddingDataset(CustomDataset):
         -> Loop through self.data -> append function
         """
         tokenizer, model = get_model(huggingface_model_name)
+        self.spacy_nlp = SpacyNLP()
         with open(all_words_path, "r") as f:
             fasttext_word_list = [i.rstrip() for i in f.readlines()]
         fasttext_word_list = [""] + fasttext_word_list
         for i, sample in enumerate(self.data):
+            if torch.all(sample == torch.zeros((1,1,14))):
+                print(f"Old handled exception. Skipping...")
+                new_shape = list(sample.shape)
+                new_shape[-1] = 768*2
+                new_tensor = torch.zeros(new_shape)
+                self.data[i] = torch.cat((sample, new_tensor),dim =-1)
+                continue
             second_dim_num = int(sample.shape[1])
-            data_mapped_0_ids = sample[0,:,0]
-            data_mapped_8_ids = sample[0,:,8]
-
+            # data_mapped_0_ids = sample[0,:,0]
+            # data_mapped_8_ids = sample[0,:,8]
+            text = self.text[i]
+            doc = self.spacy_nlp.nlp(text)
             # Get back all words
-            words_0_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_0_ids]
-            words_8_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_8_ids]
+            # words_0_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_0_ids]
+            # words_8_ids = [fasttext_word_list[int(iter)] for iter in data_mapped_8_ids]
 
             # Get tokenize
-            encoding = tokenizer.encode(self.text[i], return_tensors="pt")
+            encoding = tokenizer.encode(doc.text, return_tensors="pt")
             sentence_tokenize = tokenizer.convert_ids_to_tokens(encoding[0])
             result = model(encoding).last_hidden_state.detach()
 
             # Map with new tokenize
-            tokenize_map_0_ids = map_new_tokenize(words_0_ids, sentence_tokenize)
-            tokenize_map_8_ids = map_new_tokenize(words_8_ids, sentence_tokenize)
-
+            try:
+                tokenize_map_0_ids, tokenize_map_8_ids = sdp_map_new_tokenize(doc, encoding, tokenizer, sample[0], fasttext_word_list)
+            except Exception as e:
+                print(f"Receiving exception at {i}. Process will continue...")
+                new_shape = list(sample.shape)
+                new_shape[-1] = 768*2
+                new_tensor = torch.zeros(new_shape)
+                self.data[i] = torch.cat((sample, new_tensor),dim =-1)
+                continue
             # Declare
-            this_sent_embedded_first = torch.Tensor([])
-            this_sent_embedded_mean = torch.Tensor([])
-            this_sent_embedded_last = torch.Tensor([])
+            bert_embed_first_1 = torch.Tensor([])
+            bert_embed_mean_1 = torch.Tensor([])
+            bert_embed_last_1 = torch.Tensor([])
+            bert_embed_first_2 = torch.Tensor([])
+            bert_embed_mean_2 = torch.Tensor([])
+            bert_embed_last_2 = torch.Tensor([])
 
             for tokenize_status in tokenize_map_0_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
+                bert_embed_first_1, bert_embed_mean_1, bert_embed_last_1 = concat_to_tensor(tokenize_status,
+                result, bert_embed_first_1, bert_embed_mean_1, bert_embed_last_1, embed_size)
 
             for tokenize_status in tokenize_map_8_ids:
-                this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last = concat_to_tensor(tokenize_status,
-                result, this_sent_embedded_first, this_sent_embedded_mean, this_sent_embedded_last, embed_size)
-
+                bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2 = concat_to_tensor(tokenize_status,
+                result, bert_embed_first_2, bert_embed_mean_2, bert_embed_last_2, embed_size)
             if mode == 'first':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_first.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_first_1.reshape(1,second_dim_num,-1), bert_embed_first_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'mean':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_mean.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_mean_1.reshape(1,second_dim_num,-1), bert_embed_mean_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
             elif mode == 'last':
                 self.data[i] = torch.cat(
-                    (self.data[i], this_sent_embedded_last.reshape(1,second_dim_num,-1)),
+                    (self.data[i], bert_embed_last_1.reshape(1,second_dim_num,-1), bert_embed_last_2.reshape(1,second_dim_num,-1)),
                     dim=2
                 )
 
             if (i+1) % 100 == 0:
                 logging.info(f"Handled {i+1} / {len(self.data)}")
+            # breakpoint()
 
     def fix_unsqueeze(self):
         for data_i in self.data:
@@ -146,23 +170,194 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
     def __init__(self, candidates, labels):
         super().__init__(candidates, [], labels)
 
-    def convert_to_tensors(self, lookup_word, lookup_tag, bert_model):
+    def convert_to_tensors(self, lookup_word, lookup_tag, bert_model, type="spacy"):
         """ 
         Lookup_word and lookup_tag from get_lookup()
         Bert_model is just name in huggingface
         """
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        self.data = []
         self.temp_labels = []
+        self.temp_all_candidates = []
         for iter, candidate in enumerate(self.all_candidates):
             try:
-                result = tpp.get_word_pos_embed(candidate)
+                if type=="bert":
+                    result = tpp.get_word_pos_embed_bert_size(candidate)
+                else:
+                    result = tpp.get_word_pos_embed_spacy_size(candidate)
             except Exception as e:
-                print(f"Exception when handle at index {iter}")
+                print(f"Receive an exception when handle at index {iter}")
                 continue
             self.data.append(result)
+            self.temp_all_candidates.append(self.all_candidates[iter])
             self.temp_labels.append(self.labels[iter])
             if (iter + 1 )% 100 == 0:
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
+
         self.labels = self.temp_labels
-        # breakpoint()
+        self.all_candidates = self.temp_all_candidates # For easy debug
+
+        # 
         print("Convert to tensor completed!")
+
+    def convert_to_tensors_multi_processing(self, lookup_word, lookup_tag, bert_model, type="spacy"):
+        """ 
+        BROKEN. DON'T USE
+        FIXING.
+        """
+        # try:
+        #     multiprocessing.set_start_method('spawn', force=True)
+        #     print("spawned")
+        # except RuntimeError:
+        #     pass
+        tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        self.data = []
+        self.temp_labels = []
+        self.temp_all_candidates = []
+        # for iter, candidate in enumerate(self.all_candidates):
+        #     try:
+        #         if type=="bert":
+        #             result = tpp.get_word_pos_embed_bert_size(candidate)
+        #         else:
+        #             result = tpp.get_word_pos_embed_spacy_size(candidate)
+        #     except Exception as e:
+        #         print(f"Receive an exception when handle at index {iter}")
+        #         result = None
+        #         continue
+        #     self.data.append(result)
+        #     self.temp_all_candidates.append(self.all_candidates[iter])
+        #     self.temp_labels.append(self.labels[iter])
+        #     if (iter + 1 )% 100 == 0:
+        #         print(f"Handled {iter+1}/{len(self.all_candidates)}")
+        num_workers = multiprocessing.cpu_count()
+        with multiprocessing.Pool(num_workers) as pool:
+            results = pool.map(self._process, [(i, candidate, type, tpp) for i, candidate in enumerate(self.all_candidates)])
+     
+        for result in results:
+            if result is not None:
+                index, data = result
+                self.data.append(data)
+                self.temp_all_candidates.append(self.all_candidates[index])
+                self.temp_labels.append(self.labels[index])
+                # if (index + 1) % 100 == 0:
+                #     print(f"Handled {index + 1}/{len(self.all_candidates)}")
+
+        self.labels = self.temp_labels
+        self.all_candidates = self.temp_all_candidates # For easy debug
+
+        # 
+        print("Convert to tensor completed!")
+
+    def _process(self, args):
+        index, candidate, type, tpp = args
+        try:
+            if type == "bert":
+                result = tpp.get_word_pos_embed_bert_size(candidate)
+            else:
+                result = tpp.get_word_pos_embed_spacy_size(candidate)
+        except Exception as e:
+            print(f"Receive an exception when handle at index {index}")
+            return index, None
+        print(index)
+        return index, result
+
+    def truncate_to_extend_from_entities(self, lookup_word, lookup_tag, bert_model, extend_amount=0):
+        """
+        To taking account of token between 2 entities and extend if needed only.
+        Due to performance reason, I will truncate from generated by convert_to_tensors function
+        """
+        tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
+        self.spacy_nlp = SpacyNLP()
+        for iter, candidate in enumerate(self.all_candidates):
+            # Locate two entities location
+            text = candidate['text']
+            
+            doc = self.spacy_nlp.nlp(text)
+
+            # Get pos embedding
+            [_, zero_ent_1] = tpp.build_position_embedding(text, candidate['e1']['@charOffset'], candidate['e1']['@text'])
+            [_, zero_ent_2] = tpp.build_position_embedding(text, candidate['e2']['@charOffset'], candidate['e2']['@text'])
+            min_idx = 0
+            max_idx = len(zero_ent_1) - 1
+            zero_ent = [ zero_ent_1[z_idx] + zero_ent_2[z_idx] for z_idx in range(len(zero_ent_1))]
+            for ele_idx in range(len(zero_ent)):
+                if zero_ent[ele_idx] == 1:
+                    min_idx = ele_idx
+                    break
+            for ele_idx in range(len(zero_ent)-1, -1, -1):
+                if zero_ent[ele_idx] == 1:
+                    max_idx = ele_idx
+                    break
+            
+            # Truncate
+            min_idx = max(0, min_idx - extend_amount)
+            max_idx = min(len(zero_ent_1) -1 , max_idx + extend_amount)
+
+            self.data[iter] = self.data[iter][:,min_idx:max_idx+1,:]
+
+            if (iter+1) %100 == 0:
+                print(f"Handled {iter+1}/{len(self.all_candidates)}")
+
+if __name__=="__main__":
+    # prepare_type = "sdp_word_bert_embed_no_pad"
+    # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
+    # all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    # sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
+    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+    # lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    # lookup_tag = get_lookup("cache/fasttext/nguyennb/all_pos.txt")
+
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # y_test = get_labels(all_candidates_test)
+    # data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
+    # data_train.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
+    # data_test = BertPosEmbedOnlyDataset(all_candidates_test, y_test)
+    # data_test.convert_to_tensors(lookup_word, lookup_tag, huggingface_model_name)
+    
+    
+    # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
+    # sdp_train_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.train.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # data_train = BertEmbeddingDataset(all_candidates_train, sdp_train_mapped, y_train)
+    # data_train.fix_exception()
+    # data_train.add_embed_to_data(
+    #     huggingface_model_name=huggingface_model_name,
+    #     all_words_path='cache/fasttext/nguyennb/all_words.txt',
+    #     embed_size=768,
+    #     mode="mean"
+    # )
+
+    # all_candidates_test = load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl')
+    # sdp_test_mapped = load_pkl('cache/pkl/v2/notprocessed.mapped.sdp.test.pkl')
+    # we = WordEmbedding(fasttext_path='cache/fasttext/nguyennb/fastText_ddi.npz',
+    #                 vocab_path='cache/fasttext/nguyennb/all_words.txt')
+
+    # huggingface_model_name = 'allenai/scibert_scivocab_uncased'
+    # y_test = get_labels(all_candidates_test)
+    # data_test = BertEmbeddingDataset(all_candidates_test, sdp_test_mapped, y_test)
+    # data_test.fix_exception()
+    # data_test.add_embed_to_data(
+    #     huggingface_model_name=huggingface_model_name,
+    #     all_words_path='cache/fasttext/nguyennb/all_words.txt',
+    #     embed_size=768,
+    #     mode="mean"
+    # )
+
+    # prepare_type = "sdp_word_bert_embed_no_pad"
+    # all_candidates_train = load_pkl('cache/pkl/bc5/candidates.train.pkl')
+    lookup_word = get_lookup("cache/fasttext/nguyennb/all_words.txt")
+    lookup_tag = get_lookup("cache/fasttext/bc5/all_pos.txt")
+
+    bert_model = 'allenai/scibert_scivocab_uncased'
+    # y_train = get_labels(all_candidates_train)
+    # # y_test = get_labels(all_candidates_test)
+    # data_train = BertPosEmbedOnlyDataset(all_candidates_train, y_train)
+    data_train = torch.load("bc5_scibert_scivocab_uncased_train.pt")
+    data_train.truncate_to_extend_from_entities(lookup_word, lookup_tag, bert_model, extend_amount=1)
