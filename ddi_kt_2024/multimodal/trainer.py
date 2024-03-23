@@ -149,7 +149,7 @@ class Trainer:
 
             running_loss += loss.item()
             
-        self.train_loss.append(running_loss)
+        self.train_loss.append(loss.item())
         return running_loss
     
     def convert_prediction_to_full_prediction(self, 
@@ -221,10 +221,10 @@ class Trainer:
         result = self.ddie_compute_metrics(full_predictions, full_label)
 
         if option == 'train':
-            self.train_loss.append(running_loss)
+            self.train_loss.append(loss.item())
             self.train_micro_f1.append(result['microF'])
         elif option == 'val':
-            self.val_loss.append(running_loss)
+            self.val_loss.append(loss.item())
             self.val_micro_f1.append(result['microF'])
             self.val_precision.append(result['Precision'])
             self.val_recall.append(result['Recall'])
