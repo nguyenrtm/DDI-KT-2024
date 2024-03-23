@@ -240,7 +240,7 @@ class MultimodalModel(torch.nn.Module):
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
             
-            # text_x = self.linear_text(text_x)
+            text_x = self.linear_text(text_x)
             # mol_x1 = self.linear_mol1(mol_x1)
             # mol_x2 = self.linear_mol2(mol_x2)
 
