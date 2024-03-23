@@ -1,6 +1,6 @@
 import torch
 from tqdm import tqdm
-from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support
 from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
@@ -222,11 +222,9 @@ class Trainer:
 
         if self.log == True:
             wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
-                            y_true=labels.cpu().numpy(), preds=predictions.cpu().numpy(),
+                            y_true=full_label.cpu().numpy(), preds=full_predictions.cpu().numpy(),
                             class_names=['false', 'advise', 'effect', 'mechanism', 'int'])})
 
-        f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
-        
         if option == 'train':
             self.train_loss.append(running_loss)
             self.train_micro_f1.append(result['microF'])
@@ -249,11 +247,11 @@ class Trainer:
             "microF": f
         }
         if every_type:
+            evaluation = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average=None)
             for i, label_type in enumerate(label_list):
-                p,r,f,s = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average='micro')
-                result[label_type + ' Precision'] = p
-                result[label_type + ' Recall'] = r
-                result[label_type + ' F'] = f
+                result[label_type + ' Precision'] = evaluation[0][i]
+                result[label_type + ' Recall'] = evaluation[1][i]
+                result[label_type + ' F'] = evaluation[2][i]
         return result
         
     def train(self, train_loader_text, 
@@ -296,11 +294,12 @@ class Trainer:
             {
                 "train_loss": self.train_loss[-1],
                 "val_loss": self.val_loss[-1],
+                "val_precision": self.val_precision[-1], 
+                "val_recall": self.val_recall[-1], 
                 "val_micro_f1": self.val_micro_f1[-1],
-                "val_f_false": self.val_f[-1][0],
-                "val_f_advise": self.val_f[-1][1],
-                "val_f_effect": self.val_f[-1][2],
-                "val_f_mechanism": self.val_f[-1][3],
-                "val_f_int": self.val_f[-1][4],
+                "val_f_advise": self.val_f_advise[-1],
+                "val_f_effect": self.val_f_effect[-1],
+                "val_f_mechanism": self.val_f_mechanism[-1],
+                "val_f_int": self.val_f_int[-1],
             }
         )
