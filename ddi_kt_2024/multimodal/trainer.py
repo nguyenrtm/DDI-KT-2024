@@ -220,11 +220,6 @@ class Trainer:
         
         result = self.ddie_compute_metrics(full_predictions, full_label)
 
-        if self.log == True:
-            wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
-                            y_true=full_label.cpu().numpy(), preds=full_predictions.cpu().numpy(),
-                            class_names=['false', 'advise', 'effect', 'mechanism', 'int'])})
-
         if option == 'train':
             self.train_loss.append(running_loss)
             self.train_micro_f1.append(result['microF'])
@@ -237,6 +232,20 @@ class Trainer:
             self.val_f_effect.append(result['Effect F'])
             self.val_f_advise.append(result['Advise F'])
             self.val_f_int.append(result['Int. F'])
+
+        if self.log == True:
+            wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
+                            y_true=full_label.cpu().numpy(), preds=full_predictions.cpu().numpy(),
+                            class_names=['false', 'advise', 'effect', 'mechanism', 'int']),
+                        "train_loss": self.train_loss[-1],
+                        "val_loss": self.val_loss[-1],
+                        "val_precision": self.val_precision[-1], 
+                        "val_recall": self.val_recall[-1], 
+                        "val_micro_f1": self.val_micro_f1[-1],
+                        "val_f_advise": self.val_f_advise[-1],
+                        "val_f_effect": self.val_f_effect[-1],
+                        "val_f_mechanism": self.val_f_mechanism[-1],
+                        "val_f_int": self.val_f_int[-1]})
     
     def ddie_compute_metrics(self, preds, labels, every_type=True):
         label_list = ('Mechanism', 'Effect', 'Advise', 'Int.')
@@ -285,21 +294,3 @@ class Trainer:
                           filtered_lst_index,
                           full_label,
                           'val')
-            
-            if self.log == True:
-                self.log_wandb()
-            
-    def log_wandb(self):
-        wandb.log(
-            {
-                "train_loss": self.train_loss[-1],
-                "val_loss": self.val_loss[-1],
-                "val_precision": self.val_precision[-1], 
-                "val_recall": self.val_recall[-1], 
-                "val_micro_f1": self.val_micro_f1[-1],
-                "val_f_advise": self.val_f_advise[-1],
-                "val_f_effect": self.val_f_effect[-1],
-                "val_f_mechanism": self.val_f_mechanism[-1],
-                "val_f_int": self.val_f_int[-1],
-            }
-        )
