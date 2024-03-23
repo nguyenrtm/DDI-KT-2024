@@ -69,18 +69,13 @@ class GNN(torch.nn.Module):
         if mol.mol == None:
             return torch.zeros([1, self.hidden_channels]).to(self.device)
         
-        # Encoding categorical features
         x, edge_index, edge_attr, batch = mol.x, mol.edge_index, mol.edge_attr, mol.batch
 
         atomic_num0 = self.atom_encoder(x[:, 0].int()) # encode atom type
-        atom_is_aromatic0 = self.boolean_encoder(x[:, -1].int()) # encode aromaticity
-
         bond_type0 = self.bond_encoder(edge_attr[:, 0].int()) # encode bond type
-        bond_is_conjugated0 = self.boolean_encoder(edge_attr[:, -2].int()) # encode conjugation
-        bond_is_aromatic0 = self.boolean_encoder(edge_attr[:, -1].int()) # encode aromaticity
 
-        x = torch.cat([atomic_num0, x[:, 1:9], atom_is_aromatic0], dim=1)
-        edge_attr = torch.cat([bond_type0, edge_attr[:, 1:2], bond_is_conjugated0, bond_is_aromatic0], dim=1)
+        x = atomic_num0
+        edge_attr = bond_type0
 
         # GNN pass
         if self.gnn_option == 'ATTENTIVEFP':
