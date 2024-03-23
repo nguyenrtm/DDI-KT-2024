@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATv2Conv, GCNConv
 from torch_geometric.nn.models import AttentiveFP
-from torch_geometric.nn import global_mean_pool, global_max_pool, global_add_pool, SAGPooling
+from torch_geometric.nn import global_mean_pool, global_max_pool, global_add_pool, SAGPooling, ASAPooling
 
 class GNN(torch.nn.Module):
     def __init__(self, 
@@ -74,6 +74,10 @@ class GNN(torch.nn.Module):
             self.readout_layer = SAGPooling(hidden_channels, 
                                             ratio=0.8,
                                             GNN=GCNConv)
+        elif readout_option == 'asa_pooling':
+            self.readout_layer = ASAPooling(hidden_channels, 
+                                            ratio=10,
+                                            GNN=GCNConv)
 
     def forward(self, mol):
         if mol.mol == None:
@@ -126,8 +130,11 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index))
-            
+
             if self.readout_option == 'sag_pooling':
+                x, edge_index, _, batch, _, _ = self.readout_layer(x, edge_index, edge_attr, batch)
+                x = global_add_pool(x, batch)
+            elif self.readout_option == 'asa_pooling':
                 x, edge_index, _, batch, _, _ = self.readout_layer(x, edge_index, edge_attr, batch)
                 x = global_add_pool(x, batch)
             else:
