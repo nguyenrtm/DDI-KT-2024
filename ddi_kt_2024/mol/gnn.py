@@ -126,9 +126,11 @@ class GNN(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout, training=self.training)
             
             x = self.act(self.gnn(x, edge_index))
+            
             if self.readout_option == 'sag_pooling':
                 x, edge_index, _, batch, _, _ = self.readout_layer(x, edge_index, edge_attr, batch)
+                x = global_add_pool(x, batch)
             else:
                 x = self.readout_layer(x, batch)
-            
+        
         return x
