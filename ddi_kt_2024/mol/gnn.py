@@ -10,8 +10,8 @@ class GNN(torch.nn.Module):
                  atom_embedding_dim: int = 16,
                  bond_embedding_dim: int = 8,
                  bool_embedding_dim: int = 2,
-                 num_node_features: int = 10,
-                 num_edge_features: int = 4,
+                 num_node_features: int = 1,
+                 num_edge_features: int = 1,
                  hidden_channels: int = 128, 
                  dropout_rate: float = 0.2,
                  num_layers_gnn: int = 3,
@@ -33,23 +33,23 @@ class GNN(torch.nn.Module):
         self.readout_option = readout_option
 
         if gnn_option == 'GATV2CONV':
-            self.gnn1 = GATv2Conv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
+            self.gnn1 = GATv2Conv(atom_embedding_dim, 
                                   hidden_channels,
                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
             self.gnn = GATv2Conv(hidden_channels, 
                                  hidden_channels,
                                  edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2)
         elif gnn_option == 'GCNCONV':
-            self.gnn1 = GCNConv(num_node_features-2+atom_embedding_dim+bool_embedding_dim, 
+            self.gnn1 = GCNConv(atom_embedding_dim, 
                                 hidden_channels)
             self.gnn = GCNConv(hidden_channels, 
                                hidden_channels)
         elif gnn_option == 'ATTENTIVEFP':
-            self.gnn = AttentiveFP(in_channels=num_node_features-2+atom_embedding_dim+bool_embedding_dim,
+            self.gnn = AttentiveFP(in_channels=atom_embedding_dim,
                                    hidden_channels=hidden_channels,
                                    out_channels=hidden_channels,
-                                   edge_dim=num_edge_features-3+bond_embedding_dim+bool_embedding_dim*2,
-                                   num_layers=3,
+                                   edge_dim=bool_embedding_dim,
+                                   num_layers=self.num_layers_gnn,
                                    num_timesteps=2,
                                    dropout=self.dropout)
             
