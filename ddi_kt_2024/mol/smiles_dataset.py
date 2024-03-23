@@ -21,6 +21,18 @@ class SmilesDataset(Dataset):
         mols.append(x2)
     self.x = [m for m in mols]
 
+  def negative_instance_filtering(self, path):
+      with open(path, 'r') as f:
+          lines = f.read().split('\n')[:-1]
+          lst = [int(x.strip()) for x in lines]
+
+      new_x = list()
+
+      for idx in lst:
+          new_x.append(self.x[idx])
+
+      self.x = new_x
+
   def __getitem__(self, idx):
     x = self.x[idx]
     return x
