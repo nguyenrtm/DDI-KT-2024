@@ -154,16 +154,18 @@ class Trainer:
                                               filtered_lst_index,
                                               full_label):
         full_predictions = list()
-        full_length = len(prediction) + len(filtered_lst_index)
-        tmp = 0
+        full_length = len(full_label)
+        tmp_prediction = 0
+        tmp_full = 0
         for i in range(full_length):
             if i in filtered_lst_index:
-                full_predictions.append(full_label[i])
+                full_predictions.append(prediction[tmp_prediction])
+                tmp_prediction += 1
             else:
-                full_predictions.append(prediction[tmp])
-                tmp += 1
+                full_predictions.append(0)
+                tmp_full += 1
 
-        return full_predictions.np()
+        return np.array(full_predictions)
     
     def validate(self, 
                  val_loader_text, 
@@ -209,10 +211,9 @@ class Trainer:
             if labels[i].cpu() == 1:
                 true_pred.append(i)
 
-        full_predictions = self.convert_prediction_to_full_prediction(predictions.cpu().np(),
+        full_predictions = self.convert_prediction_to_full_prediction(predictions.cpu().numpy(),
                                                                       filtered_lst_index,
                                                                       full_label)
-                
         cm = confusion_matrix(full_label, full_predictions, labels=[0, 1, 2, 3, 4])
         _micro_f1 = self.micro_f1(cm)
 

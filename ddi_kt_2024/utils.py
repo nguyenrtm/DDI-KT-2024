@@ -228,3 +228,22 @@ def get_idx_dataset(data,
     for i in data:
         tmp.append(get_idx(i, vocab_lookup, tag_lookup, direction_lookup, edge_lookup))
     return tmp
+
+def read_index(path):
+    """
+    Read filtered index in DDI.
+    """
+    with open(path, 'r') as f:
+        lines = f.read().split('\n')[:-1]
+        lst = [int(x.strip()) for x in lines]
+    return lst
+
+def convert_to_label_list(custom_dataset):
+    """
+    Convert label in CustomDataset to list.
+    """
+    lst = list()
+    for x in custom_dataset:
+        lst.append(int(x[1].cpu().numpy()[0]))
+        
+    return lst
