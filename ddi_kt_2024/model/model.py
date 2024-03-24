@@ -438,6 +438,8 @@ class BertForSequenceClassification(nn.Module):
         self.middle_layer_size = middle_layer_size
         self.model_name_or_path = model_name_or_path
         self.weight_decay = weight_decay
+        self.use_desc = False
+        self.use_mol = False
         
         if self.use_cnn:
             self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
