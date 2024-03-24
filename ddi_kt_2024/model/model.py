@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn import CrossEntropyLoss
 import transformers
 from transformers import BertPreTrainedModel, BertModel
 
@@ -440,7 +441,7 @@ class BertForSequenceClassification(nn.Module):
         self.weight_decay = weight_decay
         self.use_desc = False
         self.use_mol = False
-        
+
         if self.use_cnn:
             self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
             self.pos_emb = nn.Embedding(2*self.max_seq_length, self.pos_emb_dim, padding_idx=0)
