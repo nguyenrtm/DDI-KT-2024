@@ -95,9 +95,9 @@ def run_train(yaml_path):
         data_train = torch.load(config.train_custom_dataset)
         data_test = torch.load(config.test_custom_dataset)
         if hasattr(data_train, "random_sampler"):
-            train_sampler = RandomSampler(train_dataset)
-        train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=config.batch_size)
-        test_dataloader = DataLoader(test_dataset, batch_size=config.batch_size)
+            train_sampler = RandomSampler(data_train)
+        train_dataloader = DataLoader(data_train, sampler=train_sampler, batch_size=config.batch_size)
+        test_dataloader = DataLoader(data_test, batch_size=config.batch_size)
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
