@@ -635,7 +635,7 @@ class Asada_Trainer(BaseTrainer):
 
     def evaluate(self, validation_loader):
         results = {}
-    
+        self.model.to(self.device)
         # Eval!
         eval_loss = 0.0
         nb_eval_steps = 0
