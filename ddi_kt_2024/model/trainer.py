@@ -619,8 +619,8 @@ class Asada_Trainer(BaseTrainer):
 
     def ddie_compute_metrics(preds, labels, every_type=True):
         label_list = ('Mechanism', 'Effect', 'Advise', 'Int.')
-        preds = np.array(preds)
-        labels = np.array(labels)
+        preds = preds.tolist()
+        labels = labels.tolist()
         p,r,f,s = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average='micro')
         result = {
             "Precision": p,
