@@ -528,7 +528,7 @@ class Asada_Trainer(BaseTrainer):
         self.parameter_averaging = parameter_averaging
         self.lr = lr
         self.wandb_available = wandb_available
-        
+
         self.model = BertForSequenceClassification(
             num_labels,
             dropout_rate,
@@ -645,7 +645,6 @@ class Asada_Trainer(BaseTrainer):
         nb_eval_steps = 0
         preds = None
         out_label_ids = None
-        uu = 0
         for batch in tqdm(validation_loader, desc="Evaluating"):
             self.model.eval()
             batch = tuple(t.to(self.device) for t in batch)
@@ -672,15 +671,10 @@ class Asada_Trainer(BaseTrainer):
             else:
                 preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
                 out_label_ids = np.append(out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
-            # DEBUG
-            uu +=1
-            if uu % 5 ==0:
-                break
+
         eval_loss = eval_loss / nb_eval_steps
-        print(preds.shape)
+
         preds = np.argmax(preds, axis=1)
-        print(type(out_label_ids))
-        print(out_label_ids.shape)
         result = self.ddie_compute_metrics(preds, out_label_ids)
         results.update(result)
         print(result)
