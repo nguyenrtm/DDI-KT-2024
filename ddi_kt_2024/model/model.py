@@ -419,6 +419,7 @@ class BertForSequenceClassification(nn.Module):
                 pos_emb_dim,
                 middle_layer_size,
                 model_name_or_path,
+                activation="gelu",
                 use_cnn=False
                 ):
         super(BertForSequenceClassification, self).__init__()
