@@ -222,7 +222,7 @@ def run_train(yaml_path):
             wandb_available=wandb_available
         )
     elif config.type_embed == "asada_bert_unpad":
-        model = Asada_Trainer()
+        model = Asada_Trainer(wandb_available=wandb_available)
     model.config = config
     
     # Experiment
