@@ -408,7 +408,7 @@ class BertWithPostionOnlyModel(nn.Module):
         return x
 
 
-class BertForSequenceClassification(BertPreTrainedModel):
+class BertForSequenceClassification(nn.Module):
     # def __init__(self, self, config, gnn_config):
     def __init__(self,
                 num_labels,

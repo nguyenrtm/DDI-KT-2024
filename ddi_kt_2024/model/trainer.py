@@ -534,7 +534,8 @@ class Asada_Trainer(BaseTrainer):
             max_seq_length,
             pos_emb_dim,
             middle_layer_size,
-            model_name_or_path
+            model_name_or_path,
+            use_cnn=True
         )
         no_decay = ['bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
