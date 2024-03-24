@@ -463,7 +463,7 @@ class BertForSequenceClassification(nn.Module):
         else:
             self.middle_classifier = nn.Linear(len(self.conv_window_size)*self.hidden_size, self.middle_layer_size)
             self.classifier = nn.Linear(self.middle_layer_size, num_labels)
-        self.init_weights()
+        # self.init_weights()
         
         if self.use_cnn:
             self.pos_emb.weight.data.uniform_(-1e-3, 1e-3)
