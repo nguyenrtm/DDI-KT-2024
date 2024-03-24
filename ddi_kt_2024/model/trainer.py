@@ -667,10 +667,14 @@ class Asada_Trainer(BaseTrainer):
             else:
                 preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
                 out_label_ids = np.append(out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
-
+            # DEBUG
+            if batch % 30 ==0:
+                break
         eval_loss = eval_loss / nb_eval_steps
+        print(pred.shape)
         preds = np.argmax(preds, axis=1)
-
+        print(type(out_label_ids))
+        print(out_label_ids.shape)
         result = self.ddie_compute_metrics(preds, out_label_ids)
         results.update(result)
         print(result)

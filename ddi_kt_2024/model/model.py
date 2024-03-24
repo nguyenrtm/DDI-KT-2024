@@ -423,7 +423,8 @@ class BertForSequenceClassification(nn.Module):
                 model_name_or_path,
                 activation="gelu",
                 weight_decay=0.0,
-                use_cnn=False
+                use_cnn=False,
+                freeze_bert=True
                 ):
         super(BertForSequenceClassification, self).__init__()
         self.num_labels = num_labels
@@ -477,8 +478,9 @@ class BertForSequenceClassification(nn.Module):
 
         self.bert = transformers.BertModel.from_pretrained(self.model_name_or_path)
 
-        for param in self.bert.parameters():
-            param.requires_grad = False
+        if freeze_bert:
+            for param in self.bert.parameters():
+                param.requires_grad = False
         # if self.use_desc: self.desc_bert = BertModel.from_pretrained(self.model_name_or_path)
         # if self.use_mol: self.gnn = MolecularGraphNeuralNetwork(gnn_config.N_fingerprints, gnn_config.dim, gnn_config.layer_hidden, gnn_config.layer_output, gnn_config.mode, gnn_config.activation)
 

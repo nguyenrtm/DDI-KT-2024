@@ -230,7 +230,7 @@ def run_train(yaml_path):
         model.enable_parallel()
         
     # Model train
-    model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)
-
+    # model.train(dataloader_train, dataloader_test, num_epochs=config.epochs)
+    model.evaluate(dataloader_test)
 if __name__=="__main__":
     run_train()
