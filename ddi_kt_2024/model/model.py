@@ -426,11 +426,11 @@ class BertForSequenceClassification(nn.Module):
         self.num_labels = num_labels
         self.use_cnn = use_cnn
         self.dropout = nn.Dropout(dropout_prob)
-    
+        self.conv_window_size = conv_window_size
         activations = {'relu':nn.ReLU(), 'elu':nn.ELU(), 'leakyrelu':nn.LeakyReLU(), 'prelu':nn.PReLU(),
                        'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':nn.GELU()}
         self.activation = activations[activation]
-
+        self.hidden_size = hidden_size
         if self.use_cnn:
             self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
             self.pos_emb = nn.Embedding(2*self.max_seq_length, self.pos_emb_dim, padding_idx=0)
@@ -455,9 +455,9 @@ class BertForSequenceClassification(nn.Module):
         #         self.classifier = nn.Linear(self.middle_layer_size, config.num_labels)
         # else:
         if self.middle_layer_size == 0:
-            self.classifier = nn.Linear(len(self.conv_window_size)*hidden_size, num_labels)
+            self.classifier = nn.Linear(len(self.conv_window_size)*self.hidden_size, num_labels)
         else:
-            self.middle_classifier = nn.Linear(len(self.conv_window_size)*config.hidden_size, self.middle_layer_size)
+            self.middle_classifier = nn.Linear(len(self.conv_window_size)*self.hidden_size, self.middle_layer_size)
             self.classifier = nn.Linear(self.middle_layer_size, num_labels)
         self.init_weights()
         
