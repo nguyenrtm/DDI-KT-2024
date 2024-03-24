@@ -641,6 +641,7 @@ class Asada_Trainer(BaseTrainer):
         nb_eval_steps = 0
         preds = None
         out_label_ids = None
+        uu = 0
         for batch in tqdm(validation_loader, desc="Evaluating"):
             self.model.eval()
             batch = tuple(t.to(self.device) for t in batch)
@@ -668,7 +669,8 @@ class Asada_Trainer(BaseTrainer):
                 preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
                 out_label_ids = np.append(out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
             # DEBUG
-            if batch % 30 ==0:
+            uu +=1
+            if uu % 30 ==0:
                 break
         eval_loss = eval_loss / nb_eval_steps
         print(pred.shape)
