@@ -528,7 +528,7 @@ class Asada_Trainer(BaseTrainer):
 
         self.model = BertForSequenceClassification(
             num_labels,
-            dropout_prob,
+            dropout_rate,
             hidden_size,
             conv_window_size,
             max_seq_length,
