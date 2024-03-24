@@ -418,6 +418,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 max_seq_length,
                 pos_emb_dim,
                 middle_layer_size,
+                model_name_or_path
                 ):
         super(BertForSequenceClassification, self).__init__(config)
         self.num_labels = num_labels

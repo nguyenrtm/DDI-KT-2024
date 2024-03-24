@@ -517,7 +517,8 @@ class Asada_Trainer(BaseTrainer):
             warmup_steps=0, 
             max_grad_norm=1,
             parameter_averaging=False,
-            adam_epsilon=1e-8):
+            adam_epsilon=1e-8,
+            model_name_or_path="allenai/scibert_scivocab_uncased"):
         self.device = device
         self.warmup_steps = warmup_steps
         self.max_grad_norm = max_grad_norm
@@ -531,7 +532,8 @@ class Asada_Trainer(BaseTrainer):
             conv_window_size,
             max_seq_length,
             pos_emb_dim,
-            middle_layer_size
+            middle_layer_size,
+            model_name_or_path
         )
         no_decay = ['bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
