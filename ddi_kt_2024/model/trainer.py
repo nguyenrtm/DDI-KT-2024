@@ -508,7 +508,7 @@ class Asada_Trainer(BaseTrainer):
     def __init__(self, 
             num_labels=5,
             dropout_rate=0.,
-            hidden_size=128,
+            hidden_size=768,
             conv_window_size=[1,2,3],
             max_seq_length=256,
             pos_emb_dim=256,
