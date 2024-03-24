@@ -519,6 +519,7 @@ class Asada_Trainer(BaseTrainer):
             parameter_averaging=False,
             adam_epsilon=1e-8,
             lr=1e-4,
+            weight_decay=0.0,
             model_name_or_path="allenai/scibert_scivocab_uncased"):
         self.device = device
         self.warmup_steps = warmup_steps
@@ -537,6 +538,7 @@ class Asada_Trainer(BaseTrainer):
             model_name_or_path,
             use_cnn=True
         )
+        self.weight_decay = weight_decay
         no_decay = ['bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
             {'params': [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': self.weight_decay},
