@@ -545,7 +545,7 @@ class Asada_Trainer(BaseTrainer):
             {'params': [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
             ]
         self.optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=adam_epsilon)
-        self.scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps = -1)
+        self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_warmup_steps=warmup_steps, num_training_steps = -1)
 
     
     def train(self, training_loader, validation_loader, num_epochs):
