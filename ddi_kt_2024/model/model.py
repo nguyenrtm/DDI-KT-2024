@@ -427,7 +427,7 @@ class BertForSequenceClassification(nn.Module):
         self.dropout = nn.Dropout(dropout_prob)
     
         activations = {'relu':nn.ReLU(), 'elu':nn.ELU(), 'leakyrelu':nn.LeakyReLU(), 'prelu':nn.PReLU(),
-                       'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':GELU()}
+                       'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':nn.GELU()}
         self.activation = activations[self.activation]
 
         if self.use_cnn:
