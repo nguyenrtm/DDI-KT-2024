@@ -521,13 +521,15 @@ class Asada_Trainer(BaseTrainer):
             lr=1e-4,
             weight_decay=0.0,
             model_name_or_path="allenai/scibert_scivocab_uncased",
-            wandb_available=False):
+            wandb_available=False,
+            freeze_bert=False):
         self.device = device
         self.warmup_steps = warmup_steps
         self.max_grad_norm = max_grad_norm
         self.parameter_averaging = parameter_averaging
         self.lr = lr
         self.wandb_available = wandb_available
+        self.freeze_bert = freeze_bert
 
         self.model = BertForSequenceClassification(
             num_labels,
@@ -538,7 +540,8 @@ class Asada_Trainer(BaseTrainer):
             pos_emb_dim,
             middle_layer_size,
             model_name_or_path,
-            use_cnn=True
+            use_cnn=True,
+            freeze_bert=self.freeze_bert
         )
         self.weight_decay = weight_decay
         no_decay = ['bias', 'LayerNorm.weight']
@@ -590,8 +593,6 @@ class Asada_Trainer(BaseTrainer):
                 self.model.zero_grad()
           
             results = self.evaluate(validation_loader)
-            if self.wandb_available:
-                wandb.log(results)
 
             # Save model checkpoint
             if max_val_micro_f1 < results['microF']:
@@ -680,3 +681,4 @@ class Asada_Trainer(BaseTrainer):
         print(result)
         if self.wandb_available:
             wandb.log(result)
+        return result 

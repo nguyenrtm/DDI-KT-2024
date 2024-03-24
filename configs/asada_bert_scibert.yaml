@@ -27,6 +27,7 @@ train_custom_dataset: 'D:\ResearchMultimodal\DDI-KT-2024\bc5_scibert_scivocab_un
 test_custom_dataset: 'D:\ResearchMultimodal\DDI-KT-2024\bc5_scibert_scivocab_uncased_test.pt'
 
 # Train configs
+freeze_bert: False
 min_batch_size: 9
 batch_size: 64
 weight_decay: 0.001
@@ -59,4 +60,3 @@ w_int: 27792 / 189
 device: "cuda"
 parallel_training: False
 target_class: 5
-

@@ -506,7 +506,6 @@ class BertForSequenceClassification(nn.Module):
                             head_mask=head_mask)
 
         pooled_output = outputs[1]
-        #pooled_output = self.dropout(pooled_output)
 
         if self.use_cnn:
             relative_dist1 *= attention_mask
