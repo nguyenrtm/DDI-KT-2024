@@ -424,7 +424,7 @@ class BertForSequenceClassification(nn.Module):
         super(BertForSequenceClassification, self).__init__()
         self.num_labels = num_labels
         self.use_cnn = use_cnn
-        self.dropout = nn.Dropout(self.dropout_prob)
+        self.dropout = nn.Dropout(dropout_prob)
     
         activations = {'relu':nn.ReLU(), 'elu':nn.ELU(), 'leakyrelu':nn.LeakyReLU(), 'prelu':nn.PReLU(),
                        'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':GELU()}
