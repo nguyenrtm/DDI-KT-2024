@@ -617,7 +617,7 @@ class Asada_Trainer(BaseTrainer):
         if self.wandb_available:
             wandb.finish()
 
-    def ddie_compute_metrics(preds, labels, every_type=True):
+    def ddie_compute_metrics(self, preds, labels, every_type=True):
         label_list = ('Mechanism', 'Effect', 'Advise', 'Int.')
         preds = preds.tolist()
         labels = labels.tolist()
@@ -672,7 +672,7 @@ class Asada_Trainer(BaseTrainer):
                 out_label_ids = np.append(out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
             # DEBUG
             uu +=1
-            if uu % 30 ==0:
+            if uu % 5 ==0:
                 break
         eval_loss = eval_loss / nb_eval_steps
         print(preds.shape)
