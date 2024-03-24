@@ -673,7 +673,7 @@ class Asada_Trainer(BaseTrainer):
             if uu % 30 ==0:
                 break
         eval_loss = eval_loss / nb_eval_steps
-        print(pred.shape)
+        print(preds.shape)
         preds = np.argmax(preds, axis=1)
         print(type(out_label_ids))
         print(out_label_ids.shape)
