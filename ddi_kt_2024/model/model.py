@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import transformers
 from transformers import BertPreTrainedModel, BertModel
 
 from ddi_kt_2024.embed.other_embed import sinusoidal_positional_embedding
@@ -468,7 +469,7 @@ class BertForSequenceClassification(nn.Module):
         if self.use_cnn:
             self.pos_emb.weight.data.uniform_(-1e-3, 1e-3)
 
-        self.bert = BertModel.from_pretrained(self.model_name_or_path)
+        self.bert = transformers.BertModel.from_pretrained(self.model_name_or_path)
         # if self.use_desc: self.desc_bert = BertModel.from_pretrained(self.model_name_or_path)
         # if self.use_mol: self.gnn = MolecularGraphNeuralNetwork(gnn_config.N_fingerprints, gnn_config.dim, gnn_config.layer_hidden, gnn_config.layer_output, gnn_config.mode, gnn_config.activation)
 
