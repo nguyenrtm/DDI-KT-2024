@@ -520,13 +520,15 @@ class Asada_Trainer(BaseTrainer):
             adam_epsilon=1e-8,
             lr=1e-4,
             weight_decay=0.0,
-            model_name_or_path="allenai/scibert_scivocab_uncased"):
+            model_name_or_path="allenai/scibert_scivocab_uncased",
+            wandb_available=False):
         self.device = device
         self.warmup_steps = warmup_steps
         self.max_grad_norm = max_grad_norm
         self.parameter_averaging = parameter_averaging
         self.lr = lr
-
+        self.wandb_available = wandb_available
+        
         self.model = BertForSequenceClassification(
             num_labels,
             dropout_rate,
