@@ -11,7 +11,7 @@ from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
 from transformers import glue_output_modes as output_modes
 
-def convert_to_examples(candidates, can_type="train", save_path=None):
+def convert_to_examples(candidates, can_type="train", mask=True, save_path=None):
     """
     Return:
     An InputExample with the following structure:
@@ -54,15 +54,16 @@ def convert_to_examples(candidates, can_type="train", save_path=None):
         offset_2 = offset_2.split(';')[0]
         offset_2 = (int(offset_2.split('-')[0]), int(offset_2.split('-')[1]))
 
-        current_sentence = current_sentence[:offset_1[0]] + "DRUG1" + current_sentence[offset_1[1]+1:]
-        if offset_1[1] < offset_2[0]:
-            diff_len = len(candidate['e1']['@text']) - 5
-            current_sentence = current_sentence[:offset_2[0]-diff_len] + "DRUG2" + current_sentence[offset_2[1] +1 - diff_len:]
-        else:
-            current_sentence = current_sentence[:offset_2[0]] + "DRUG2" + current_sentence[offset_2[1]+1:]
-        for entity in all_sentence_entities:
-            current_sentence = current_sentence.replace(entity, "DRUGOTHER")
-        
+        if mask:
+            current_sentence = current_sentence[:offset_1[0]] + "DRUG1" + current_sentence[offset_1[1]+1:]
+            if offset_1[1] < offset_2[0]:
+                diff_len = len(candidate['e1']['@text']) - 5
+                current_sentence = current_sentence[:offset_2[0]-diff_len] + "DRUG2" + current_sentence[offset_2[1] +1 - diff_len:]
+            else:
+                current_sentence = current_sentence[:offset_2[0]] + "DRUG2" + current_sentence[offset_2[1]+1:]
+            for entity in all_sentence_entities:
+                current_sentence = current_sentence.replace(entity, "DRUGOTHER")
+            
         examples.append(
             InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b="", label=candidate['label'])
         )
