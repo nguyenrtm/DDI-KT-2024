@@ -3,11 +3,10 @@ import torch.nn as nn
 
 class CharLSTM(nn.Module):
     def __init__(self,
-                 num_chars,
-                 hidden_dim,
-                 output_dim,
-                 dropout_rate,
-                 device):
+                 num_chars: int = 41,
+                 hidden_dim: int = 32,
+                 output_dim: int = 16,
+                 device: str = 'cpu'):
         super(CharLSTM, self).__init__()
         self.device = device
         self.num_chars = num_chars
@@ -20,10 +19,9 @@ class CharLSTM(nn.Module):
                             hidden_size=hidden_dim, 
                             num_layers=1, 
                             batch_first=True, 
-                            bidirectional=True,
-                            dropout=dropout_rate)
+                            bidirectional=True)
         
-        self.linear = nn.Linear(hidden_dim, output_dim, bias=False)
+        self.linear = nn.Linear(hidden_dim * 2, output_dim, bias=False)
 
     def forward(self, x):
         x = self.character_encoder(x)
