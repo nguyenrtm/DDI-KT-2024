@@ -4,8 +4,10 @@ from torch import optim
 from tqdm import tqdm
 from torchmetrics.classification import MulticlassF1Score
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score, matthews_corrcoef, f1_score, precision_recall_fscore_support
 import wandb
 import numpy as np
+from transformers import AdamW, WarmupLinearSchedule
 
 from .model import Model, BertModel, BertWithPostionOnlyModel
 from ddi_kt_2024.utils import save_model
@@ -92,7 +94,7 @@ class BaseTrainer:
     def micro_f1(self, cm):
         tp = cm[1][1] + cm[2][2] + cm[3][3] + cm[4][4]
         fp = np.sum(cm[:,1]) + np.sum(cm[:,2]) + np.sum(cm[:,3]) + np.sum(cm[:,4]) - tp
-        fn = np.sum(cm[1,:]) + np.sum(cm[3,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
+        fn = np.sum(cm[1,:]) + np.sum(cm[2,:]) + np.sum(cm[3,:]) + np.sum(cm[4,:]) - tp
         micro_f1 = tp / (tp + 1/2*(fp + fn))
         return micro_f1
             
@@ -498,3 +500,157 @@ class BC5_Trainer(BaseTrainer):
                 "inter_f1": self.inter_f[-1]
             }
         )
+
+class Asada_Trainer(BaseTrainer):
+    def __init__(self, 
+            device="cuda", 
+            warmup_steps=0, 
+            max_grad_norm=1,
+            parameter_averaging=False,
+            adam_epsilon=1e-8):
+        self.device = device
+        self.warmup_steps = warmup_steps
+        self.max_grad_norm = max_grad_norm
+        self.parameter_averaging = parameter_averaging
+        self.lr = lr
+
+        # self.model = TODO: Work in here
+
+        no_decay = ['bias', 'LayerNorm.weight']
+        optimizer_grouped_parameters = [
+            {'params': [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': self.weight_decay},
+            {'params': [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+            ]
+        optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=adam_epsilon)
+        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=t_total)
+
+    
+    def train(self, training_loader, validation_loader, num_epochs):
+        """ Train the model """
+        # Prepare optimizer and schedule (linear warmup and decay)
+        tr_loss, logging_loss = 0.0, 0.0
+        max_val_micro_f1 = 0.0
+
+        model.zero_grad()
+        #for _ in train_iterator:
+        for epoch in range(num_epochs):
+            # TODO: Continue fixing
+            epoch_iterator = tqdm(train_dataloader)
+            for step, batch in enumerate(epoch_iterator):
+                model.train()
+                batch = tuple(t.to(self.device) for t in batch)
+                inputs = {'input_ids':      batch[0],
+                        'attention_mask': batch[1],
+                        'relative_dist1': batch[3],
+                        'relative_dist2': batch[4],
+                        'labels':         batch[5],}
+                if 'bert' in self.config.type_embed and \
+                 not any(embed_type in self.config.type_embed.lower() for embed_type in ['xlm', 'distil', 'roberta']):
+                    # XLM, DistilBERT and RoBERTa don't use segment_ids
+                    inputs['token_type_ids'] = batch[2] 
+                else:
+                    inputs['token_type_ids'] = None
+                    
+                outputs = model(**inputs)
+                loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
+                loss.backward()
+
+                tr_loss += loss.item()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
+
+                self.optimizer.step()
+                if not self.parameter_averaging:
+                    scheduler.step()  # Update learning rate schedule
+                self.model.zero_grad()
+          
+                results = self.evaluate(validation_loader)
+                if self.wandb_available:
+                    wandb.log(results)
+
+                # Save model checkpoint
+                if max_val_micro_f1 < results['microF']:
+                    if epoch > 5:
+                        if not os.path.exists("checkpoints"):
+                            os.makedirs("checkpoints")
+                        save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}val_micro_f1{results['microF']}.pt", \
+                         self.config, self.model, self.wandb_available)
+                    max_val_micro_f1 = results['microF']
+                    print(f"Checkpoint saved at {max_val_micro_f1}!")
+
+            # # Evaluate
+            # prefix = 'epoch' + str(epoch)
+            # output_dir = os.path.join(args.output_dir, prefix)
+            # if not os.path.exists(output_dir):
+            #     os.makedirs(output_dir)
+            # if args.parameter_averaging:
+            #     storage_model.average_params()
+            #     result = self.evaluate(args, storage_model, tokenizer, desc_tokenizer, prefix=prefix)
+            #     storage_model.restore_params()
+            # else:
+            #     results = self.evaluate(args, model, tokenizer, desc_tokenizer, prefix=prefix)
+
+        #return global_step, tr_loss / global_step
+        if self.wandb_available:
+            wandb.finish()
+
+    def ddie_compute_metrics(preds, labels, every_type=True):
+        label_list = ('Mechanism', 'Effect', 'Advise', 'Int.')
+        p,r,f,s = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average='micro')
+        result = {
+            "Precision": p,
+            "Recall": r,
+            "microF": f
+        }
+        if every_type:
+            for i, label_type in enumerate(label_list):
+                p,r,f,s = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average='micro')
+                result[label_type + ' Precision'] = p
+                result[label_type + ' Recall'] = r
+                result[label_type + ' F'] = f
+        return result
+
+    def evaluate(self, validation_loader):
+        results = {}
+    
+        # Eval!
+        logger.info("***** Running evaluation {} *****".format(prefix))
+        logger.info("  Num examples = %d", len(eval_dataset))
+        eval_loss = 0.0
+        nb_eval_steps = 0
+        preds = None
+        out_label_ids = None
+        for batch in tqdm(validation_loader, desc="Evaluating"):
+            self.model.eval()
+            batch = tuple(t.to(self.device) for t in batch)
+
+            with torch.no_grad():
+                inputs = {'input_ids':      batch[0],
+                        'attention_mask': batch[1],
+                        'relative_dist1': batch[3],
+                        'relative_dist2': batch[4],
+                        'labels':         batch[5],}
+                if not any(t in self.config.type_embed for t in ['bert', 'xlnet']):
+                    inputs['token_type_ids'] = batch[2]  
+                else:
+                    inputs['token_type_ids'] = None
+
+                outputs = self.model(**inputs)
+                tmp_eval_loss, logits = outputs[:2]
+
+                eval_loss += tmp_eval_loss.mean().item()
+            nb_eval_steps += 1
+            if preds is None:
+                preds = logits.detach().cpu().numpy()
+                out_label_ids = inputs['labels'].detach().cpu().numpy()
+            else:
+                preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
+                out_label_ids = np.append(out_label_ids, inputs['labels'].detach().cpu().numpy(), axis=0)
+
+        eval_loss = eval_loss / nb_eval_steps
+        preds = np.argmax(preds, axis=1)
+
+        result = self.ddie_compute_metrics(preds, out_label_ids)
+        results.update(result)
+        print(result)
+        if self.wandb_available:
+            wandb.log(result)

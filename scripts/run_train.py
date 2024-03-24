@@ -11,7 +11,8 @@ import torch
 import click
 from tqdm import tqdm
 from pprint import pprint
-from torch.utils.data import DataLoader
+from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
+                              TensorDataset)
 
 from ddi_kt_2024.utils import (
     load_pkl,
@@ -36,12 +37,13 @@ def run_train(yaml_path):
 
     # breakpoint()
     # Load pkl files
-    all_candidates_train = load_pkl(config.all_candidates_train)
-    all_candidates_test = load_pkl(config.all_candidates_test)
-    sdp_train_mapped = load_pkl(config.sdp_train_mapped)
-    sdp_test_mapped = load_pkl(config.sdp_test_mapped)
-    we = WordEmbedding(fasttext_path=config.fasttext_path,
-                   vocab_path=config.vocab_path)
+    if not config.type_embed=="asada_bert_unpad":
+        all_candidates_train = load_pkl(config.all_candidates_train)
+        all_candidates_test = load_pkl(config.all_candidates_test)
+        sdp_train_mapped = load_pkl(config.sdp_train_mapped)
+        sdp_test_mapped = load_pkl(config.sdp_test_mapped)
+        we = WordEmbedding(fasttext_path=config.fasttext_path,
+                    vocab_path=config.vocab_path)
 
     # Data preparation
     y_train = get_labels(all_candidates_train)
@@ -83,6 +85,14 @@ def run_train(yaml_path):
         data_test.batch_padding(batch_size=config.batch_size, min_batch_size=config.min_batch_size)
         data_train.squeeze()
         data_test.squeeze()
+    elif config.type_embed == "asada_bert_unpad":
+        data_train = torch.load(config.train_custom_dataset)
+        data_test = torch.load(config.test_custom_dataset)
+        if hasattr(data_train, "random_sampler"):
+            train_sampler = RandomSampler(train_dataset)
+        train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=config.batch_size)
+        test_dataloader = DataLoader(test_dataset, batch_size=config.batch_size)
+
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
     dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
@@ -204,6 +214,8 @@ def run_train(yaml_path):
             device=config.device,
             wandb_available=wandb_available
         )
+    elif config.type_embed == "asada_bert_unpad":
+        
     model.config = config
     
     # Experiment
