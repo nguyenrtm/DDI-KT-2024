@@ -9,6 +9,8 @@ def get_property_dict(df, property_name):
     query_dict = dict()
     for i in range(len(df)):
         query_dict[df.iloc[i]['name'].lower()] = df.iloc[i][property_name]
+        if type(query_dict[df.iloc[i]['name'].lower()]) != str:
+            query_dict[df.iloc[i]['name'].lower()] = 'None'
     return query_dict
 
 def find_drug_property(drug_name, query_dict):
