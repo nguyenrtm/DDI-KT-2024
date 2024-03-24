@@ -9,7 +9,12 @@ import wandb
 import numpy as np
 from transformers import AdamW, WarmupLinearSchedule
 
-from .model import Model, BertModel, BertWithPostionOnlyModel
+from .model import (
+    Model, 
+    BertModel, 
+    BertWithPostionOnlyModel, 
+    BertForSequenceClassification
+)
 from ddi_kt_2024.utils import save_model
 from ddi_kt_2024.bc5_eval.bc5 import evaluate_bc5
 
@@ -34,8 +39,6 @@ class BaseTrainer:
     def train_one_epoch(self, training_loader):
         running_loss = 0.
         i = 0
-
-
         for batch_data, batch_label in training_loader:
             batch_data = batch_data.clone().detach().to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
@@ -503,6 +506,13 @@ class BC5_Trainer(BaseTrainer):
 
 class Asada_Trainer(BaseTrainer):
     def __init__(self, 
+            num_labels=5,
+            dropout_rate=0.,
+            hidden_size=128,
+            conv_window_size=[1,2,3],
+            max_seq_length=128,
+            pos_emb_dim=768,
+            middle_layer_size=256,
             device="cuda", 
             warmup_steps=0, 
             max_grad_norm=1,
@@ -514,8 +524,15 @@ class Asada_Trainer(BaseTrainer):
         self.parameter_averaging = parameter_averaging
         self.lr = lr
 
-        # self.model = TODO: Work in here
-
+        self.model = BertForSequenceClassification(
+            num_labels,
+            dropout_prob,
+            hidden_size,
+            conv_window_size,
+            max_seq_length,
+            pos_emb_dim,
+            middle_layer_size
+        )
         no_decay = ['bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
             {'params': [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': self.weight_decay},
@@ -531,13 +548,13 @@ class Asada_Trainer(BaseTrainer):
         tr_loss, logging_loss = 0.0, 0.0
         max_val_micro_f1 = 0.0
 
-        model.zero_grad()
+        self.model.zero_grad()
         #for _ in train_iterator:
         for epoch in range(num_epochs):
             # TODO: Continue fixing
             epoch_iterator = tqdm(train_dataloader)
             for step, batch in enumerate(epoch_iterator):
-                model.train()
+                self.model.train()
                 batch = tuple(t.to(self.device) for t in batch)
                 inputs = {'input_ids':      batch[0],
                         'attention_mask': batch[1],
@@ -551,7 +568,7 @@ class Asada_Trainer(BaseTrainer):
                 else:
                     inputs['token_type_ids'] = None
                     
-                outputs = model(**inputs)
+                outputs = self.model(**inputs)
                 loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
                 loss.backward()
 

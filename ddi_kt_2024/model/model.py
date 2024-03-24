@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from transformers.modeling_bert import BertPreTrainedModel, BertModel
 
 from ddi_kt_2024.embed.other_embed import sinusoidal_positional_embedding
 
@@ -405,3 +406,160 @@ class BertWithPostionOnlyModel(nn.Module):
         x = self.dense_to_tag(x)
         x = self.softmax(x)
         return x
+
+
+class BertForSequenceClassification(BertPreTrainedModel):
+    # def __init__(self, self, config, gnn_config):
+    def __init__(self,
+                num_labels,
+                dropout_prob,
+                hidden_size,
+                conv_window_size: list,
+                max_seq_length,
+                pos_emb_dim,
+                middle_layer_size,
+                ):
+        super(BertForSequenceClassification, self).__init__(config)
+        self.num_labels = num_labels
+
+        self.dropout = nn.Dropout(self.dropout_prob)
+    
+        activations = {'relu':nn.ReLU(), 'elu':nn.ELU(), 'leakyrelu':nn.LeakyReLU(), 'prelu':nn.PReLU(),
+                       'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':GELU()}
+        self.activation = activations[self.activation]
+
+        if self.use_cnn:
+            self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
+            self.pos_emb = nn.Embedding(2*self.max_seq_length, self.pos_emb_dim, padding_idx=0)
+
+        # if self.use_desc and self.use_mol:
+        #     self.desc_conv = nn.Conv1d(config.hidden_size, self.desc_conv_output_size, self.desc_conv_window_size, padding=(self.desc_conv_window_size-1)//2)
+        #     self.classifier = nn.Linear(config.hidden_size+2*self.desc_conv_output_size+2*gnn_config.dim, config.num_labels)
+        #     self.middle_classifier = nn.Linear(config.hidden_size+2*self.desc_conv_output_size+2*gnn_config.dim, self.middle_layer_size)
+        # elif self.use_desc:
+        #     self.desc_conv = nn.Conv1d(config.hidden_size, self.desc_conv_output_size, self.desc_conv_window_size, padding=(self.desc_conv_window_size-1)//2)
+        #     if self.desc_layer_hidden != 0: self.W_desc = nn.Linear(2*self.desc_conv_output_size, 2*self.desc_conv_output_size)
+        #     if self.middle_layer_size == 0:
+        #         self.classifier = nn.Linear(config.hidden_size+2*self.desc_conv_output_size, config.num_labels)
+        #     else:
+        #         self.middle_classifier = nn.Linear(config.hidden_size+2*self.desc_conv_output_size, self.middle_layer_size)
+        #         self.classifier = nn.Linear(self.middle_layer_size, config.num_labels)
+        # elif self.use_mol:
+        #     if self.middle_layer_size == 0:
+        #         self.classifier = nn.Linear(config.hidden_size+2*gnn_config.dim, config.num_labels)
+        #     else:
+        #         self.middle_classifier = nn.Linear(config.hidden_size+2*gnn_config.dim, self.middle_layer_size)
+        #         self.classifier = nn.Linear(self.middle_layer_size, config.num_labels)
+        # else:
+        if self.middle_layer_size == 0:
+            self.classifier = nn.Linear(len(self.conv_window_size)*hidden_size, num_labels)
+        else:
+            self.middle_classifier = nn.Linear(len(self.conv_window_size)*config.hidden_size, self.middle_layer_size)
+            self.classifier = nn.Linear(self.middle_layer_size, num_labels)
+        self.init_weights()
+        
+        if self.use_cnn:
+            self.pos_emb.weight.data.uniform_(-1e-3, 1e-3)
+
+        self.bert = BertModel.from_pretrained(self.model_name_or_path)
+        # if self.use_desc: self.desc_bert = BertModel.from_pretrained(self.model_name_or_path)
+        # if self.use_mol: self.gnn = MolecularGraphNeuralNetwork(gnn_config.N_fingerprints, gnn_config.dim, gnn_config.layer_hidden, gnn_config.layer_output, gnn_config.mode, gnn_config.activation)
+
+        self.use_cnn = self.use_cnn
+        # self.use_desc = self.use_desc
+        # self.desc_layer_hidden = self.desc_layer_hidden
+        # self.gnn_layer_output = self.gnn_layer_output
+        # self.use_mol = self.use_mol
+        self.middle_layer_size = self.middle_layer_size
+
+    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None,
+                position_ids=None, head_mask=None,
+                relative_dist1=None, relative_dist2=None,
+                desc1_ii=None, desc1_am=None, desc1_tti=None,
+                desc2_ii=None, desc2_am=None, desc2_tti=None,
+                fingerprint=None,
+                labels=None):
+
+        outputs = self.bert(input_ids,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids,
+                            position_ids=position_ids,
+                            head_mask=head_mask)
+
+        pooled_output = outputs[1]
+        #pooled_output = self.dropout(pooled_output)
+
+        if self.use_cnn:
+            relative_dist1 *= attention_mask
+            relative_dist2 *= attention_mask
+            pos_embs1 = self.pos_emb(relative_dist1)
+            pos_embs2 = self.pos_emb(relative_dist2)
+            conv_input = torch.cat((outputs[0], pos_embs1, pos_embs2), 2)
+            conv_outputs = []
+            for c in self.conv_list:
+                conv_output = self.activation(c(conv_input.transpose(1,2)))
+                conv_output, _ = torch.max(conv_output, -1)
+                conv_outputs.append(conv_output)
+            pooled_output = torch.cat(conv_outputs, 1)
+
+        if self.use_desc:
+            desc1_outputs = self.desc_bert(desc1_ii, attention_mask=desc1_am, token_type_ids=desc1_tti)
+            desc2_outputs = self.desc_bert(desc2_ii, attention_mask=desc2_am, token_type_ids=desc2_tti)
+            desc1_conv_input = desc1_outputs[0]
+            desc2_conv_input = desc2_outputs[0]
+            desc1_conv_output = self.activation(self.desc_conv(desc1_conv_input.transpose(1,2)))
+            desc2_conv_output = self.activation(self.desc_conv(desc2_conv_input.transpose(1,2)))
+            pooled_desc1_output, _ = torch.max(desc1_conv_output, -1)
+            pooled_desc2_output, _ = torch.max(desc2_conv_output, -1)
+            if self.desc_layer_hidden != 0:
+                pooled_desc_output = self.activation(self.W_desc(torch.cat((pooled_desc1_output, pooled_desc2_output), 1)))
+                pooled_output = torch.cat((pooled_output, pooled_desc_output), 1)
+            else:
+                pooled_output = torch.cat((pooled_output, pooled_desc1_output, pooled_desc2_output), 1)
+
+        if self.use_mol:
+            if fingerprint.ndim == 3: # In case of mini-batchsize = 1
+                fingerprint1 = fingerprint[:,0,]
+                fingerprint2 = fingerprint[:,1,]
+            else:
+                fingerprint = np.expand_dims(fingerprint, 0)
+                fingerprint1 = fingerprint[:,0,]
+                fingerprint2 = fingerprint[:,1,]
+            gnn_output1 = self.gnn.gnn(fingerprint1)
+            gnn_output2 = self.gnn.gnn(fingerprint2)
+            gnn_output = torch.cat((gnn_output1, gnn_output2), 1)
+            pooled_output = torch.cat((pooled_output, gnn_output), 1)
+        
+        pooled_output = self.dropout(pooled_output)
+        if self.middle_layer_size == 0:
+            logits = self.classifier(pooled_output)
+        else:
+            middle_output = self.activation(self.middle_classifier(pooled_output))
+            logits = self.classifier(middle_output)
+
+        outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
+
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            outputs = (loss,) + outputs
+
+        return outputs  # (loss), logits, (hidden_states), (attentions)
+
+    def zero_init_params(self):
+        self.update_cnt = 0
+        for x in self.parameters():
+            x.data *= 0
+
+    def accumulate_params(self, model):
+        self.update_cnt += 1
+        for x, y in zip(self.parameters(), model.parameters()):
+            x.data += y.data
+
+    def average_params(self):
+        for x in self.parameters():
+            x.data /= self.update_cnt
+
+    def restore_params(self):
+        for x in self.parameters():
+            x.data *= self.update_cnt
