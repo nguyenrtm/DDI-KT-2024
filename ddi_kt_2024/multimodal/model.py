@@ -2,6 +2,7 @@ import torch
 import torch.nn
 
 from ddi_kt_2024.text.model.text_model import TextModel, BertModel
+from ddi_kt_2024.mol.char_lstm import CharLSTM
 from ddi_kt_2024.mol.gnn import GNN
 
 class MultimodalModel(torch.nn.Module):
@@ -96,32 +97,6 @@ class MultimodalModel(torch.nn.Module):
                                             position_embedding_type=position_embedding_type,
                                             device=device,
                                             **kwargs).to(device)
-        elif text_model == 'fasttext':
-            self.text_model = TextModel(we=we,
-                                        dropout_rate=dropout_rate,
-                                        word_embedding_size=word_embedding_size,
-                                        tag_number=tag_number,
-                                        tag_embedding_size=tag_embedding_size,
-                                        position_number=position_number,
-                                        position_embedding_size=position_embedding_size,
-                                        direction_number=direction_number,
-                                        direction_embedding_size=direction_embedding_size,
-                                        edge_number=edge_number,
-                                        edge_embedding_size=edge_embedding_size,
-                                        token_embedding_size=token_embedding_size,
-                                        dep_embedding_size=dep_embedding_size,
-                                        conv1_out_channels=conv1_out_channels,
-                                        conv2_out_channels=conv2_out_channels,
-                                        conv3_out_channels=conv3_out_channels,
-                                        conv1_length=conv1_length,
-                                        conv2_length=conv2_length,
-                                        conv3_length=conv3_length,
-                                        target_class=target_class,
-                                        model_option=text_model_option,
-                                        classifier=False,
-                                        position_embedding_type=position_embedding_type,
-                                        device=device,
-                                        **kwargs).to(device)
 
         self.gnn1 = GNN(num_node_features=num_node_features,
                         hidden_channels=hidden_channels,
@@ -174,18 +149,45 @@ class MultimodalModel(torch.nn.Module):
                 self.norm_text = torch.nn.LayerNorm(normalized_shape=conv1_out_channels+conv2_out_channels+conv3_out_channels)
                 self.norm_g1= torch.nn.LayerNorm(normalized_shape=hidden_channels)
                 self.norm_g2= torch.nn.LayerNorm(normalized_shape=hidden_channels)
-            
-            # self.linear_text = torch.nn.Linear(conv1_out_channels+conv2_out_channels+conv3_out_channels, self.text_modal_size)
-            # self.linear_mol1 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
-            # self.linear_mol2 = torch.nn.Linear(hidden_channels, self.graph_modal_size)
         elif self.modal == '2':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*600, 
+            self.char_lstm = CharLSTM(hidden_dim=32,
+                                      output_dim=16,
+                                      device=device).to(device)
+            
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*self.char_lstm.output_dim, 
                                                 out_features=target_class,
                                                 bias=False)
+            if kwargs['norm'] == 'batch_norm':
+                self.norm_text = torch.nn.BatchNorm1d(num_features=conv1_out_channels+conv2_out_channels+conv3_out_channels)
+                self.norm_f1= torch.nn.BatchNorm1d(num_features=self.char_lstm.output_dim)
+                self.norm_f2= torch.nn.BatchNorm1d(num_features=self.char_lstm.output_dim)
+            elif kwargs['norm'] == 'layer_norm':
+                self.norm_text = torch.nn.LayerNorm(normalized_shape=conv1_out_channels+conv2_out_channels+conv3_out_channels)
+                self.norm_f1= torch.nn.LayerNorm(normalized_shape=self.char_lstm.output_dim)
+                self.norm_f2= torch.nn.LayerNorm(normalized_shape=self.char_lstm.output_dim)
+
         elif self.modal == '3':
-            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*600, 
+            self.char_lstm = CharLSTM(hidden_dim=32,
+                                      output_dim=16,
+                                      device=device).to(device)
+            
+            self.dense_to_tag = torch.nn.Linear(in_features=conv1_out_channels+conv2_out_channels+conv3_out_channels+2*hidden_channels+2*self.char_lstm.output_dim, 
                                                 out_features=target_class,
                                                 bias=False)
+            
+            if kwargs['norm'] == 'batch_norm':
+                self.norm_text = torch.nn.BatchNorm1d(num_features=conv1_out_channels+conv2_out_channels+conv3_out_channels)
+                self.norm_g1 = torch.nn.BatchNorm1d(num_features=hidden_channels)
+                self.norm_g2 = torch.nn.BatchNorm1d(num_features=hidden_channels)
+                self.norm_f1= torch.nn.BatchNorm1d(num_features=self.char_lstm.output_dim)
+                self.norm_f2= torch.nn.BatchNorm1d(num_features=self.char_lstm.output_dim)
+            elif kwargs['norm'] == 'layer_norm':
+                self.norm_text = torch.nn.LayerNorm(normalized_shape=conv1_out_channels+conv2_out_channels+conv3_out_channels)
+                self.norm_g1 = torch.nn.LayerNorm(normalized_shape=hidden_channels)
+                self.norm_g2 = torch.nn.LayerNorm(normalized_shape=hidden_channels)
+                self.norm_f1= torch.nn.LayerNorm(normalized_shape=self.char_lstm.output_dim)
+                self.norm_f2= torch.nn.LayerNorm(normalized_shape=self.char_lstm.output_dim)
+                
         elif self.modal == 'gnn_only' or self.modal == 'gnn_only.2':
             self.dense_to_tag = torch.nn.Linear(in_features=2*hidden_channels, 
                                                 out_features=target_class,
@@ -220,29 +222,22 @@ class MultimodalModel(torch.nn.Module):
         full_batch_vector = torch.cat((text_batch_vector, graph_batch_vector), dim=2)
         return full_batch_vector
 
-    def forward(self, 
-                text_x, 
-                mol_x1 = None, 
-                mol_x2 = None, 
-                mol_x1_smiles = None, 
-                mol_x2_smiles = None):
+    def forward(self, text_x, **kwargs):
         if self.modal == '0':
             x = self.text_model(text_x)
-            # x = self.norm_text(x)
+            x = self.norm_text(x)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
             return x
         elif self.modal == '1':
+            mol_x1 = kwargs['mol_x1']
+            mol_x2 = kwargs['mol_x2']
+
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
-            
-            # text_x = self.linear_text(text_x)
-            # mol_x1 = self.linear_mol1(mol_x1)
-            # mol_x2 = self.linear_mol2(mol_x2)
 
             text_x = self.norm_text(text_x)
             mol_x1 = self.norm_g1(mol_x1)
@@ -250,47 +245,38 @@ class MultimodalModel(torch.nn.Module):
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
-            # Classifier
-            x = self.dense_to_tag(x)
-            x = self.softmax(x)
-
-            return x
-        elif self.modal == '1.2':
-            text_x = self.text_model(text_x)
-            mol_x1 = self.gnn1(mol_x1)
-            mol_x2 = self.gnn1(mol_x2)
-
-            x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
-
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
             return x
         elif self.modal == '2':
+            mol_x1_formula = kwargs['mol_x1_formula']
+            mol_x2_formula = kwargs['mol_x2_formula']
+        
             text_x = self.text_model(text_x)
-            
-            mol_x1_smiles = mol_x1_smiles.squeeze(dim=1).float()
-            mol_x2_smiles = mol_x2_smiles.squeeze(dim=1).float()
+            mol_x1_formula = self.char_lstm(mol_x1_formula)
+            mol_x2_formula = self.char_lstm(mol_x2_formula)
 
-            x = torch.cat((text_x, mol_x1_smiles, mol_x2_smiles), dim=1)
+            x = torch.cat((text_x, mol_x1_formula, mol_x2_formula), dim=1)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
             return x
         elif self.modal == '3':
+            mol_x1 = kwargs['mol_x1']
+            mol_x2 = kwargs['mol_x2']
+            mol_x1_formula = kwargs['mol_x1_formula']
+            mol_x2_formula = kwargs['mol_x2_formula']
+
             text_x = self.text_model(text_x)
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
+            mol_x1_formula = self.char_lstm(mol_x1_formula)
+            mol_x2_formula = self.char_lstm(mol_x2_formula)
             
-            mol_x1_smiles = mol_x1_smiles.squeeze(dim=1).float()
-            mol_x2_smiles = mol_x2_smiles.squeeze(dim=1).float()
-            
-            x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_smiles, mol_x2_smiles), dim=1)
+            x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_formula, mol_x2_formula), dim=1)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
@@ -304,7 +290,6 @@ class MultimodalModel(torch.nn.Module):
 
             x = torch.cat((mol_x1, mol_x2), dim=1)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
@@ -318,7 +303,6 @@ class MultimodalModel(torch.nn.Module):
 
             x = torch.cat((mol_x1, mol_x2), dim=1)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 
@@ -330,7 +314,6 @@ class MultimodalModel(torch.nn.Module):
             text_x = self.custom_concat_fusion(text_x, mol_x1, mol_x2)
             x = self.text_model(text_x)
 
-            # Classifier
             x = self.dense_to_tag(x)
             x = self.softmax(x)
 

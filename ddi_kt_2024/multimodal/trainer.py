@@ -1,7 +1,6 @@
 import torch
 from tqdm import tqdm
 from sklearn.metrics import precision_recall_fscore_support
-from torchmetrics.classification import MulticlassF1Score
 import numpy as np
 import wandb
 
@@ -92,6 +91,7 @@ class Trainer:
         self.train_micro_f1 = list()
         self.val_loss = list()
         self.val_micro_f1 = list()
+        self.val_macro_f1 = list()
         self.val_precision = list()
         self.val_recall = list()
         self.val_f_mechanism = list()
@@ -118,8 +118,8 @@ class Trainer:
                         train_loader_text, 
                         train_loader_mol1, 
                         train_loader_mol2,
-                        train_loader_mol1_bert,
-                        train_loader_mol2_bert):
+                        train_loader_for1,
+                        train_loader_for2):
         
         running_loss = 0.
         i = 0
@@ -127,21 +127,21 @@ class Trainer:
         for ((a, batch_label), b, c, d, e) in zip(train_loader_text, 
                                             train_loader_mol1, 
                                             train_loader_mol2,
-                                            train_loader_mol1_bert,
-                                            train_loader_mol2_bert):
+                                            train_loader_for1,
+                                            train_loader_for2):
             
             text = a.clone().detach().to(self.device)
             mol1 = b.to(self.device)
             mol2 = c.to(self.device)
-            mol1_bert = d.to(self.device)
-            mol2_bert = e.to(self.device)
+            for1 = d.to(self.device)
+            for2 = e.to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
 
             batch_label = self.convert_label_to_2d(batch_label)
             
             i += 1
 
-            out = self.model(text, mol1, mol2, mol1_bert, mol2_bert)
+            out = self.model(text, mol1, mol2, for1, for2)
             self.optimizer.zero_grad()
             loss = self.criterion(out, batch_label)
             loss.backward()
@@ -174,8 +174,8 @@ class Trainer:
                  val_loader_text, 
                  val_loader_mol1, 
                  val_loader_mol2, 
-                 val_loader_mol1_bert, 
-                 val_loader_mol2_bert,
+                 val_loader_for1, 
+                 val_loader_for2,
                  filtered_lst_index,
                  full_label,
                  option):
@@ -187,17 +187,17 @@ class Trainer:
             for ((a, batch_label), b, c, d, e) in zip(val_loader_text, 
                                                 val_loader_mol1, 
                                                 val_loader_mol2,
-                                                val_loader_mol1_bert, 
-                                                val_loader_mol2_bert):
+                                                val_loader_for1, 
+                                                val_loader_for2):
                 text = a.clone().detach().to(self.device)
                 mol1 = b.to(self.device)
                 mol2 = c.to(self.device)
-                mol1_bert = d.to(self.device)
-                mol2_bert = e.to(self.device)
+                for1 = d.to(self.device)
+                for2 = e.to(self.device)
 
                 batch_label = batch_label.clone().detach().to(self.device)
 
-                out = self.model(text, mol1, mol2, mol1_bert, mol2_bert)
+                out = self.model(text, mol1, mol2, for1, for2)
 
                 batch_label_for_loss = self.convert_label_to_2d(batch_label)
                 loss = self.criterion(out, batch_label_for_loss)
@@ -226,6 +226,7 @@ class Trainer:
         elif option == 'val':
             self.val_loss.append(loss.item())
             self.val_micro_f1.append(result['microF'])
+            self.val_macro_f1.append(result['macroF'])
             self.val_precision.append(result['Precision'])
             self.val_recall.append(result['Recall'])
             self.val_f_mechanism.append(result['Mechanism F'])
@@ -242,6 +243,7 @@ class Trainer:
                         "val_precision": self.val_precision[-1], 
                         "val_recall": self.val_recall[-1], 
                         "val_micro_f1": self.val_micro_f1[-1],
+                        "val_macro_f1": self.val_macro_f1[-1],
                         "val_f_advise": self.val_f_advise[-1],
                         "val_f_effect": self.val_f_effect[-1],
                         "val_f_mechanism": self.val_f_mechanism[-1],
@@ -255,6 +257,8 @@ class Trainer:
             "Recall": r,
             "microF": f
         }
+        p, r, f, s = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average='macro')
+        result['macroF'] = f
         if every_type:
             evaluation = precision_recall_fscore_support(y_pred=preds, y_true=labels, labels=[1,2,3,4], average=None)
             for i, label_type in enumerate(label_list):
@@ -266,13 +270,13 @@ class Trainer:
     def train(self, train_loader_text, 
                     train_loader_mol1, 
                     train_loader_mol2, 
-                    train_loader_mol1_bert, 
-                    train_loader_mol2_bert,
+                    train_loader_for1, 
+                    train_loader_for2,
                     val_loader_text, 
                     val_loader_mol1, 
                     val_loader_mol2, 
-                    val_loader_mol1_bert, 
-                    val_loader_mol2_bert,
+                    val_loader_for1, 
+                    val_loader_for2,
                     filtered_lst_index,
                     full_label,
                     num_epochs):
@@ -281,14 +285,14 @@ class Trainer:
             running_loss = self.train_one_epoch(train_loader_text, 
                                                 train_loader_mol1, 
                                                 train_loader_mol2,
-                                                train_loader_mol1_bert, 
-                                                train_loader_mol2_bert)
+                                                train_loader_for1, 
+                                                train_loader_for2)
 
             self.validate(val_loader_text, 
                           val_loader_mol1, 
                           val_loader_mol2, 
-                          val_loader_mol1_bert, 
-                          val_loader_mol2_bert,
+                          val_loader_for1, 
+                          val_loader_for2,
                           filtered_lst_index,
                           full_label,
                           'val')
