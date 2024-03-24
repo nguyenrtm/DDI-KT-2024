@@ -418,11 +418,12 @@ class BertForSequenceClassification(nn.Module):
                 max_seq_length,
                 pos_emb_dim,
                 middle_layer_size,
-                model_name_or_path
+                model_name_or_path,
+                use_cnn=False
                 ):
         super(BertForSequenceClassification, self).__init__()
         self.num_labels = num_labels
-
+        self.use_cnn = use_cnn
         self.dropout = nn.Dropout(self.dropout_prob)
     
         activations = {'relu':nn.ReLU(), 'elu':nn.ELU(), 'leakyrelu':nn.LeakyReLU(), 'prelu':nn.PReLU(),
