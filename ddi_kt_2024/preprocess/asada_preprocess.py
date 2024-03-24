@@ -11,7 +11,7 @@ from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
 from transformers import glue_output_modes as output_modes
 
-def convert_to_examples(candidates, can_type="train", mask=True, save_path=None):
+def convert_to_examples(candidates, can_type="train", mask=True, save_path=None, data_type='ddi'):
     """
     Return:
     An InputExample with the following structure:
@@ -27,7 +27,7 @@ def convert_to_examples(candidates, can_type="train", mask=True, save_path=None)
     # Change with DRUGOTHER and DRUG1, DRUG2
     current_sentence = ""
     examples = []
-    # lb_list = ['false', 'mechanism', 'effect', 'advise', 'int']
+    lb_list = ['false', 'mechanism', 'effect', 'advise', 'int']
     for idx, candidate in enumerate(candidates):
         if (idx + 1) % 100 ==0:
             print(f"H: {idx+1}/{len(candidates)}")
@@ -63,10 +63,15 @@ def convert_to_examples(candidates, can_type="train", mask=True, save_path=None)
                 current_sentence = current_sentence[:offset_2[0]] + "DRUG2" + current_sentence[offset_2[1]+1:]
             for entity in all_sentence_entities:
                 current_sentence = current_sentence.replace(entity, "DRUGOTHER")
-            
-        examples.append(
-            InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b="", label=candidate['label'])
-        )
+        
+        if data_type == 'ddi':
+            examples.append(
+                InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b="", label=candidate['label'])
+            )
+        else:
+            examples.append(
+                InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b="", label=lb_list[candidate['label']])
+            )
 
     if save_path is not None:
         torch.save(examples, save_path)
