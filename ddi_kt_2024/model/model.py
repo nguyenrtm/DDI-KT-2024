@@ -476,6 +476,9 @@ class BertForSequenceClassification(nn.Module):
             self.pos_emb.weight.data.uniform_(-1e-3, 1e-3)
 
         self.bert = transformers.BertModel.from_pretrained(self.model_name_or_path)
+
+        for param in self.bert.parameters():
+            param.requires_grad = False
         # if self.use_desc: self.desc_bert = BertModel.from_pretrained(self.model_name_or_path)
         # if self.use_mol: self.gnn = MolecularGraphNeuralNetwork(gnn_config.N_fingerprints, gnn_config.dim, gnn_config.layer_hidden, gnn_config.layer_output, gnn_config.mode, gnn_config.activation)
 
