@@ -431,6 +431,10 @@ class BertForSequenceClassification(nn.Module):
                        'relu6':nn.ReLU6, 'rrelu':nn.RReLU(), 'selu':nn.SELU(), 'celu':nn.CELU(), 'gelu':nn.GELU()}
         self.activation = activations[activation]
         self.hidden_size = hidden_size
+        self.max_seq_length = max_seq_length
+        self.pos_emb_dim = pos_emb_dim
+        self.middle_layer_size = middle_layer_size
+        self.model_name_or_path = model_name_or_path
         if self.use_cnn:
             self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
             self.pos_emb = nn.Embedding(2*self.max_seq_length, self.pos_emb_dim, padding_idx=0)
