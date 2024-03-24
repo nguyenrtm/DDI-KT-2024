@@ -9,6 +9,7 @@ from transformers import glue_convert_examples_to_features as convert_examples_t
 from transformers import glue_output_modes as output_modes
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
+from transformers import glue_output_modes as output_modes
 
 def convert_to_examples(candidates, can_type="train", save_path=None):
     """
@@ -27,6 +28,8 @@ def convert_to_examples(candidates, can_type="train", save_path=None):
     current_sentence = ""
     examples = []
     for idx, candidate in enumerate(candidates):
+        if (idx + 1) % 100 ==0:
+            print(f"H: {idx+1}/{len(candidates)}")
         if candidate['text'] != current_sentence:
             current_sentence = candidate['text']
             all_sentence_entities = set()
@@ -36,13 +39,17 @@ def convert_to_examples(candidates, can_type="train", save_path=None):
                     break
                 if candidates[idx+inc]['text'] != current_sentence:
                     break
-                all_sentence_entities.add(candidate[idx+inc]['e1']['@text'])
-                all_sentence_entities.add(candidate[idx+inc]['e2']['@text'])
+                all_sentence_entities.add(candidates[idx+inc]['e1']['@text'])
+                all_sentence_entities.add(candidates[idx+inc]['e2']['@text'])
+                inc +=1
             
             all_sentence_entities=list(all_sentence_entities)
         
+        offset_1 = candidate['e1']['@charOffset']
         offset_1 = offset_1.split(';')[0]
         offset_1 = (int(offset_1.split('-')[0]), int(offset_1.split('-')[1]))
+        
+        offset_2 = candidate['e2']['@charOffset']
         offset_2 = offset_2.split(';')[0]
         offset_2 = (int(offset_2.split('-')[0]), int(offset_2.split('-')[1]))
 
@@ -68,9 +75,9 @@ def preprocess(examples, model_name, max_seq_length=128, save_path=None):
     features = convert_examples_to_features(
         examples,
         tokenizer,
-        label_list=label_list,
+        label_list=['negative', 'mechanism', 'effect', 'advise', 'int'],
         max_length=256,
-        output_mode=output_mode,
+        output_mode=output_modes['mrpc'],
         pad_on_left=0,                 # pad on the left for xlnet
         pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
         pad_token_segment_id=0,
@@ -114,4 +121,3 @@ def preprocess(examples, model_name, max_seq_length=128, save_path=None):
         torch.save(dataset, save_path)
     
     return dataset
-
