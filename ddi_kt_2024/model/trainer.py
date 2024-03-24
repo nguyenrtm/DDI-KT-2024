@@ -518,6 +518,7 @@ class Asada_Trainer(BaseTrainer):
             max_grad_norm=1,
             parameter_averaging=False,
             adam_epsilon=1e-8,
+            lr=1e-4,
             model_name_or_path="allenai/scibert_scivocab_uncased"):
         self.device = device
         self.warmup_steps = warmup_steps
