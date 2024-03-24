@@ -420,7 +420,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 middle_layer_size,
                 model_name_or_path
                 ):
-        super(BertForSequenceClassification, self).__init__(config)
+        super(BertForSequenceClassification, self).__init__()
         self.num_labels = num_labels
 
         self.dropout = nn.Dropout(self.dropout_prob)
