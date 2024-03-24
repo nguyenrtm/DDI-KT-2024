@@ -587,19 +587,19 @@ class Asada_Trainer(BaseTrainer):
                     self.scheduler.step()  # Update learning rate schedule
                 self.model.zero_grad()
           
-                results = self.evaluate(validation_loader)
-                if self.wandb_available:
-                    wandb.log(results)
+            results = self.evaluate(validation_loader)
+            if self.wandb_available:
+                wandb.log(results)
 
-                # Save model checkpoint
-                if max_val_micro_f1 < results['microF']:
-                    if epoch > 5:
-                        if not os.path.exists("checkpoints"):
-                            os.makedirs("checkpoints")
-                        save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}val_micro_f1{results['microF']}.pt", \
-                         self.config, self.model, self.wandb_available)
-                    max_val_micro_f1 = results['microF']
-                    print(f"Checkpoint saved at {max_val_micro_f1}!")
+            # Save model checkpoint
+            if max_val_micro_f1 < results['microF']:
+                if epoch > 5:
+                    if not os.path.exists("checkpoints"):
+                        os.makedirs("checkpoints")
+                    save_model(f"checkpoints/{self.config.training_session_name}", f"epoch{epoch}val_micro_f1{results['microF']}.pt", \
+                        self.config, self.model, self.wandb_available)
+                max_val_micro_f1 = results['microF']
+                print(f"Checkpoint saved at {max_val_micro_f1}!")
 
             # # Evaluate
             # prefix = 'epoch' + str(epoch)
