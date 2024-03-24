@@ -637,8 +637,6 @@ class Asada_Trainer(BaseTrainer):
         results = {}
     
         # Eval!
-        logger.info("***** Running evaluation {} *****".format(prefix))
-        logger.info("  Num examples = %d", len(eval_dataset))
         eval_loss = 0.0
         nb_eval_steps = 0
         preds = None
