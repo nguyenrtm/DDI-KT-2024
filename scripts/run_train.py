@@ -51,9 +51,9 @@ def run_train(yaml_path):
         we = WordEmbedding(fasttext_path=config.fasttext_path,
                     vocab_path=config.vocab_path)
 
-    # Data preparation
-    y_train = get_labels(all_candidates_train)
-    y_test = get_labels(all_candidates_test)
+        # Data preparation
+        y_train = get_labels(all_candidates_train)
+        y_test = get_labels(all_candidates_test)
     if config.type_embed == 'fasttext':
         data_train = CustomDataset(sdp_train_mapped, y_train)
         data_train.fix_exception()
