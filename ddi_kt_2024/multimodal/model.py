@@ -318,4 +318,3 @@ class MultimodalModel(torch.nn.Module):
             x = self.softmax(x)
 
             return x
-        

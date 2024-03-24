@@ -4,8 +4,6 @@ from sklearn.metrics import precision_recall_fscore_support
 import numpy as np
 import wandb
 
-from ddi_kt_2024.multimodal.model import MultimodalModel
-
 class Trainer:
     def __init__(self,
                  we,
@@ -131,17 +129,19 @@ class Trainer:
                                             train_loader_for2):
             
             text = a.clone().detach().to(self.device)
-            mol1 = b.to(self.device)
-            mol2 = c.to(self.device)
-            for1 = d.to(self.device)
-            for2 = e.to(self.device)
+            mol_x1 = b.to(self.device)
+            mol_x2 = c.to(self.device)
+            mol_x1_formula = d.to(self.device)
+            mol_x2_formula = e.to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
 
             batch_label = self.convert_label_to_2d(batch_label)
             
             i += 1
+            
+            kwargs = {'mol_x1': mol_x1, 'mol_x2': mol_x2, 'mol_x1_formula': mol_x1_formula, 'mol_x2_formula': mol_x2_formula}
 
-            out = self.model(text, mol1, mol2, for1, for2)
+            out = self.model(text, **kwargs)
             self.optimizer.zero_grad()
             loss = self.criterion(out, batch_label)
             loss.backward()
@@ -190,14 +190,19 @@ class Trainer:
                                                 val_loader_for1, 
                                                 val_loader_for2):
                 text = a.clone().detach().to(self.device)
-                mol1 = b.to(self.device)
-                mol2 = c.to(self.device)
-                for1 = d.to(self.device)
-                for2 = e.to(self.device)
-
+                mol_x1 = b.to(self.device)
+                mol_x2 = c.to(self.device)
+                mol_x1_formula = d.to(self.device)
+                mol_x2_formula = e.to(self.device)
                 batch_label = batch_label.clone().detach().to(self.device)
 
-                out = self.model(text, mol1, mol2, for1, for2)
+                batch_label = self.convert_label_to_2d(batch_label)
+
+                i += 1
+
+                kwargs = {'mol_x1': mol_x1, 'mol_x2': mol_x2, 'mol_x1_formula': mol_x1_formula, 'mol_x2_formula': mol_x2_formula}
+
+                out = self.model(text, **kwargs)
 
                 batch_label_for_loss = self.convert_label_to_2d(batch_label)
                 loss = self.criterion(out, batch_label_for_loss)
