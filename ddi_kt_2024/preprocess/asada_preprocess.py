@@ -27,6 +27,7 @@ def convert_to_examples(candidates, can_type="train", save_path=None):
     # Change with DRUGOTHER and DRUG1, DRUG2
     current_sentence = ""
     examples = []
+    # lb_list = ['false', 'mechanism', 'effect', 'advise', 'int']
     for idx, candidate in enumerate(candidates):
         if (idx + 1) % 100 ==0:
             print(f"H: {idx+1}/{len(candidates)}")
@@ -58,9 +59,9 @@ def convert_to_examples(candidates, can_type="train", save_path=None):
         
         for entity in all_sentence_entities:
             current_sentence = current_sentence.replace(entity, "DRUGOTHER")
-
+        
         examples.append(
-            InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b=None, label=candidate['label'])
+            InputExample(guid=f"{can_type}_{idx+1}", text_a=current_sentence, text_b="", label=candidate['label'])
         )
 
     if save_path is not None:
@@ -75,12 +76,9 @@ def preprocess(examples, model_name, max_seq_length=128, save_path=None):
     features = convert_examples_to_features(
         examples,
         tokenizer,
-        label_list=['negative', 'mechanism', 'effect', 'advise', 'int'],
+        label_list=['false', 'mechanism', 'effect', 'advise', 'int'],
         max_length=256,
         output_mode=output_modes['mrpc'],
-        pad_on_left=0,                 # pad on the left for xlnet
-        pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
-        pad_token_segment_id=0,
     )
 
     # Get Position index
