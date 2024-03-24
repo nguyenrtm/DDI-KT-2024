@@ -555,6 +555,7 @@ class Asada_Trainer(BaseTrainer):
         max_val_micro_f1 = 0.0
 
         self.model.zero_grad()
+        self.model.to(self.device)
         #for _ in train_iterator:
         for epoch in range(num_epochs):
             # TODO: Continue fixing
