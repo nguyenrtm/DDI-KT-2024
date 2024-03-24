@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from transformers.modeling_bert import BertPreTrainedModel, BertModel
+from transformers import BertPreTrainedModel, BertModel
 
 from ddi_kt_2024.embed.other_embed import sinusoidal_positional_embedding
 
