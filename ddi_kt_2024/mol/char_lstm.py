@@ -4,8 +4,8 @@ import torch.nn as nn
 class CharLSTM(nn.Module):
     def __init__(self,
                  num_chars: int = 42,
-                 hidden_dim: int = 32,
-                 output_dim: int = 16,
+                 hidden_dim: int = 128,
+                 output_dim: int = 64,
                  device: str = 'cpu'):
         super(CharLSTM, self).__init__()
         self.device = device
