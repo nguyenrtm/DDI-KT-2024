@@ -1,6 +1,7 @@
 import torch
 from tqdm import tqdm
 from sklearn.metrics import precision_recall_fscore_support
+from ddi_kt_2024.multimodal.model import MultimodalModel
 import numpy as np
 import wandb
 
@@ -185,10 +186,10 @@ class Trainer:
         
         with torch.no_grad():
             for ((a, batch_label), b, c, d, e) in zip(val_loader_text, 
-                                                val_loader_mol1, 
-                                                val_loader_mol2,
-                                                val_loader_for1, 
-                                                val_loader_for2):
+                                                      val_loader_mol1, 
+                                                      val_loader_mol2,
+                                                      val_loader_for1, 
+                                                      val_loader_for2):
                 text = a.clone().detach().to(self.device)
                 mol_x1 = b.to(self.device)
                 mol_x2 = c.to(self.device)
@@ -196,14 +197,9 @@ class Trainer:
                 mol_x2_formula = e.to(self.device)
                 batch_label = batch_label.clone().detach().to(self.device)
 
-                batch_label = self.convert_label_to_2d(batch_label)
-
-                i += 1
-
                 kwargs = {'mol_x1': mol_x1, 'mol_x2': mol_x2, 'mol_x1_formula': mol_x1_formula, 'mol_x2_formula': mol_x2_formula}
 
                 out = self.model(text, **kwargs)
-
                 batch_label_for_loss = self.convert_label_to_2d(batch_label)
                 loss = self.criterion(out, batch_label_for_loss)
                 running_loss += loss.item()
