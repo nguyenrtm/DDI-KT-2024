@@ -225,7 +225,9 @@ class MultimodalModel(torch.nn.Module):
     def forward(self, text_x, **kwargs):
         if self.modal == '0':
             x = self.text_model(text_x)
-            # x = self.norm_text(x)
+
+            if kwargs['norm'] == 'batch_norm' or kwargs['norm'] == 'layer_norm':
+                x = self.norm_text(x)
 
             x = self.dense_to_tag(x)
             x = self.softmax(x)
@@ -239,9 +241,10 @@ class MultimodalModel(torch.nn.Module):
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
 
-            # text_x = self.norm_text(text_x)
-            # mol_x1 = self.norm_g1(mol_x1)
-            # mol_x2 = self.norm_g2(mol_x2)
+            if kwargs['norm'] == 'batch_norm' or kwargs['norm'] == 'layer_norm':
+                text_x = self.norm_text(text_x)
+                mol_x1 = self.norm_g1(mol_x1)
+                mol_x2 = self.norm_g2(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
@@ -257,9 +260,10 @@ class MultimodalModel(torch.nn.Module):
             mol_x1_formula = self.char_lstm(mol_x1_formula)
             mol_x2_formula = self.char_lstm(mol_x2_formula)
 
-            text_x = self.norm_text(text_x)
-            mol_x1_formula = self.norm_f1(mol_x1_formula)
-            mol_x2_formula = self.norm_f2(mol_x2_formula)
+            if kwargs['norm'] == 'batch_norm' or kwargs['norm'] == 'layer_norm':
+                text_x = self.norm_text(text_x)
+                mol_x1_formula = self.norm_f1(mol_x1_formula)
+                mol_x2_formula = self.norm_f2(mol_x2_formula)
 
             x = torch.cat((text_x, mol_x1_formula, mol_x2_formula), dim=1)
 
@@ -279,11 +283,12 @@ class MultimodalModel(torch.nn.Module):
             mol_x1_formula = self.char_lstm(mol_x1_formula)
             mol_x2_formula = self.char_lstm(mol_x2_formula)
 
-            text_x = self.norm_text(text_x)
-            mol_x1 = self.norm_g1(mol_x1)
-            mol_x2 = self.norm_g2(mol_x2)
-            mol_x1_formula = self.norm_f1(mol_x1_formula)
-            mol_x2_formula = self.norm_f2(mol_x2_formula)
+            if kwargs['norm'] == 'batch_norm' or kwargs['norm'] == 'layer_norm':
+                text_x = self.norm_text(text_x)
+                mol_x1 = self.norm_g1(mol_x1)
+                mol_x2 = self.norm_g2(mol_x2)
+                mol_x1_formula = self.norm_f1(mol_x1_formula)
+                mol_x2_formula = self.norm_f2(mol_x2_formula)
             
             x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_formula, mol_x2_formula), dim=1)
 
