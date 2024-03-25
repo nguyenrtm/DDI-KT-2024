@@ -239,9 +239,9 @@ class MultimodalModel(torch.nn.Module):
             mol_x1 = self.gnn1(mol_x1)
             mol_x2 = self.gnn2(mol_x2)
 
-            text_x = self.norm_text(text_x)
-            mol_x1 = self.norm_g1(mol_x1)
-            mol_x2 = self.norm_g2(mol_x2)
+            # text_x = self.norm_text(text_x)
+            # mol_x1 = self.norm_g1(mol_x1)
+            # mol_x2 = self.norm_g2(mol_x2)
 
             x = torch.cat((text_x, mol_x1, mol_x2), dim=1)
 
