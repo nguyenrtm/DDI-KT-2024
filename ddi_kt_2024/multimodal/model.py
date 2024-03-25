@@ -225,7 +225,7 @@ class MultimodalModel(torch.nn.Module):
     def forward(self, text_x, **kwargs):
         if self.modal == '0':
             x = self.text_model(text_x)
-            x = self.norm_text(x)
+            # x = self.norm_text(x)
 
             x = self.dense_to_tag(x)
             x = self.softmax(x)
