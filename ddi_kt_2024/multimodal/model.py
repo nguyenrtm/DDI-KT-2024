@@ -257,6 +257,10 @@ class MultimodalModel(torch.nn.Module):
             mol_x1_formula = self.char_lstm(mol_x1_formula)
             mol_x2_formula = self.char_lstm(mol_x2_formula)
 
+            text_x = self.norm_text(text_x)
+            mol_x1_formula = self.norm_f1(mol_x1_formula)
+            mol_x2_formula = self.norm_f2(mol_x2_formula)
+
             x = torch.cat((text_x, mol_x1_formula, mol_x2_formula), dim=1)
 
             x = self.dense_to_tag(x)
@@ -274,6 +278,12 @@ class MultimodalModel(torch.nn.Module):
             mol_x2 = self.gnn2(mol_x2)
             mol_x1_formula = self.char_lstm(mol_x1_formula)
             mol_x2_formula = self.char_lstm(mol_x2_formula)
+
+            text_x = self.norm_text(text_x)
+            mol_x1 = self.norm_g1(mol_x1)
+            mol_x2 = self.norm_g2(mol_x2)
+            mol_x1_formula = self.norm_f1(mol_x1_formula)
+            mol_x2_formula = self.norm_f2(mol_x2_formula)
             
             x = torch.cat((text_x, mol_x1, mol_x2, mol_x1_formula, mol_x2_formula), dim=1)
 
