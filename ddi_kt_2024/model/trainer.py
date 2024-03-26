@@ -522,7 +522,8 @@ class Asada_Trainer(BaseTrainer):
             weight_decay=0.0,
             model_name_or_path="allenai/scibert_scivocab_uncased",
             wandb_available=False,
-            freeze_bert=False):
+            freeze_bert=False,
+            data_type="ddi_no_negative"):
         self.device = device
         self.warmup_steps = warmup_steps
         self.max_grad_norm = max_grad_norm
@@ -541,7 +542,8 @@ class Asada_Trainer(BaseTrainer):
             middle_layer_size,
             model_name_or_path,
             use_cnn=True,
-            freeze_bert=self.freeze_bert
+            freeze_bert=self.freeze_bert,
+            data_type=data_type
         )
         self.weight_decay = weight_decay
         no_decay = ['bias', 'LayerNorm.weight']

@@ -562,12 +562,13 @@ class BertForSequenceClassification(nn.Module):
         if labels is not None:
             if self.data_type == "ddi_no_negative":
                 weight = torch.tensor([27792.0/23771, 
-                    27792.0/826, 
-                    27792.0/1687, 
                     27792.0/1319, 
+                    27792.0/1687, 
+                    27792.0/826, 
                     27792.0/189]).to('cuda' if torch.cuda.is_available() else 'cpu')
             loss_fct = CrossEntropyLoss(weight=weight)
-            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            labels = torch.nn.functional.one_hot(labels, 5)
+            loss = loss_fct(logits.view(-1, self.num_labels), labels)
             outputs = (loss,) + outputs
 
         return outputs  # (loss), logits, (hidden_states), (attentions)
