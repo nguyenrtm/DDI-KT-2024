@@ -589,7 +589,7 @@ class Asada_Trainer(BaseTrainer):
                 loss.backward()
 
                 tr_loss += loss.item()
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
+                # torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
 
                 self.optimizer.step()
                 # if not self.parameter_averaging:
