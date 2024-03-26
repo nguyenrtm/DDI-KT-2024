@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
+import torch.nn.functional as F
 import transformers
 from transformers import BertPreTrainedModel, BertModel
 
@@ -592,3 +593,44 @@ class BertForSequenceClassification(nn.Module):
     def restore_params(self):
         for x in self.parameters():
             x.data *= self.update_cnt
+
+class Image_Only_Model(nn.Module):
+    def __init__(self):
+        super(Image_Only_Model, self).__init__()
+        
+        # Convolutional layers
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        
+        # Max pooling layers
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        
+        # Fully connected layers
+        self.fc1 = nn.Linear(64 * 75 * 75, 512)
+        self.fc2 = nn.Linear(512, 5)  # 5 output classes
+        
+        # Dropout for regularization
+        self.dropout = nn.Dropout(0.5)
+        
+    def forward(self, x1, x2):
+        # Forward pass for first image
+        x1 = self.pool(F.relu(self.conv1(x1)))
+        x1 = self.pool(F.relu(self.conv2(x1)))
+        x1 = self.pool(F.relu(self.conv3(x1)))
+        x1 = x1.view(-1, 64 * 75 * 75)  # Flatten
+        
+        # Forward pass for second image
+        x2 = self.pool(F.relu(self.conv1(x2)))
+        x2 = self.pool(F.relu(self.conv2(x2)))
+        x2 = self.pool(F.relu(self.conv3(x2)))
+        x2 = x2.view(-1, 64 * 75 * 75)  # Flatten
+        
+        # Concatenate the features from two images
+        x = torch.cat((x1, x2), dim=1)
+        
+        # Fully connected layers with dropout
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        return x

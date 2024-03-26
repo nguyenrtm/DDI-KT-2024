@@ -45,9 +45,10 @@ class ImageOnlyDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        sample = self.data[idx]
+        sample_1 = self.data[idx][0]
+        sample_2 = self.data[idx][1]
         label = self.labels[idx]
-        return sample, label
+        return sample_1, sample_2, label
     
     def get_df(self, df_path):
         self.df = mapped_property_reader(df_path)
@@ -86,7 +87,10 @@ class ImageOnlyDataset(Dataset):
             try:
                 m = Chem.MolFromSmiles(smile_1)
                 img = Draw.MolToImage(m)
-                transform = transforms.ToTensor()
+                transform = transforms.Compose([
+                    transforms.Resize((300, 300)),
+                    transforms.ToTensor()
+                ])
                 img_tensor_1 = transform(img)
             except ValueError:
                 print(f"ValueError at idx {c_idx}")
@@ -95,7 +99,10 @@ class ImageOnlyDataset(Dataset):
             try:
                 m = Chem.MolFromSmiles(smile_2)
                 img = Draw.MolToImage(m)
-                transform = transforms.ToTensor()
+                transform = transforms.Compose([
+                    transforms.Resize((300, 300)),
+                    transforms.ToTensor()
+                ])
                 img_tensor_2 = transform(img)
             except:
                 print(f"ValueError at idx {c_idx}")

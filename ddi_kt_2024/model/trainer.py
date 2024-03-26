@@ -15,9 +15,10 @@ from .model import (
     Model, 
     BertModel, 
     BertWithPostionOnlyModel, 
-    BertForSequenceClassification
+    BertForSequenceClassification,
+    Image_Only_Model
 )
-from ddi_kt_2024.utils import save_model
+from ddi_kt_2024.utils import save_model, load_pkl, get_labels
 from ddi_kt_2024.bc5_eval.bc5 import evaluate_bc5
 
 class BaseTrainer:
@@ -687,6 +688,21 @@ class Asada_Trainer(BaseTrainer):
         return result 
     
 class Image_Only_Trainer(BaseTrainer):
+    def __init__(self):
+        super().__init__()
+        self.model = Image_Only_Model()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.train_loss = list()
+        self.train_f = list()
+        self.val_loss = list()
+        self.val_f = list()
+        self.val_micro_f1 = list()
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
+        self.full_labels = get_labels(load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'))
+        with open("cache/filtered_ddi/test_filtered_index.txt", "r") as f:
+            self.filtered_index = [int(i) for i in f.readlines()]
+
     def convert_prediction_to_full_prediction(self, 
                                               prediction, 
                                               filtered_lst_index,
@@ -704,3 +720,64 @@ class Image_Only_Trainer(BaseTrainer):
                 tmp_full += 1
 
         return np.array(full_predictions)
+    
+    def train_one_epoch(self, training_loader):
+        running_loss = 0.
+        i = 0
+        for batch_data in training_loader:
+            batch_data_1, batch_data_2, batch_label = batch_data
+            batch_data_1 = batch_data_1.clone().detach().to(self.device)
+            batch_data_2 = batch_data_2.clone().detach().to(self.device)
+            batch_label = batch_label.clone().detach().to(self.device)
+            batch_label = self.convert_label_to_2d(batch_label)
+            i += 1
+            self.optimizer.zero_grad()
+            outputs = self.model(batch_data)
+            loss = self.criterion(outputs, batch_label)
+            loss.backward()
+            self.optimizer.step()
+
+            running_loss += loss.item()
+
+            
+        self.train_loss.append(running_loss)
+        return running_loss
+    
+    def validate(self, validation_loader, option):
+        running_loss = 0.
+        predictions = torch.tensor([]).to(self.device)
+        labels = torch.tensor([]).to(self.device)
+        
+        with torch.no_grad():
+            for batch_data in validation_loader:
+                batch_data_1, batch_data_2, batch_label = batch_data
+                batch_data_1 = batch_data_1.clone().detach().to(self.device)
+                batch_data_2 = batch_data_2.clone().detach().to(self.device)
+                batch_label = batch_label.clone().detach().to(self.device)
+                outputs = self.model(batch_data_1, batch_data_2)
+                batch_label_for_loss = self.convert_label_to_2d(batch_label)
+                loss = self.criterion(outputs, batch_label_for_loss)
+                running_loss += loss.item()
+                
+                batch_prediction = torch.argmax(outputs, dim=1)
+                predictions = torch.cat((predictions, batch_prediction))
+                labels = torch.cat((labels, batch_label))
+        
+        labels = labels.squeeze()
+        predictions = self.convert_prediction_to_full_prediction(
+            predictions.cpu().numpy(), 
+            self.filtered_index,
+            self.full_labels
+        )
+        cm = confusion_matrix(labels.cpu().numpy(), predictions, labels=[0, 1, 2, 3, 4])
+        _micro_f1 = self.micro_f1(cm)
+
+        f = MulticlassF1Score(num_classes=5, average=None).to(self.device)(predictions, labels)
+        
+        if option == 'train':
+            self.train_loss.append(running_loss)
+            self.train_f.append(f)
+        elif option == 'val':
+            self.val_loss.append(running_loss)
+            self.val_f.append(f)
+            self.val_micro_f1.append(_micro_f1)
