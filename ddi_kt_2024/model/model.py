@@ -424,7 +424,8 @@ class BertForSequenceClassification(nn.Module):
                 activation="gelu",
                 weight_decay=0.0,
                 use_cnn=False,
-                freeze_bert=True
+                freeze_bert=True,
+                data_type="ddi_no_negative"
                 ):
         super(BertForSequenceClassification, self).__init__()
         self.num_labels = num_labels
@@ -442,6 +443,7 @@ class BertForSequenceClassification(nn.Module):
         self.weight_decay = weight_decay
         self.use_desc = False
         self.use_mol = False
+        self.data_type=data_type
 
         if self.use_cnn:
             self.conv_list = nn.ModuleList([nn.Conv1d(hidden_size+2*self.pos_emb_dim, hidden_size, w, padding=(w-1)//2) for w in self.conv_window_size])
@@ -558,7 +560,13 @@ class BertForSequenceClassification(nn.Module):
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
 
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            if self.data_type == "ddi_no_negative":
+                weight = torch.tensor([27792.0/23771, 
+                    27792.0/826, 
+                    27792.0/1687, 
+                    27792.0/1319, 
+                    27792.0/189]).to('cuda' if torch.cuda.is_available() else 'cpu')
+            loss_fct = CrossEntropyLoss(weight=weight)
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = (loss,) + outputs
 

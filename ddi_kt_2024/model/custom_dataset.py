@@ -298,6 +298,22 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
             if (iter+1) %100 == 0:
                 print(f"Handled {iter+1}/{len(self.all_candidates)}")
 
+    def negative_instance_filtering(self, path):
+        with open(path, 'r') as f:
+            lines = f.read().split('\n')[:-1]
+            lst = [int(x.strip()) for x in lines]
+
+        new_x = list()
+        new_y = list()
+
+        for idx in lst:
+            new_x.append(self.data[idx])
+            new_y.append(self.labels[idx])
+
+        return new_x, new_y
+    
+    
+
 if __name__=="__main__":
     # prepare_type = "sdp_word_bert_embed_no_pad"
     # all_candidates_train = load_pkl('cache/pkl/v2/notprocessed.candidates.train.pkl')
