@@ -685,3 +685,22 @@ class Asada_Trainer(BaseTrainer):
         if self.wandb_available:
             wandb.log(result)
         return result 
+    
+class Image_Only_Trainer(BaseTrainer):
+    def convert_prediction_to_full_prediction(self, 
+                                              prediction, 
+                                              filtered_lst_index,
+                                              full_label):
+        full_predictions = list()
+        full_length = len(full_label)
+        tmp_prediction = 0
+        tmp_full = 0
+        for i in range(full_length):
+            if i in filtered_lst_index:
+                full_predictions.append(prediction[tmp_prediction])
+                tmp_prediction += 1
+            else:
+                full_predictions.append(0)
+                tmp_full += 1
+
+        return np.array(full_predictions)
