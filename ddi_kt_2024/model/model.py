@@ -566,7 +566,9 @@ class BertForSequenceClassification(nn.Module):
                     27792.0/1687, 
                     27792.0/826, 
                     27792.0/189]).to('cuda' if torch.cuda.is_available() else 'cpu')
-            loss_fct = CrossEntropyLoss(weight=weight)
+                loss_fct = CrossEntropyLoss(weight=weight)
+            else:
+                loss_fct = CrossEntropyLoss()
             labels = torch.nn.functional.one_hot(labels, 5)
             loss = loss_fct(logits.view(-1, self.num_labels), labels)
             outputs = (loss,) + outputs
