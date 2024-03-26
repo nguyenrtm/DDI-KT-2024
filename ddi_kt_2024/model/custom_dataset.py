@@ -205,11 +205,6 @@ class BertPosEmbedOnlyDataset(BertEmbeddingDataset):
         BROKEN. DON'T USE
         FIXING.
         """
-        # try:
-        #     multiprocessing.set_start_method('spawn', force=True)
-        #     print("spawned")
-        # except RuntimeError:
-        #     pass
         tpp = TextPosProcessor(lookup_word, lookup_tag, bert_model)
         self.data = []
         self.temp_labels = []
