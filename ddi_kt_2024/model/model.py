@@ -569,7 +569,7 @@ class BertForSequenceClassification(nn.Module):
                 loss_fct = CrossEntropyLoss(weight=weight)
             else:
                 loss_fct = CrossEntropyLoss()
-            labels = torch.nn.functional.one_hot(labels, 5)
+            labels = torch.nn.functional.one_hot(labels, 5).float()
             loss = loss_fct(logits.view(-1, self.num_labels), labels)
             outputs = (loss,) + outputs
 
