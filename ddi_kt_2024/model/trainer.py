@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 from torch import optim
@@ -547,11 +549,11 @@ class Asada_Trainer(BaseTrainer):
         )
         self.weight_decay = weight_decay
         no_decay = ['bias', 'LayerNorm.weight']
-        optimizer_grouped_parameters = [
-            {'params': [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': self.weight_decay},
-            {'params': [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
-            ]
-        self.optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=adam_epsilon)
+        # optimizer_grouped_parameters = [
+        #     {'params': [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': self.weight_decay},
+        #     {'params': [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+        #     ]
+        self.optimizer = AdamW(self.model.parameters(), lr=lr, eps=adam_epsilon)
         self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_warmup_steps=warmup_steps, num_training_steps = -1)
 
     
@@ -590,8 +592,8 @@ class Asada_Trainer(BaseTrainer):
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
 
                 self.optimizer.step()
-                if not self.parameter_averaging:
-                    self.scheduler.step()  # Update learning rate schedule
+                # if not self.parameter_averaging:
+                #     self.scheduler.step()  # Update learning rate schedule
                 self.model.zero_grad()
           
             results = self.evaluate(validation_loader)
@@ -651,7 +653,6 @@ class Asada_Trainer(BaseTrainer):
         for batch in tqdm(validation_loader, desc="Evaluating"):
             self.model.eval()
             batch = tuple(t.to(self.device) for t in batch)
-
             with torch.no_grad():
                 inputs = {'input_ids':      batch[0],
                         'attention_mask': batch[1],
