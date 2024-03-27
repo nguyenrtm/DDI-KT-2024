@@ -25,7 +25,8 @@ from ddi_kt_2024.model.trainer import (
     BertTrainer, 
     BertWithPostionOnlyTrainer, 
     BC5_Trainer,
-    Asada_Trainer
+    Asada_Trainer,
+    Image_Only_Trainer
 )
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup
@@ -94,17 +95,25 @@ def run_train(yaml_path):
     elif config.type_embed == "asada_bert_unpad":
         data_train = torch.load(config.train_custom_dataset)
         data_test = torch.load(config.test_custom_dataset)
-        if hasattr(data_train, "random_sampler"):
-            train_sampler = RandomSampler(data_train)
-            train_dataloader = DataLoader(data_train, sampler=train_sampler, batch_size=config.batch_size)
-        else:
-            train_dataloader = DataLoader(data_train, batch_size=config.batch_size)
-        test_dataloader = DataLoader(data_test, batch_size=config.batch_size)
+        
+    elif config.type_embed == "image_only":
+        data_train = torch.load(config.train_custom_dataset)
+        data_test = torch.load(config.test_custom_dataset)
     else:
         raise ValueError("Value of type_embed isn't supported yet!")
-    dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
-    dataloader_test = DataLoader(data_test, batch_size=config.batch_size)
     
+    # Convert to dataloader
+    if config.type_embed == 'asada_bert_unpad':
+        if hasattr(data_train, "random_sampler"):
+            train_sampler = RandomSampler(data_train)
+            dataloader_train = DataLoader(data_train, sampler=train_sampler, batch_size=config.batch_size)
+        else:
+            dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
+        dataloader_test = DataLoader(data_test, batch_size=config.batch_size)
+    else:
+        dataloader_train = DataLoader(data_train, batch_size=config.batch_size)
+        dataloader_test = DataLoader(data_test, batch_size=config.batch_size)
+        
     # Model initialization
     if config.type_embed == 'fasttext':
         model = Trainer(we,
@@ -226,6 +235,13 @@ def run_train(yaml_path):
                             freeze_bert=config.freeze_bert,
                             device=config.device
                             )
+    elif config.type_embed == "image_only":
+        model = Image_Only_Trainer(
+            # dropout_rate=config.dropout_rate,
+            # device=config.device,
+            wandb_available=wandb_available
+        )
+        # TODO: Add
     model.config = config
     
     # Experiment

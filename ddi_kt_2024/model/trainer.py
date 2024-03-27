@@ -688,7 +688,7 @@ class Asada_Trainer(BaseTrainer):
         return result 
     
 class Image_Only_Trainer(BaseTrainer):
-    def __init__(self):
+    def __init__(self, wandb_available=False, images=None):
         super().__init__()
         self.model = Image_Only_Model()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -700,6 +700,8 @@ class Image_Only_Trainer(BaseTrainer):
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
         self.full_labels = get_labels(load_pkl('cache/pkl/v2/notprocessed.candidates.test.pkl'))
+        self.wandb_available = wandb_available
+        self.images = images
         with open("cache/filtered_ddi/test_filtered_index.txt", "r") as f:
             self.filtered_index = [int(i) for i in f.readlines()]
 
@@ -721,18 +723,26 @@ class Image_Only_Trainer(BaseTrainer):
 
         return np.array(full_predictions)
     
+    # def get_images_data(self, batch_data):
+    #     images_1 = list()
+    #     images_2 = list()
+    #     for data in batch_data:
+    #         images_1.append(torch.unsqueeze(self.images[data['e1']['@text'].lower()], dim=0))
+    #         images_2.append(torch.unsqueeze(self.images[data['e2']['@text'].lower()], dim=0))
+    #     return torch.cat(images_1, dim=0), torch.cat(images_2, dim=0)
+    
     def train_one_epoch(self, training_loader):
         running_loss = 0.
         i = 0
-        for batch_data in training_loader:
-            batch_data_1, batch_data_2, batch_label = batch_data
+        for batch_data_1, batch_data_2, batch_label in training_loader:
+            # batch_data, batch_label = batch_data
             batch_data_1 = batch_data_1.clone().detach().to(self.device)
             batch_data_2 = batch_data_2.clone().detach().to(self.device)
             batch_label = batch_label.clone().detach().to(self.device)
             batch_label = self.convert_label_to_2d(batch_label)
             i += 1
             self.optimizer.zero_grad()
-            outputs = self.model(batch_data)
+            outputs = self.model(batch_data_1, batch_data_2)
             loss = self.criterion(outputs, batch_label)
             loss.backward()
             self.optimizer.step()
@@ -749,8 +759,8 @@ class Image_Only_Trainer(BaseTrainer):
         labels = torch.tensor([]).to(self.device)
         
         with torch.no_grad():
-            for batch_data in validation_loader:
-                batch_data_1, batch_data_2, batch_label = batch_data
+            for batch_data_1, batch_data_2, batch_label in validation_loader:
+                # batch_data_1, batch_data_2, batch_label = batch_data
                 batch_data_1 = batch_data_1.clone().detach().to(self.device)
                 batch_data_2 = batch_data_2.clone().detach().to(self.device)
                 batch_label = batch_label.clone().detach().to(self.device)
