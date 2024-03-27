@@ -769,6 +769,8 @@ class Image_Only_Trainer(BaseTrainer):
             self.filtered_index,
             self.full_labels
         )
+        labels = self.convert_label_to_2d(self.full_labels)
+        print("Check: ", labels.shape, predictions.shape)
         cm = confusion_matrix(labels.cpu().numpy(), predictions, labels=[0, 1, 2, 3, 4])
         _micro_f1 = self.micro_f1(cm)
 
