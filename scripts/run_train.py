@@ -28,6 +28,7 @@ from ddi_kt_2024.model.trainer import (
     Asada_Trainer,
     Image_Only_Trainer
 )
+from ddi_kt_2024.model.image_only_dataset import ImageOnlyDataset
 from ddi_kt_2024.model.word_embedding import WordEmbedding
 from wandb_setup import wandb_setup
 from ddi_kt_2024 import logging_config
@@ -44,7 +45,8 @@ def run_train(yaml_path):
 
     # breakpoint()
     # Load pkl files
-    if not config.type_embed=="asada_bert_unpad":
+    if not config.type_embed=="asada_bert_unpad" \
+        and not config.type_embed=="image_only":
         all_candidates_train = load_pkl(config.all_candidates_train)
         all_candidates_test = load_pkl(config.all_candidates_test)
         sdp_train_mapped = load_pkl(config.sdp_train_mapped)
@@ -241,7 +243,7 @@ def run_train(yaml_path):
             # device=config.device,
             wandb_available=wandb_available
         )
-        # TODO: Add
+        
     model.config = config
     
     # Experiment
