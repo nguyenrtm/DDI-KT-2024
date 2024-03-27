@@ -45,10 +45,10 @@ class ImageOnlyDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        sample_1 = self.data[idx][0]
-        sample_2 = self.data[idx][1]
+        smile_1 = self.data[idx]['e1']['@text']
+        smile_2 = self.data[idx]['e2']['@text']
         label = self.labels[idx]
-        return sample_1, sample_2, label
+        return self.all_images[smile_1.lower()], self.all_images[smile_2.lower()], label
     
     def get_df(self, df_path):
         self.df = mapped_property_reader(df_path)
@@ -58,67 +58,48 @@ class ImageOnlyDataset(Dataset):
             lines = f.read().split('\n')[:-1]
             self.filtered_idx = [int(x.strip()) for x in lines]
 
-    def prepare(self, candidates):
-        """
-        Image only AND with filtered idx
-        """
-        self.data=[]
-        self.full_labels=get_labels(candidates)
-        self.labels=[]
-        self.candidates=[] # For testing and viewing
-
-        for c_idx, candidate in enumerate(candidates):
-            if c_idx not in self.filtered_idx:
-                continue
-            # Get drug name
-            drug_1 = candidate['e1']['@text']
-            drug_2 = candidate['e2']['@text']
-
-            # Check if can get smile
-            dct = get_property_dict(self.df, 'smiles')
-            if find_drug_property(drug_1, dct) is None or find_drug_property(drug_2, dct) is None or \
-                find_drug_property(drug_1, dct) == 'None' or find_drug_property(drug_2, dct) == 'None':
-                self.data.append(tuple(((torch.zeros((3,300,300), dtype=torch.float)),(torch.zeros((3,300,300), dtype=torch.float)))))
-                self.labels.append(self.full_labels[c_idx])
-                continue
-            # Get smile
-            smile_1 = find_drug_property(drug_1, dct)
-            smile_2 = find_drug_property(drug_2, dct)
-            try:
-                m = Chem.MolFromSmiles(smile_1)
-                img = Draw.MolToImage(m)
-                transform = transforms.Compose([
+    def prepare_images(self, df_path):
+        self.all_images={}
+        self.df = mapped_property_reader(df_path)
+        dct = get_property_dict(self.df, 'smiles')
+        transform = transforms.Compose([
                     transforms.Resize((300, 300)),
                     transforms.ToTensor()
                 ])
-                img_tensor_1 = transform(img)
-            except ValueError:
-                print(f"ValueError at idx {c_idx}")
-                img_tensor_1 = torch.zeros((3,300,300), dtype=torch.float)
+        for smile in dct.keys():
+            smile = str(smile)
+            if dct[smile]=='None':
+                self.all_images[smile.lower()]=torch.zeros((3, 300, 300), dtype=float)
+            else:
+                try:
+                    this_smile = find_drug_property(smile, dct)
+                    m = Chem.MolFromSmiles(this_smile)
+                    img = Draw.MolToImage(m)
+                    img_tensor = transform(img)
+                except:
+                    self.all_images[smile.lower()]=torch.zeros((3, 300, 300), dtype=float)
+                    continue
+                self.all_images[smile.lower()] = img_tensor
 
-            try:
-                m = Chem.MolFromSmiles(smile_2)
-                img = Draw.MolToImage(m)
-                transform = transforms.Compose([
-                    transforms.Resize((300, 300)),
-                    transforms.ToTensor()
-                ])
-                img_tensor_2 = transform(img)
-            except:
-                print(f"ValueError at idx {c_idx}")
-                breakpoint()
-                img_tensor_2 = torch.zeros((3,300,300), dtype=torch.float)
+        
+    def negative_instance_filtering(self, candidates):
+        """do get_filtered_idx first"""
+        self.all_candidates = candidates
+        self.all_labels = get_labels(self.all_candidates)
+        new_x = list()
+        new_y = list()
 
-            # add
-            self.data.append(tuple((img_tensor_1, img_tensor_2)))
-            self.labels.append(self.full_labels[c_idx])
-            
-            if c_idx % 1000 == 0:
-                print(f"Preparing {c_idx} images")
+        for idx in self.filtered_idx:
+            new_x.append(self.all_candidates[idx])
+            new_y.append(self.all_labels[idx])
+
+        self.data = new_x
+        self.labels = new_y
 
 if __name__=="__main__":
     dataset = ImageOnlyDataset()
-    dataset.get_df("/workspaces/DDI-KT-2024/cache/mapped_drugs/DDI/full.csv")
+    # dataset.get_df("/workspaces/DDI-KT-2024/cache/mapped_drugs/DDI/full.csv")
     dataset.get_filtered_idx("/workspaces/DDI-KT-2024/cache/filtered_ddi/train_filtered_index.txt")
     train_candidates = load_pkl("/workspaces/DDI-KT-2024/cache/pkl/v2/notprocessed.candidates.train.pkl")
-    dataset.prepare(train_candidates)
+    dataset.prepare_images("/workspaces/DDI-KT-2024/cache/mapped_drugs/DDI/full.csv")
+    dataset.negative_instance_filtering(train_candidates)
