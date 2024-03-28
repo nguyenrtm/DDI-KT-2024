@@ -16,8 +16,8 @@ from .model import (
     BertModel, 
     BertWithPostionOnlyModel, 
     BertForSequenceClassification,
-    Image_Only_Model
 )
+from .image_only_model import Image_Only_Model, Image_PreTrained_Model
 from ddi_kt_2024.utils import save_model, load_pkl, get_labels
 from ddi_kt_2024.bc5_eval.bc5 import evaluate_bc5
 
@@ -688,9 +688,18 @@ class Asada_Trainer(BaseTrainer):
         return result 
     
 class Image_Only_Trainer(BaseTrainer):
-    def __init__(self, wandb_available=False, images=None):
+    def __init__(self, wandb_available=False, 
+                 images=None, 
+                 model_type="simple",
+                 dropout_prob=0.3,
+                 output_dim=5):
         super().__init__()
-        self.model = Image_Only_Model()
+        if model_type == "simple":
+            self.model = Image_Only_Model()
+        elif model_type == "resnet":
+            self.model = Image_PreTrained_Model(model_name="microsoft/resnet-50", dropout_prob=dropout_prob, output_dim=output_dim)
+        elif model_type == "vit": # Vision Transformers
+            self.model = Image_PreTrained_Model(model_name="google/vit-base-patch16-224", dropout_prob=dropout_prob, output_dim=output_dim)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.train_loss = list()
         self.train_f = list()
@@ -773,7 +782,7 @@ class Image_Only_Trainer(BaseTrainer):
                 predictions = torch.cat((predictions, batch_prediction))
                 labels = torch.cat((labels, batch_label))
         
-        labels = labels.squeeze()
+        # labels = labels.squeeze()
         predictions = self.convert_prediction_to_full_prediction(
             predictions.cpu().numpy(), 
             self.filtered_index,
